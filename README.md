@@ -1,5 +1,8 @@
 # Git Open-PR Tool
 
+[![npm version](https://badge.fury.io/js/git-open-pr.svg)](https://badge.fury.io/js/git-open-pr)
+[![GitHub release](https://img.shields.io/github/release/leochiu-a/git-open-pr.svg)](https://github.com/leochiu-a/git-open-pr/releases)
+
 A tool to automatically extract JIRA ticket numbers from branch names and create GitHub Pull Requests.
 
 ## Features
@@ -11,25 +14,18 @@ A tool to automatically extract JIRA ticket numbers from branch names and create
 
 ## Installation
 
-1. Clone this repository locally:
+Install globally via npm:
+
 ```bash
-git clone <repository-url>
-cd git-open-pr
+npm install -g git-open-pr
 ```
 
-2. Install dependencies:
-```bash
-npm install
-```
+### Alternative: Set up git alias
 
-3. Build the project:
-```bash
-npm run build
-```
+After installation, you can optionally set up a git alias for easier usage:
 
-4. Set up git alias:
 ```bash
-git config --global alias.open-pr '!/Users/leochiu/Desktop/git-open-pr/dist/git-open-pr.js'
+git config --global alias.open-pr '!git-open-pr'
 ```
 
 ## Setup
@@ -97,13 +93,42 @@ You can modify the following settings in `git-open-pr.js`:
 
 This project is written in TypeScript and uses tsdown for bundling. The source code is in `git-open-pr.ts` and the built output is in `dist/`.
 
-### Building
+### Local Development
 
+1. Clone this repository:
 ```bash
-npm run build
+git clone https://github.com/leochiu-a/git-open-pr.git
+cd git-open-pr
 ```
 
-This creates an optimized bundle in the `dist/` directory.
+2. Install dependencies:
+```bash
+pnpm install
+```
+
+3. Build the project:
+```bash
+pnpm run build
+```
+
+### Publishing
+
+This project uses automated releases via GitHub Actions. To release a new version:
+
+1. Update the version:
+```bash
+npm version patch  # or minor/major
+```
+
+2. Push the tag:
+```bash
+git push origin main --tags
+```
+
+This will automatically:
+- Build and publish to npm
+- Create a GitHub release
+- Sync version information
 
 ## Example
 
