@@ -16,6 +16,7 @@
     "start": "node git-open-pr.js",
     "build": "tsdown",
     "install-global": "npm install -g .",
+    "postinstall": "node dist/postinstall.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

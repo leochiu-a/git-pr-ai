@@ -20,13 +20,7 @@ Install globally via npm:
 npm install -g git-open-pr
 ```
 
-### Alternative: Set up git alias
-
-After installation, you can optionally set up a git alias for easier usage:
-
-```bash
-git config --global alias.open-pr '!git-open-pr'
-```
+The installation will automatically set up a git alias, so you can use `git open-pr` directly!
 
 ## Setup
 
@@ -48,6 +42,12 @@ gh auth login
 3. Run the command:
 
 ```bash
+git-open-pr
+```
+
+Or if you set up the git alias:
+
+```bash
 git open-pr
 ```
 
@@ -55,7 +55,7 @@ git open-pr
 
 ```bash
 # On branch feature/KB2C-123-add-login-page
-$ git open-pr
+$ git-open-pr
 
 Branch: feature/KB2C-123-add-login-page | JIRA: KB2C-123
 🚀 Creating Pull Request...
