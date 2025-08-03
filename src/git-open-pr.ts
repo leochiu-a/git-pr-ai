@@ -64,9 +64,4 @@ function main() {
   }
 }
 
-// Only run main() when this file is executed directly, not when imported as a module
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main();
-}
-
-export { main };
+main();
