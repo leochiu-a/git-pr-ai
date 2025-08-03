@@ -1,0 +1,29 @@
+{
+  "name": "git-open-pr",
+  "version": "1.0.0",
+  "description": "A tool to automatically extract JIRA ticket numbers from branch names and create GitHub PRs",
+  "type": "module",
+  "main": "git-open-pr.js",
+  "bin": {
+    "git-open-pr": "./git-open-pr.js"
+  },
+  "scripts": {
+    "start": "node git-open-pr.js",
+    "install-global": "npm install -g .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "git",
+    "github",
+    "jira",
+    "pull-request",
+    "automation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {},
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "packageManager": "pnpm@10.14.0+sha512.ad27a79641b49c3e481a16a805baa71817a04bbe06a38d17e60e2eaee83f6a146c6a688125f5792e48dd5ba30e7da52a5cda4c3992b9ccf333f9ce223af84748"
+}
