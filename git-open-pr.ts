@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import { execSync } from "child_process";
 
 function getCurrentBranch() {
@@ -8,7 +6,7 @@ function getCurrentBranch() {
   }).trim();
 }
 
-function extractJiraTicket(branchName) {
+function extractJiraTicket(branchName: string) {
   const jiraPattern = /([A-Z][A-Z0-9]*\-\d+)/;
   const match = branchName.match(jiraPattern);
 
@@ -39,7 +37,7 @@ function checkGitHubCLI() {
   }
 }
 
-function createPullRequest(title, branch) {
+function createPullRequest(title: string, branch: string) {
   console.log("🚀 Creating Pull Request...");
   execSync(
     `gh pr create --title "${title}" --base main --head ${branch} --web`,
@@ -59,8 +57,9 @@ function main() {
 
     const prTitle = `[${jiraTicket}] ${currentBranch}`;
     createPullRequest(prTitle, currentBranch);
-  } catch (error) {
-    console.error("❌ Error:", error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error("❌ Error:", errorMessage);
     process.exit(1);
   }
 }

@@ -22,9 +22,14 @@ cd git-open-pr
 npm install
 ```
 
-3. Set up git alias:
+3. Build the project:
 ```bash
-git config --global alias.open-pr '!/Users/leochiu/Desktop/git-open-pr/git-open-pr.js'
+npm run build
+```
+
+4. Set up git alias:
+```bash
+git config --global alias.open-pr '!/Users/leochiu/Desktop/git-open-pr/dist/git-open-pr.js'
 ```
 
 ## Setup
@@ -87,6 +92,18 @@ You can modify the following settings in `git-open-pr.js`:
 4. **Repository information error**
    - Ensure current directory is a git repository
    - Ensure remote origin points to GitHub repository
+
+## Development
+
+This project is written in TypeScript and uses tsdown for bundling. The source code is in `git-open-pr.ts` and the built output is in `dist/`.
+
+### Building
+
+```bash
+npm run build
+```
+
+This creates an optimized bundle in the `dist/` directory.
 
 ## Example
 
