@@ -1,6 +1,6 @@
 {
   "name": "git-open-pr",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A tool to automatically extract JIRA ticket numbers from branch names and create GitHub PRs",
   "type": "module",
   "main": "dist/git-open-pr.js",
