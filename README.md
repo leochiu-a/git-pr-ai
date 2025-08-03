@@ -51,6 +51,17 @@ gh auth login
 git open-pr
 ```
 
+### Example
+
+```bash
+# On branch feature/KB2C-123-add-login-page
+$ git open-pr
+
+Branch: feature/KB2C-123-add-login-page | JIRA: KB2C-123
+🚀 Creating Pull Request...
+✅ Pull Request created successfully!
+```
+
 ## Branch Naming Convention
 
 Branch names must contain JIRA ticket format, for example:
@@ -109,34 +120,4 @@ pnpm install
 3. Build the project:
 ```bash
 pnpm run build
-```
-
-### Publishing
-
-This project uses automated releases via GitHub Actions. To release a new version:
-
-1. Update the version:
-```bash
-npm version patch  # or minor/major
-```
-
-2. Push the tag:
-```bash
-git push origin main --tags
-```
-
-This will automatically:
-- Build and publish to npm
-- Create a GitHub release
-- Sync version information
-
-## Example
-
-```bash
-# On branch feature/KB2C-123-add-login-page
-$ git open-pr
-
-Branch: feature/KB2C-123-add-login-page | JIRA: KB2C-123
-🚀 Creating Pull Request...
-✅ Pull Request created successfully!
 ```
