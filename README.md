@@ -19,7 +19,7 @@ A tool to automatically extract JIRA ticket numbers from branch names and create
 Install globally via npm:
 
 ```bash
-npm install -g git-pr-ai
+pnpm add -g git-pr-ai
 ```
 
 The installation will automatically set up git aliases, so you can use `git pr-ai`, `git update-pr-desc`, and `git pr-review` directly!
