@@ -23,6 +23,9 @@ async function getPRInfo(): Promise<{
 async function main() {
   await checkGitHubCLI();
 
+  // Get additional prompt from command line arguments
+  const additionalPrompt = process.argv.slice(2).join(" ");
+
   console.log("🔍 Checking for PR on current branch...");
 
   const prInfo = await getPRInfo();
@@ -39,13 +42,24 @@ async function main() {
   console.log(`📋 Target branch: ${prInfo.targetBranch}`);
   console.log(`🌿 Current branch: ${prInfo.currentBranch}`);
 
-  const prompt = `Write a PR description following these steps:
+  let prompt = `Write a PR description following these steps:
 1. Look for pull_request_template.md in .github directory (use Glob pattern: ".github/**" to find it)
 2. If template exists, read it and use it as the structure for the PR description
 3. Analyze the changes between the target branch (${prInfo.targetBranch}) and current branch (${prInfo.currentBranch})
 4. Fill in the template sections based on the actual changes made
 5. Write a concise description that reviewers can understand at a glance
 6. Update the PR description using gh cli with the formatted content`;
+
+  // Add additional context if provided
+  if (additionalPrompt) {
+    console.log(`📝 Additional context: ${additionalPrompt}`);
+    prompt += `
+
+Additional context from user:
+${additionalPrompt}
+
+Please incorporate this additional context into the PR description where relevant.`;
+  }
 
   try {
     await $({ stdio: "inherit" })`claude ${prompt}`;
