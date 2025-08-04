@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      zx:
+        specifier: ^8.7.2
+        version: 8.7.2
     devDependencies:
       '@changesets/cli':
         specifier: ^2.29.5
@@ -683,6 +687,11 @@ packages:
   which@2.0.2:
     resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
     engines: {node: '>= 8'}
+    hasBin: true
+
+  zx@8.7.2:
+    resolution: {integrity: sha512-4Wtl46msLFx6QW6GjLu1aRnFhavukT4VSp4tdXvfRIBRNW3RP7Si3RlRFD7YeQeecQBacVFRQQgm5LTvE/YEGQ==}
+    engines: {node: '>= 12.17.0'}
     hasBin: true
 
 snapshots:
@@ -1363,3 +1372,5 @@ snapshots:
   which@2.0.2:
     dependencies:
       isexe: 2.0.0
+
+  zx@8.7.2: {}

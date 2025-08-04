@@ -5,7 +5,8 @@
   "type": "module",
   "main": "dist/git-open-pr.js",
   "bin": {
-    "git-open-pr": "./dist/git-open-pr.js"
+    "git-open-pr": "./dist/git-open-pr.js",
+    "git-update-pr-desc": "./dist/git-update-pr-desc.js"
   },
   "files": [
     "dist",
@@ -46,5 +47,8 @@
     "@types/node": "^24.1.0",
     "tsdown": "^0.13.2",
     "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "zx": "^8.7.2"
   }
 }

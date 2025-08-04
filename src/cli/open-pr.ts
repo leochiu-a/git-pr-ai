@@ -1,0 +1,27 @@
+import { $ } from 'zx';
+import { getCurrentBranch, extractJiraTicket, checkGitHubCLI } from '../utils.js';
+
+async function createPullRequest(title: string, branch: string) {
+  console.log("🚀 Creating Pull Request...");
+  await $`gh pr create --title ${title} --base main --head ${branch} --web`;
+  console.log("✅ Pull Request created successfully!");
+}
+
+async function main() {
+  try {
+    const currentBranch = await getCurrentBranch();
+    const jiraTicket = extractJiraTicket(currentBranch);
+    console.log(`Branch: ${currentBranch} | JIRA: ${jiraTicket}`);
+
+    await checkGitHubCLI();
+
+    const prTitle = `[${jiraTicket}] ${currentBranch}`;
+    await createPullRequest(prTitle, currentBranch);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error("❌ Error:", errorMessage);
+    process.exit(1);
+  }
+}
+
+main();
