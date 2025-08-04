@@ -1,9 +1,8 @@
 {
-  "name": "git-open-pr",
+  "name": "git-pr-ai",
   "version": "1.0.0",
   "description": "A tool to automatically extract JIRA ticket numbers from branch names and create GitHub PRs",
   "type": "module",
-  "main": "dist/git-open-pr.js",
   "bin": {
     "git-open-pr": "./dist/git-open-pr.js",
     "git-update-pr-desc": "./dist/git-update-pr-desc.js"
@@ -32,11 +31,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/leochiu-a/git-open-pr.git"
+    "url": "https://github.com/leochiu-a/git-pr-ai.git"
   },
-  "homepage": "https://github.com/leochiu-a/git-open-pr#readme",
+  "homepage": "https://github.com/leochiu-a/git-pr-ai#readme",
   "bugs": {
-    "url": "https://github.com/leochiu-a/git-open-pr/issues"
+    "url": "https://github.com/leochiu-a/git-pr-ai/issues"
   },
   "engines": {
     "node": ">=20.0.0"
