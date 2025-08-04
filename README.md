@@ -1,7 +1,7 @@
-# Git Open-PR Tool
+# Git PR AI Tool
 
-[![npm version](https://badge.fury.io/js/git-open-pr.svg)](https://badge.fury.io/js/git-open-pr)
-[![GitHub release](https://img.shields.io/github/release/leochiu-a/git-open-pr.svg)](https://github.com/leochiu-a/git-open-pr/releases)
+[![npm version](https://badge.fury.io/js/git-pr-ai.svg)](https://badge.fury.io/js/git-pr-ai)
+[![GitHub release](https://img.shields.io/github/release/leochiu-a/git-pr-ai.svg)](https://github.com/leochiu-a/git-pr-ai/releases)
 
 A tool to automatically extract JIRA ticket numbers from branch names and create GitHub Pull Requests.
 
@@ -18,10 +18,10 @@ A tool to automatically extract JIRA ticket numbers from branch names and create
 Install globally via npm:
 
 ```bash
-npm install -g git-open-pr
+npm install -g git-pr-ai
 ```
 
-The installation will automatically set up git aliases, so you can use `git open-pr` and `git update-pr-desc` directly!
+The installation will automatically set up git aliases, so you can use `git pr-ai` and `git update-pr-desc` directly!
 
 ## Prerequisites
 
@@ -43,7 +43,7 @@ Once you have the prerequisites installed, you're ready to use the tool!
 
 ```bash
 # Create a Pull Request
-$ git open-pr
+$ git pr-ai
 Branch: feature/KB2C-123-add-login-page | JIRA: KB2C-123
 🚀 Creating Pull Request...
 ✅ Pull Request created successfully!
@@ -73,7 +73,7 @@ The tool automatically generates:
 
 ## Custom Configuration
 
-You can modify the following settings in `git-open-pr.js`:
+You can modify the following settings in `git-pr-ai.js`:
 - Target branch (default is `main`)
 - JIRA domain links
 - PR description template
@@ -96,7 +96,7 @@ You can modify the following settings in `git-open-pr.js`:
    - Ensure remote origin points to GitHub repository
 
 5. **No PR found for current branch**
-   - Create a PR first using `git open-pr`
+   - Create a PR first using `git pr-ai`
    - Or switch to a branch that has an existing PR
 
 6. **Claude Code not installed**
@@ -109,15 +109,15 @@ This project is written in TypeScript and uses tsdown for bundling. The source c
 
 ### Commands Available
 
-- `git-open-pr` / `git open-pr` - Create a new Pull Request
+- `git-pr-ai` / `git pr-ai` - Create a new Pull Request
 - `git-update-pr-desc` / `git update-pr-desc` - Update PR description using AI
 
 ### Local Development
 
 1. Clone this repository:
 ```bash
-git clone https://github.com/leochiu-a/git-open-pr.git
-cd git-open-pr
+git clone https://github.com/leochiu-a/git-pr-ai.git
+cd git-pr-ai
 ```
 
 2. Install dependencies:
