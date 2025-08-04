@@ -28,10 +28,12 @@ async function main() {
   console.log("✅ PR found! Updating description...");
 
   const prompt = `Write a PR description following these steps:
-1. Check if there's a pull_request_template.md file and use it as the template if available
-2. Analyze the changes in the current branch compared to the target branch
-3. Write a concise description that reviewers can understand at a glance based on the template and changes
-4. Update the PR description using gh cli`;
+1. Look for pull_request_template.md in .github directory (use Glob pattern: ".github/**" to find it)
+2. If template exists, read it and use it as the structure for the PR description
+3. Analyze the changes in the current branch compared to the target branch using git diff
+4. Fill in the template sections based on the actual changes made
+5. Write a concise description that reviewers can understand at a glance
+6. Update the PR description using gh cli with the formatted content`;
 
   try {
     await $({ stdio: 'inherit' })`claude ${prompt}`;
