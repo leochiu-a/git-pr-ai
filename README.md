@@ -12,6 +12,7 @@ A tool to automatically extract JIRA ticket numbers from branch names and create
 - 🚀 Create Pull Requests directly using GitHub CLI
 - ⚡ Simple `git open-pr` command for one-click operation
 - 🤖 AI-powered PR description updates with `git update-pr-desc` using Claude
+- 🔍 AI-powered PR code reviews with `git pr-review` using Claude
 
 ## Installation
 
@@ -21,7 +22,7 @@ Install globally via npm:
 npm install -g git-pr-ai
 ```
 
-The installation will automatically set up git aliases, so you can use `git pr-ai` and `git update-pr-desc` directly!
+The installation will automatically set up git aliases, so you can use `git pr-ai`, `git update-pr-desc`, and `git pr-review` directly!
 
 ## Prerequisites
 
@@ -64,6 +65,22 @@ $ git update-pr-desc "Focus on performance improvements and add test coverage de
 ✅ PR found! Updating description...
 # Claude will incorporate your additional context into the description
 ✅ PR description updated successfully!
+
+# Review a Pull Request with AI
+$ git pr-review
+🔍 Looking for PR on current branch...
+🔍 Reviewing PR #123...
+🔗 PR URL: https://github.com/owner/repo/pull/123
+📋 Target branch: main
+🌿 Source branch: feature/KB2C-123-add-login-page
+# Claude will analyze the PR and provide comprehensive review
+✅ PR review completed and comment posted!
+
+# Review a specific PR by URL
+$ git pr-review https://github.com/owner/repo/pull/456
+🔍 Reviewing PR from URL: https://github.com/owner/repo/pull/456
+# Claude will review the specified PR
+✅ PR review completed and comment posted!
 ```
 
 ## Branch Naming Convention
@@ -122,6 +139,10 @@ This project is written in TypeScript and uses tsdown for bundling. The source c
 - `git-update-pr-desc` / `git update-pr-desc` - Update PR description using AI
   - Usage: `git update-pr-desc [additional-context]`
   - Example: `git update-pr-desc "Focus on security improvements"`
+- `git-pr-review` / `git pr-review` - Review Pull Request using AI
+  - Usage: `git pr-review [pr-url]`
+  - Example: `git pr-review` (review current branch PR)
+  - Example: `git pr-review https://github.com/owner/repo/pull/123`
 
 ### Local Development
 

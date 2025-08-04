@@ -5,7 +5,8 @@
   "type": "module",
   "bin": {
     "git-open-pr": "./dist/git-open-pr.js",
-    "git-update-pr-desc": "./dist/git-update-pr-desc.js"
+    "git-update-pr-desc": "./dist/git-update-pr-desc.js",
+    "git-pr-review": "./dist/git-pr-review.js"
   },
   "files": [
     "dist",
