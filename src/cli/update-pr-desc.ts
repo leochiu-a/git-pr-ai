@@ -1,12 +1,22 @@
 import { $ } from "zx";
 import { checkGitHubCLI } from "../utils.js";
 
-async function checkForPR(): Promise<boolean> {
+async function getPRInfo(): Promise<{
+  targetBranch: string;
+  currentBranch: string;
+  url: string;
+} | null> {
   try {
-    const result = await $`gh pr status`;
-    return !result.stdout.includes("There is no pull request associated");
+    const result = await $`gh pr view --json baseRefName,headRefName,url`;
+    const { baseRefName, headRefName, url } = JSON.parse(result.stdout);
+
+    return {
+      targetBranch: baseRefName,
+      currentBranch: headRefName,
+      url,
+    };
   } catch (error) {
-    return false;
+    return null;
   }
 }
 
@@ -15,9 +25,9 @@ async function main() {
 
   console.log("🔍 Checking for PR on current branch...");
 
-  const hasPR = await checkForPR();
+  const prInfo = await getPRInfo();
 
-  if (!hasPR) {
+  if (!prInfo) {
     console.error("❌ No PR found for current branch");
     console.error(
       "Please create a PR first or switch to a branch with an existing PR"
@@ -25,16 +35,20 @@ async function main() {
     process.exit(1);
   }
 
-  console.log("✅ PR found! Updating description...");
+  console.log(`🔗 PR URL: ${prInfo.url}`);
+  console.log(`📋 Target branch: ${prInfo.targetBranch}`);
+  console.log(`🌿 Current branch: ${prInfo.currentBranch}`);
 
   const prompt = `Write a PR description following these steps:
-1. Check if there's a pull_request_template.md file and use it as the template if available
-2. Analyze the changes in the current branch compared to the target branch
-3. Write a concise description that reviewers can understand at a glance based on the template and changes
-4. Update the PR description using gh cli`;
+1. Look for pull_request_template.md in .github directory (use Glob pattern: ".github/**" to find it)
+2. If template exists, read it and use it as the structure for the PR description
+3. Analyze the changes between the target branch (${prInfo.targetBranch}) and current branch (${prInfo.currentBranch})
+4. Fill in the template sections based on the actual changes made
+5. Write a concise description that reviewers can understand at a glance
+6. Update the PR description using gh cli with the formatted content`;
 
   try {
-    await $({ stdio: 'inherit' })`claude ${prompt}`;
+    await $({ stdio: "inherit" })`claude ${prompt}`;
     console.log("✅ PR description updated successfully!");
   } catch (error) {
     console.error("❌ Failed to update PR description");
