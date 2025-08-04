@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.2.0
+
+### Minor Changes
+
+- 6cabfa8: Introduced a new command git pr-review that utilizes AI to perform comprehensive code reviews on GitHub Pull Requests
+
 ## 1.1.0
 
 ### Minor Changes
