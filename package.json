@@ -31,11 +31,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/leochiu-a/git-open-pr.git"
+    "url": "https://github.com/leochiu-a/git-pr-ai.git"
   },
-  "homepage": "https://github.com/leochiu-a/git-open-pr#readme",
+  "homepage": "https://github.com/leochiu-a/git-pr-ai#readme",
   "bugs": {
-    "url": "https://github.com/leochiu-a/git-open-pr/issues"
+    "url": "https://github.com/leochiu-a/git-pr-ai/issues"
   },
   "engines": {
     "node": ">=20.0.0"
