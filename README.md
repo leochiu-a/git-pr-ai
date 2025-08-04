@@ -55,6 +55,15 @@ $ git update-pr-desc
 ✅ PR found! Updating description...
 # Claude will then interactively help you generate the description
 ✅ PR description updated successfully!
+
+# Update PR description with additional context
+$ git update-pr-desc "Focus on performance improvements and add test coverage details"
+🔍 Checking GitHub CLI...
+🔍 Checking for PR on current branch...
+📝 Additional context: Focus on performance improvements and add test coverage details
+✅ PR found! Updating description...
+# Claude will incorporate your additional context into the description
+✅ PR description updated successfully!
 ```
 
 ## Branch Naming Convention
@@ -111,6 +120,8 @@ This project is written in TypeScript and uses tsdown for bundling. The source c
 
 - `git-pr-ai` / `git pr-ai` - Create a new Pull Request
 - `git-update-pr-desc` / `git update-pr-desc` - Update PR description using AI
+  - Usage: `git update-pr-desc [additional-context]`
+  - Example: `git update-pr-desc "Focus on security improvements"`
 
 ### Local Development
 
