@@ -11,6 +11,7 @@ A tool to automatically extract JIRA ticket numbers from branch names and create
 - 📋 Automatically create PR titles with JIRA tickets: `[KB2C-123] feature description`
 - 🚀 Create Pull Requests directly using GitHub CLI
 - ⚡ Simple `git open-pr` command for one-click operation
+- 🤖 AI-powered PR description updates with `git update-pr-desc` using Claude
 
 ## Installation
 
@@ -20,46 +21,40 @@ Install globally via npm:
 npm install -g git-open-pr
 ```
 
-The installation will automatically set up a git alias, so you can use `git open-pr` directly!
+The installation will automatically set up git aliases, so you can use `git open-pr` and `git update-pr-desc` directly!
+
+## Prerequisites
+
+Before using this tool, you need to install:
+
+1. **GitHub CLI** - Required for creating and managing PRs
+   - Install: https://cli.github.com/
+   - Authenticate: `gh auth login`
+
+2. **Claude Code** - Required for AI-powered PR descriptions (optional)
+   - Install: https://docs.anthropic.com/en/docs/claude-code
+   - Authenticate with your Anthropic account
 
 ## Setup
 
-### GitHub CLI
-
-You need to install and authenticate with GitHub CLI:
-
-1. Install GitHub CLI: https://cli.github.com/
-2. Authenticate with GitHub:
-
-```bash
-gh auth login
-```
+Once you have the prerequisites installed, you're ready to use the tool!
 
 ## Usage
 
-1. Ensure you're on a branch containing a JIRA ticket number (e.g., `feature/KB2C-123-add-new-feature`)
-2. Ensure the branch is pushed to remote repository
-3. Run the command:
-
 ```bash
-git-open-pr
-```
-
-Or if you set up the git alias:
-
-```bash
-git open-pr
-```
-
-### Example
-
-```bash
-# On branch feature/KB2C-123-add-login-page
-$ git-open-pr
-
+# Create a Pull Request
+$ git open-pr
 Branch: feature/KB2C-123-add-login-page | JIRA: KB2C-123
 🚀 Creating Pull Request...
 ✅ Pull Request created successfully!
+
+# Update PR description with AI
+$ git update-pr-desc
+🔍 Checking GitHub CLI...
+🔍 Checking for PR on current branch...
+✅ PR found! Updating description...
+# Claude will then interactively help you generate the description
+✅ PR description updated successfully!
 ```
 
 ## Branch Naming Convention
@@ -100,9 +95,22 @@ You can modify the following settings in `git-open-pr.js`:
    - Ensure current directory is a git repository
    - Ensure remote origin points to GitHub repository
 
+5. **No PR found for current branch**
+   - Create a PR first using `git open-pr`
+   - Or switch to a branch that has an existing PR
+
+6. **Claude Code not installed**
+   - Install Claude Code from https://docs.anthropic.com/en/docs/claude-code
+   - Ensure it's properly authenticated
+
 ## Development
 
-This project is written in TypeScript and uses tsdown for bundling. The source code is in `git-open-pr.ts` and the built output is in `dist/`.
+This project is written in TypeScript and uses tsdown for bundling. The source code is in `src/cli/` and the built output is in `dist/`.
+
+### Commands Available
+
+- `git-open-pr` / `git open-pr` - Create a new Pull Request
+- `git-update-pr-desc` / `git update-pr-desc` - Update PR description using AI
 
 ### Local Development
 
