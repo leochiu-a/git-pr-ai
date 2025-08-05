@@ -20,7 +20,11 @@
     "changeset": "changeset",
     "version": "changeset version",
     "release": "pnpm build && changeset publish",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check . --experimental-cli"
   },
   "keywords": [
     "git",
@@ -45,7 +49,10 @@
   "packageManager": "pnpm@10.14.0+sha512.ad27a79641b49c3e481a16a805baa71817a04bbe06a38d17e60e2eaee83f6a146c6a688125f5792e48dd5ba30e7da52a5cda4c3992b9ccf333f9ce223af84748",
   "devDependencies": {
     "@changesets/cli": "^2.29.5",
+    "@prettier/plugin-oxc": "^0.0.4",
     "@types/node": "^24.1.0",
+    "oxlint": "^1.9.0",
+    "prettier": "^3.6.2",
     "tsdown": "^0.13.2",
     "typescript": "^5.9.2"
   },
