@@ -2,6 +2,20 @@ import { $ } from 'zx';
 
 $.verbose = false;
 
+export async function getDefaultBranch() {
+  try {
+    const result = await $`gh repo view --json defaultBranchRef`;
+    const json = JSON.parse(result.stdout);
+    if (json.defaultBranchRef && json.defaultBranchRef.name) {
+      return json.defaultBranchRef.name;
+    }
+    return 'main';
+  } catch (error) {
+    console.warn("⚠️ Could not determine default branch via gh, falling back to 'main'");
+    return 'main';
+  }
+}
+
 export async function getCurrentBranch() {
   const result = await $`git branch --show-current`;
   return result.stdout.trim();
