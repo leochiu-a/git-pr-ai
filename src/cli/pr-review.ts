@@ -1,5 +1,6 @@
 import { $ } from "zx";
 import { checkGitHubCLI } from "../utils.js";
+import { executeAICommand, loadConfig } from "../config.js";
 
 interface PRInfo {
   url: string;
@@ -59,7 +60,8 @@ async function getCurrentBranchPRInfo(): Promise<PRInfo | null> {
 }
 
 async function reviewPR(prInfo: PRInfo): Promise<void> {
-  console.log(`🔍 Reviewing PR #${prInfo.number}...`);
+  const config = await loadConfig();
+  console.log(`🔍 Reviewing PR #${prInfo.number} using ${config.agent.toUpperCase()}...`);
   console.log(`🔗 PR URL: ${prInfo.url}`);
   console.log(`📋 Target branch: ${prInfo.targetBranch}`);
   console.log(`🌿 Source branch: ${prInfo.currentBranch}`);
@@ -91,7 +93,7 @@ Please follow these steps:
 Focus on being constructive and helpful in the review.`;
 
   try {
-    await $({ stdio: "inherit" })`claude ${prompt}`;
+    await executeAICommand(prompt);
     console.log("✅ PR review completed and comment posted!");
   } catch (error) {
     console.error("❌ Failed to complete PR review");
@@ -118,12 +120,17 @@ Examples:
     # Review specific PR by URL
 
 Description:
-  This tool uses Claude AI to perform comprehensive code reviews on GitHub Pull Requests.
+  This tool uses AI (Claude or Gemini) to perform comprehensive code reviews on GitHub Pull Requests.
   It analyzes code changes, identifies potential issues, and posts constructive feedback.
+
+Configuration:
+  - Create .git-pr-ai.json with {"agent": "claude"} or {"agent": "gemini"}
+  - Or set GIT_PR_AI_AGENT environment variable to "claude" or "gemini"
+  - Defaults to Claude if no configuration is provided
 
 Prerequisites:
   - GitHub CLI (gh) must be installed and authenticated
-  - Claude Code must be installed and authenticated
+  - Claude Code (for Claude) or Gemini CLI (for Gemini) must be installed and authenticated
   `);
 }
 
