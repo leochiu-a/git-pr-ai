@@ -34,7 +34,7 @@ jobs:
       - name: Build
         run: pnpm run build
 
-      - name:   Release Pull Request or Publish to npm
+      - name: Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1
         with:
@@ -48,10 +48,10 @@ jobs:
         run: |
           # Get the latest version from package.json
           VERSION=$(node -p "require('./package.json').version")
-          
+
           # Extract release notes from CHANGELOG.md for this version
           RELEASE_NOTES=$(awk "/## $VERSION/,/## [0-9]/{if(/## [0-9]/ && !/## $VERSION/) exit; if(!/## $VERSION/) print}" CHANGELOG.md | sed '/^$/d')
-          
+
           # Create GitHub release
           gh release create "v$VERSION" \
             --title "Release v$VERSION" \
