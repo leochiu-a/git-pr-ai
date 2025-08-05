@@ -60,7 +60,7 @@ const program = new Command()
 program.name('git-pr-ai').description('Git PR AI tools')
 
 program
-  .command('init')
+  .command('config')
   .description('Initialize Git PR AI configuration')
   .option('-f, --force', 'force overwrite existing configuration')
   .action(async (options) => {
