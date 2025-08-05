@@ -10,7 +10,7 @@ export async function getDefaultBranch() {
       return json.defaultBranchRef.name
     }
     return 'main'
-  } catch (error) {
+  } catch {
     console.warn(
       "⚠️ Could not determine default branch via gh, falling back to 'main'",
     )
@@ -24,7 +24,7 @@ export async function getCurrentBranch() {
 }
 
 export function extractJiraTicket(branchName: string) {
-  const jiraPattern = /([A-Z][A-Z0-9]*\-\d+)/
+  const jiraPattern = /([A-Z][A-Z0-9]*-\d+)/
   const match = branchName.match(jiraPattern)
 
   if (!match) {
@@ -39,7 +39,7 @@ export function extractJiraTicket(branchName: string) {
 export async function checkGitHubCLI() {
   try {
     await $`gh --version`.quiet()
-  } catch (error) {
+  } catch {
     console.error('❌ Please install GitHub CLI (gh) first')
     console.error('Installation: https://cli.github.com/')
     process.exit(1)
@@ -51,11 +51,11 @@ export async function checkGitHubCLI() {
     if (!result.stdout.includes('✓ Logged in to')) {
       throw new Error('No authenticated accounts found')
     }
-  } catch (error) {
+  } catch {
     // If no output captured, try alternative check
     try {
       await $`gh api user`.quiet()
-    } catch (apiError) {
+    } catch {
       console.error('❌ Please authenticate with GitHub CLI first')
       console.error('Run: gh auth login')
       process.exit(1)

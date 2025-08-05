@@ -16,7 +16,7 @@ async function getPRInfo(): Promise<{
       currentBranch: headRefName,
       url,
     }
-  } catch (error) {
+  } catch {
     return null
   }
 }
@@ -67,7 +67,7 @@ Please incorporate this additional context into the PR description where relevan
   try {
     await executeAICommand(prompt)
     console.log('✅ PR description updated successfully!')
-  } catch (error) {
+  } catch {
     console.error('❌ Failed to update PR description')
     process.exit(1)
   }

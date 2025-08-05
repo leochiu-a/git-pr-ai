@@ -57,7 +57,7 @@ async function getCurrentBranchPRInfo(): Promise<PRInfo | null> {
       owner: owner.login,
       repo,
     }
-  } catch (error) {
+  } catch {
     return null
   }
 }
