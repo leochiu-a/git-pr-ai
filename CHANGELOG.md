@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.3.0
+
+### Minor Changes
+
+- d4a1b54: Add support for gemini
+
 ## 1.2.1
 
 ### Patch Changes
