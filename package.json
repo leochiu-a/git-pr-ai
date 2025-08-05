@@ -24,7 +24,8 @@
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check . --experimental-cli"
+    "format:check": "prettier --check . --experimental-cli",
+    "prepare": "husky"
   },
   "keywords": [
     "git",
@@ -51,6 +52,8 @@
     "@changesets/cli": "^2.29.5",
     "@prettier/plugin-oxc": "^0.0.4",
     "@types/node": "^24.1.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.4",
     "oxlint": "^1.9.0",
     "prettier": "^3.6.2",
     "tsdown": "^0.13.2",
@@ -59,5 +62,14 @@
   "dependencies": {
     "@inquirer/prompts": "^7.8.0",
     "zx": "^8.7.2"
+  },
+  "lint-staged": {
+    "*.{ts,js}": [
+      "oxlint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   }
 }
