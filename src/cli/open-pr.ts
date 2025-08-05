@@ -1,9 +1,9 @@
 import { $ } from 'zx';
-import { getCurrentBranch, extractJiraTicket, checkGitHubCLI } from '../utils.js';
+import { getCurrentBranch, extractJiraTicket, checkGitHubCLI, getDefaultBranch } from '../utils.js';
 
-async function createPullRequest(title: string, branch: string) {
+async function createPullRequest(title: string, branch: string, baseBranch: string) {
   console.log("🚀 Creating Pull Request...");
-  await $`gh pr create --title ${title} --base main --head ${branch} --web`;
+  await $`gh pr create --title ${title} --base ${baseBranch} --head ${branch} --web`;
   console.log("✅ Pull Request created successfully!");
 }
 
@@ -14,9 +14,10 @@ async function main() {
     console.log(`Branch: ${currentBranch} | JIRA: ${jiraTicket}`);
 
     await checkGitHubCLI();
+    const baseBranch = await getDefaultBranch();
 
     const prTitle = `[${jiraTicket}] ${currentBranch}`;
-    await createPullRequest(prTitle, currentBranch);
+    await createPullRequest(prTitle, currentBranch, baseBranch);
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error("❌ Error:", errorMessage);
