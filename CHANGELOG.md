@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.2.1
+
+### Patch Changes
+
+- 67d786e: feat(cli): Automatically detect the default branch for PRs
+
 ## 1.2.0
 
 ### Minor Changes
