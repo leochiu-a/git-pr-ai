@@ -1,16 +1,11 @@
-import { execSync } from 'child_process'
+import { $ } from 'zx'
 
 try {
   // Set up git aliases
-  const openPrCommand = `git config --global alias.open-pr '!git-open-pr'`
-  const updatePrDescCommand = `git config --global alias.update-pr-desc '!git-update-pr-desc'`
-  const prReviewCommand = `git config --global alias.pr-review '!git-pr-review'`
-  const prAiCommand = `git config --global alias.pr-ai '!git-pr-ai'`
-
-  execSync(openPrCommand, { stdio: 'inherit' })
-  execSync(updatePrDescCommand, { stdio: 'inherit' })
-  execSync(prReviewCommand, { stdio: 'inherit' })
-  execSync(prAiCommand, { stdio: 'inherit' })
+  await $`git config --global alias.open-pr '!git-open-pr'`
+  await $`git config --global alias.update-pr-desc '!git-update-pr-desc'`
+  await $`git config --global alias.pr-review '!git-pr-review'`
+  await $`git config --global alias.pr-ai '!git-pr-ai'`
 
   console.log('✅ Git aliases have been set up successfully!')
   console.log('You can now use:')
