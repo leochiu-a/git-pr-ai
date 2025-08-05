@@ -1,5 +1,6 @@
 import { $ } from "zx";
 import { checkGitHubCLI } from "../utils.js";
+import { executeAICommand, loadConfig } from "../config.js";
 
 async function getPRInfo(): Promise<{
   targetBranch: string;
@@ -38,9 +39,11 @@ async function main() {
     process.exit(1);
   }
 
+  const config = await loadConfig();
   console.log(`🔗 PR URL: ${prInfo.url}`);
   console.log(`📋 Target branch: ${prInfo.targetBranch}`);
   console.log(`🌿 Current branch: ${prInfo.currentBranch}`);
+  console.log(`🤖 Using ${config.agent.toUpperCase()} for AI assistance`);
 
   let prompt = `Write a PR description following these steps:
 1. Look for pull_request_template.md in .github directory (use Glob pattern: ".github/**" to find it)
@@ -62,7 +65,7 @@ Please incorporate this additional context into the PR description where relevan
   }
 
   try {
-    await $({ stdio: "inherit" })`claude ${prompt}`;
+    await executeAICommand(prompt);
     console.log("✅ PR description updated successfully!");
   } catch (error) {
     console.error("❌ Failed to update PR description");

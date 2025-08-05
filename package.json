@@ -6,7 +6,8 @@
   "bin": {
     "git-open-pr": "./dist/git-open-pr.js",
     "git-update-pr-desc": "./dist/git-update-pr-desc.js",
-    "git-pr-review": "./dist/git-pr-review.js"
+    "git-pr-review": "./dist/git-pr-review.js",
+    "git-pr-ai": "./dist/git-pr-ai-init.js"
   },
   "files": [
     "dist",
@@ -49,6 +50,7 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
+    "@inquirer/prompts": "^7.8.0",
     "zx": "^8.7.2"
   }
 }
