@@ -1,6 +1,7 @@
 import { $ } from 'zx'
 import { existsSync, readFileSync } from 'fs'
 import { join } from 'path'
+import { homedir } from 'os'
 
 export interface GitPrAiConfig {
   agent: 'claude' | 'gemini'
@@ -10,8 +11,16 @@ const DEFAULT_CONFIG: GitPrAiConfig = {
   agent: 'claude',
 }
 
+export function getConfigPath(): string {
+  return join(homedir(), '.git-pr-ai', '.git-pr-ai.json')
+}
+
+export function getConfigDir(): string {
+  return join(homedir(), '.git-pr-ai')
+}
+
 export async function loadConfig(): Promise<GitPrAiConfig> {
-  const configPath = join(process.cwd(), '.git-pr-ai.json')
+  const configPath = getConfigPath()
   let config = { ...DEFAULT_CONFIG }
 
   if (existsSync(configPath)) {
