@@ -11,8 +11,10 @@ const DEFAULT_CONFIG: GitPrAiConfig = {
   agent: 'claude',
 }
 
+export const CONFIG_FILENAME = '.git-pr-ai.json'
+
 export function getConfigPath(): string {
-  return join(homedir(), '.git-pr-ai', '.git-pr-ai.json')
+  return join(homedir(), '.git-pr-ai', CONFIG_FILENAME)
 }
 
 export function getConfigDir(): string {
@@ -33,11 +35,6 @@ export async function loadConfig(): Promise<GitPrAiConfig> {
         '⚠️ Failed to parse .git-pr-ai.json, using default configuration',
       )
     }
-  }
-
-  const envAgent = process.env.GIT_PR_AI_AGENT
-  if (envAgent === 'claude' || envAgent === 'gemini') {
-    config.agent = envAgent
   }
 
   return config

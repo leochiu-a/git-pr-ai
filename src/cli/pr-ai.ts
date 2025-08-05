@@ -1,9 +1,12 @@
 import { writeFileSync, existsSync, mkdirSync } from 'fs'
 import { Command } from 'commander'
 import { select, confirm } from '@inquirer/prompts'
-import { GitPrAiConfig, getConfigPath, getConfigDir } from '../config.js'
-
-const CONFIG_FILENAME = '.git-pr-ai.json'
+import {
+  GitPrAiConfig,
+  getConfigPath,
+  getConfigDir,
+  CONFIG_FILENAME,
+} from '../config.js'
 
 async function promptAgentSelection(): Promise<'claude' | 'gemini'> {
   const answer = await select({
