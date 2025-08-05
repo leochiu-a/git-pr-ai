@@ -53,6 +53,7 @@ async function initConfig(options: { force?: boolean }) {
   try {
     writeFileSync(configPath, JSON.stringify(config, null, 2))
     console.log(`\n✅ ${CONFIG_FILENAME} created successfully!`)
+    console.log(`📁 Config path: ${configPath}`)
     console.log(`🎯 Selected AI agent: ${selectedAgent}`)
   } catch (error) {
     console.error(`❌ Failed to create ${CONFIG_FILENAME}:`, error)
