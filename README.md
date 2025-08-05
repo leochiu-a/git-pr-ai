@@ -29,12 +29,10 @@ The installation will automatically set up git aliases, so you can use `git pr-a
 Before using this tool, you need to install:
 
 1. **GitHub CLI** - Required for creating and managing PRs
-
    - Install: https://cli.github.com/
    - Authenticate: `gh auth login`
 
 2. **AI Provider** - Required for AI-powered feature (Choose only one)
-
    - **Claude Code**
    - **Gemini CLI**
 
@@ -120,24 +118,19 @@ The command will create a `.git-pr-ai.json` file in your project root with your 
 ### Common Errors
 
 1. **Unable to extract JIRA ticket number**
-
    - Ensure branch name contains correct JIRA ticket format
 
 2. **GitHub CLI not installed**
-
    - Install GitHub CLI from https://cli.github.com/
 
 3. **GitHub CLI not authenticated**
-
    - Run `gh auth login` to authenticate
 
 4. **Repository information error**
-
    - Ensure current directory is a git repository
    - Ensure remote origin points to GitHub repository
 
 5. **No PR found for current branch**
-
    - Create a PR first using `git open-pr`
    - Or switch to a branch that has an existing PR
 
