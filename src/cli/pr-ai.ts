@@ -1,8 +1,7 @@
-import { writeFileSync, existsSync } from 'fs'
-import { join } from 'path'
+import { writeFileSync, existsSync, mkdirSync } from 'fs'
 import { Command } from 'commander'
 import { select, confirm } from '@inquirer/prompts'
-import { GitPrAiConfig } from '../config.js'
+import { GitPrAiConfig, getConfigPath, getConfigDir } from '../config.js'
 
 const CONFIG_FILENAME = '.git-pr-ai.json'
 
@@ -25,7 +24,13 @@ async function promptAgentSelection(): Promise<'claude' | 'gemini'> {
 }
 
 async function initConfig(options: { force?: boolean }) {
-  const configPath = join(process.cwd(), CONFIG_FILENAME)
+  const configDir = getConfigDir()
+  const configPath = getConfigPath()
+
+  // Ensure config directory exists first
+  if (!existsSync(configDir)) {
+    mkdirSync(configDir, { recursive: true })
+  }
 
   if (existsSync(configPath) && !options.force) {
     const shouldOverwrite = await confirm({
