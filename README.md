@@ -11,8 +11,8 @@ A tool to automatically extract JIRA ticket numbers from branch names and create
 - 📋 Automatically create PR titles with JIRA tickets: `[KB2C-123] feature description`
 - 🚀 Create Pull Requests directly using GitHub CLI
 - ⚡ Simple `git open-pr` command for one-click operation
-- 🤖 AI-powered PR description updates with `git update-pr-desc` using Claude
-- 🔍 AI-powered PR code reviews with `git pr-review` using Claude
+- 🤖 AI-powered PR description updates with `git update-pr-desc` using Claude or Gemini
+- 🔍 AI-powered PR code reviews with `git pr-review` using Claude or Gemini
 
 ## Installation
 
@@ -22,7 +22,7 @@ Install globally via npm:
 pnpm add -g git-pr-ai
 ```
 
-The installation will automatically set up git aliases, so you can use `git pr-ai`, `git update-pr-desc`, and `git pr-review` directly!
+The installation will automatically set up git aliases, so you can use `git pr-ai init`, `git open-pr`, `git update-pr-desc`, and `git pr-review` directly!
 
 ## Prerequisites
 
@@ -33,9 +33,10 @@ Before using this tool, you need to install:
    - Install: https://cli.github.com/
    - Authenticate: `gh auth login`
 
-2. **Claude Code** - Required for AI-powered PR descriptions (optional)
-   - Install: https://docs.anthropic.com/en/docs/claude-code
-   - Authenticate with your Anthropic account
+2. **AI Provider** - Required for AI-powered feature (Choose only one)
+
+   - **Claude Code**
+   - **Gemini CLI**
 
 ## Usage
 
@@ -68,11 +69,13 @@ git update-pr-desc "Focus on performance improvements and add test coverage deta
 **Example Output:**
 
 ```
-🔍 Checking GitHub CLI...
 🔍 Checking for PR on current branch...
+🔗 PR URL: https://github.com/owner/repo/pull/123
+📋 Target branch: main
+🌿 Current branch: feature/KB2C-123-add-login-page
+🤖 Using CLAUDE for AI assistance
 📝 Additional context: Focus on performance improvements and add test coverage details
-✅ PR found! Updating description...
-# Claude will then interactively help you generate the description
+# AI will then interactively help you generate the description
 ✅ PR description updated successfully!
 ```
 
@@ -94,13 +97,23 @@ git pr-review https://github.com/owner/repo/pull/456
 
 ```
 🔍 Looking for PR on current branch...
-🔍 Reviewing PR #123...
+🔍 Reviewing PR #123 using CLAUDE...
 🔗 PR URL: https://github.com/owner/repo/pull/123
 📋 Target branch: main
 🌿 Source branch: feature/KB2C-123-add-login-page
-# Claude will analyze the PR and provide comprehensive review
+# AI will analyze the PR and provide comprehensive review
 ✅ PR review completed and comment posted!
 ```
+
+## Configuration (Optional)
+
+The default agent is Claude. You can run the setup command to create your configuration:
+
+```bash
+git pr-ai init
+```
+
+The command will create a `.git-pr-ai.json` file in your project root with your selection.
 
 ## Troubleshooting
 
@@ -128,9 +141,10 @@ git pr-review https://github.com/owner/repo/pull/456
    - Create a PR first using `git open-pr`
    - Or switch to a branch that has an existing PR
 
-6. **Claude Code not installed**
-   - Install Claude Code from https://docs.anthropic.com/en/docs/claude-code
-   - Ensure it's properly authenticated
+6. **AI Provider not installed**
+   - For Claude: Install Claude Code from https://docs.anthropic.com/en/docs/claude-code
+   - For Gemini: Install the Gemini CLI tool
+   - Ensure your chosen provider is properly authenticated
 
 ## Contributing
 
