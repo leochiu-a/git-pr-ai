@@ -17,7 +17,7 @@ try {
   console.log('  - git open-pr')
   console.log('  - git update-pr-desc <pr-url>')
   console.log('  - git pr-review [pr-url]')
-} catch (error) {
+} catch {
   console.log('⚠️  Could not set up git aliases automatically.')
   console.log('You can manually set them up with:')
   console.log("git config --global alias.open-pr '!git-open-pr'")

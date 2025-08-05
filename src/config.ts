@@ -19,7 +19,7 @@ export async function loadConfig(): Promise<GitPrAiConfig> {
       const configContent = readFileSync(configPath, 'utf8')
       const fileConfig = JSON.parse(configContent)
       config = { ...config, ...fileConfig }
-    } catch (error) {
+    } catch {
       console.warn(
         '⚠️ Failed to parse .git-pr-ai.json, using default configuration',
       )
@@ -54,7 +54,7 @@ export async function executeAICommand(prompt: string): Promise<void> {
 async function checkClaudeCLI(): Promise<void> {
   try {
     await $`claude --version`.quiet()
-  } catch (error) {
+  } catch {
     console.error('❌ Claude CLI not found')
     console.error('Please install Claude Code: https://claude.ai/code')
     process.exit(1)
@@ -64,7 +64,7 @@ async function checkClaudeCLI(): Promise<void> {
 async function checkGeminiCLI(): Promise<void> {
   try {
     await $`gemini --version`.quiet()
-  } catch (error) {
+  } catch {
     console.error('❌ Gemini CLI not found')
     console.error('Please install Gemini CLI')
     process.exit(1)
