@@ -1,12 +1,13 @@
 import { writeFileSync, existsSync, mkdirSync } from 'fs'
 import { Command } from 'commander'
-import { select, confirm } from '@inquirer/prompts'
+import { select, confirm, input } from '@inquirer/prompts'
 import { $ } from 'zx'
 import {
   GitPrAiConfig,
   getConfigPath,
   getConfigDir,
   CONFIG_FILENAME,
+  loadConfig,
 } from '../config.js'
 
 async function promptAgentSelection(): Promise<'claude' | 'gemini'> {
@@ -55,6 +56,47 @@ async function openConfig() {
   }
 }
 
+async function setupJiraConfig() {
+  console.log('🔧 Setting up JIRA integration...\n')
+
+  const baseUrl = await input({
+    message: '🌐 JIRA Base URL (e.g., https://your-company.atlassian.net):',
+    validate: (value) => {
+      if (!value.trim()) return 'Base URL is required'
+      try {
+        new URL(value)
+        return true
+      } catch {
+        return 'Please enter a valid URL'
+      }
+    },
+  })
+
+  const email = await input({
+    message: '📧 JIRA Email:',
+    validate: (value) => {
+      if (!value.trim()) return 'Email is required'
+      if (!value.includes('@')) return 'Please enter a valid email'
+      return true
+    },
+  })
+
+  const apiToken = await input({
+    message:
+      '🔑 JIRA API Token (create at https://id.atlassian.com/manage-profile/security/api-tokens):',
+    validate: (value) => {
+      if (!value.trim()) return 'API Token is required'
+      return true
+    },
+  })
+
+  return {
+    baseUrl: baseUrl.trim(),
+    email: email.trim(),
+    apiToken: apiToken.trim(),
+  }
+}
+
 async function initConfig(options: { force?: boolean }) {
   const configDir = getConfigDir()
   const configPath = getConfigPath()
@@ -78,8 +120,17 @@ async function initConfig(options: { force?: boolean }) {
 
   const selectedAgent = await promptAgentSelection()
 
+  const setupJira = await confirm({
+    message: '🔧 Would you like to setup JIRA integration?',
+    default: false,
+  })
+
   const config: GitPrAiConfig = {
     agent: selectedAgent,
+  }
+
+  if (setupJira) {
+    config.jira = await setupJiraConfig()
   }
 
   try {
@@ -87,8 +138,64 @@ async function initConfig(options: { force?: boolean }) {
     console.log(`\n✅ ${CONFIG_FILENAME} created successfully!`)
     console.log(`📁 Config path: ${configPath}`)
     console.log(`🎯 Selected AI agent: ${selectedAgent}`)
+    if (config.jira) {
+      console.log(`🔧 JIRA integration: ${config.jira.baseUrl}`)
+    }
   } catch (error) {
     console.error(`❌ Failed to create ${CONFIG_FILENAME}:`, error)
+    process.exit(1)
+  }
+}
+
+async function configureJira() {
+  const configDir = getConfigDir()
+  const configPath = getConfigPath()
+
+  // Ensure config directory exists first
+  if (!existsSync(configDir)) {
+    mkdirSync(configDir, { recursive: true })
+  }
+
+  let config: GitPrAiConfig
+
+  if (existsSync(configPath)) {
+    try {
+      config = await loadConfig()
+    } catch {
+      console.error('❌ Failed to load existing configuration')
+      process.exit(1)
+    }
+  } else {
+    config = {
+      agent: 'claude',
+    }
+  }
+
+  console.log('🔧 Configuring JIRA integration...')
+
+  if (config.jira) {
+    const shouldOverwrite = await confirm({
+      message:
+        'JIRA configuration already exists. Do you want to overwrite it?',
+      default: false,
+    })
+
+    if (!shouldOverwrite) {
+      console.log('❌ JIRA configuration cancelled.')
+      return
+    }
+  }
+
+  config.jira = await setupJiraConfig()
+
+  try {
+    writeFileSync(configPath, JSON.stringify(config, null, 2))
+    console.log(`\n✅ JIRA configuration updated successfully!`)
+    console.log(`📁 Config path: ${configPath}`)
+    console.log(`🔧 JIRA Base URL: ${config.jira.baseUrl}`)
+    console.log(`📧 JIRA Email: ${config.jira.email}`)
+  } catch (error) {
+    console.error(`❌ Failed to update JIRA configuration:`, error)
     process.exit(1)
   }
 }
@@ -109,6 +216,20 @@ program
       } else {
         await initConfig(options)
       }
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+      console.error('❌ Error:', errorMessage)
+      process.exit(1)
+    }
+  })
+
+program
+  .command('jira')
+  .description('Configure JIRA integration settings')
+  .action(async () => {
+    try {
+      await configureJira()
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
