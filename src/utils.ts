@@ -23,18 +23,6 @@ export async function getCurrentBranch() {
   return result.stdout.trim()
 }
 
-export function extractJiraTicket(branchName: string): string | null {
-  const jiraPattern = /([A-Z][A-Z0-9]*-\d+)/
-  const match = branchName.match(jiraPattern)
-
-  if (!match) {
-    console.log('ℹ️ No JIRA ticket found in branch name, proceeding without it')
-    return null
-  }
-
-  return match[1]
-}
-
 export async function checkGitHubCLI() {
   try {
     await $`gh --version`.quiet()
