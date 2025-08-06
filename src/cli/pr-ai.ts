@@ -1,6 +1,7 @@
 import { writeFileSync, existsSync, mkdirSync } from 'fs'
 import { Command } from 'commander'
 import { select, confirm } from '@inquirer/prompts'
+import { $ } from 'zx'
 import {
   GitPrAiConfig,
   getConfigPath,
@@ -24,6 +25,34 @@ async function promptAgentSelection(): Promise<'claude' | 'gemini'> {
   })
 
   return answer
+}
+
+async function openConfig() {
+  const configPath = getConfigPath()
+
+  if (!existsSync(configPath)) {
+    console.error(`❌ Configuration file not found: ${configPath}`)
+    console.log('💡 Run "git pr-ai config" first to create configuration')
+    process.exit(1)
+  }
+
+  try {
+    // Try to open with cursor first, then fallback to code
+    try {
+      await $`cursor ${configPath}`
+      console.log(`📖 Opened config file in Cursor: ${configPath}`)
+    } catch {
+      await $`code ${configPath}`
+      console.log(`📖 Opened config file in VS Code: ${configPath}`)
+    }
+  } catch (error) {
+    console.error(
+      '❌ Failed to open config file:',
+      error instanceof Error ? error.message : String(error),
+    )
+    console.log(`📁 Config file location: ${configPath}`)
+    process.exit(1)
+  }
 }
 
 async function initConfig(options: { force?: boolean }) {
@@ -72,9 +101,14 @@ program
   .command('config')
   .description('Initialize Git PR AI configuration')
   .option('-f, --force', 'force overwrite existing configuration')
+  .option('-o, --open', 'open existing configuration file')
   .action(async (options) => {
     try {
-      await initConfig(options)
+      if (options.open) {
+        await openConfig()
+      } else {
+        await initConfig(options)
+      }
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
