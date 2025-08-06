@@ -7,7 +7,7 @@
     "git-open-pr": "./dist/git-open-pr.js",
     "git-update-pr-desc": "./dist/git-update-pr-desc.js",
     "git-pr-review": "./dist/git-pr-review.js",
-    "git-pr-ai": "./dist/git-pr-ai-init.js"
+    "git-pr-ai": "./dist/git-pr-ai.js"
   },
   "files": [
     "dist",
@@ -61,6 +61,7 @@
   },
   "dependencies": {
     "@inquirer/prompts": "^7.8.0",
+    "commander": "^14.0.0",
     "zx": "^8.7.2"
   },
   "lint-staged": {
