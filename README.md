@@ -8,6 +8,7 @@ A tool to automatically extract JIRA ticket numbers from branch names and create
 ## Features
 
 - 🔍 Automatically extract JIRA ticket numbers from current git branch names (e.g., KB2C-123)
+- 🎯 Manual JIRA ticket ID specification with `--jira` option
 - 📋 Automatically create PR titles with JIRA tickets: `[KB2C-123] feature description`
 - 🚀 Create Pull Requests directly using GitHub CLI
 - ⚡ Simple `git open-pr` command for one-click operation
@@ -50,13 +51,22 @@ The command will create a `.git-pr-ai.json` file under `~/.git-pr-ai/` with your
 
 ### 2. Create a Pull Request
 
+**Basic usage:**
+
 ```bash
 git open-pr
+```
+
+**With manual JIRA ticket ID:**
+
+```bash
+git open-pr --jira PROJ-123
 ```
 
 **What it does:**
 
 - Extracts JIRA ticket number from current branch name `feature/KB2C-123-add-login-page`
+- Or uses manually specified JIRA ticket ID with `--jira` option
 - Creates PR title in format: `[JIRA-123] branch-name`
 - Uses GitHub CLI to create PR
 
