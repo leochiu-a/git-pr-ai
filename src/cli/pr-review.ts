@@ -94,7 +94,10 @@ Please follow these steps:
    - Constructive feedback on areas for improvement
    - Specific suggestions for fixes if needed
    - Overall recommendation (approve, request changes, or comment)
-4. Post the review comment to the PR using GitHub CLI with --comment flag
+4. Post the review comment to the PR:
+   - Save the review comment to a temporary file
+   - Use GitHub CLI with --comment-body flag to post from the file
+   - Delete the temporary file
 
 Focus on being constructive and helpful in the review.`
 
