@@ -38,7 +38,17 @@ Before using this tool, you need to install:
 
 ## Usage
 
-### 1. Create a Pull Request
+### 1. Configuration (Optional)
+
+The default agent is Claude. You can run the setup command to create your configuration:
+
+```bash
+git pr-ai init
+```
+
+The command will create a `.git-pr-ai.json` file in your project root with your selection.
+
+### 2. Create a Pull Request
 
 ```bash
 git open-pr
@@ -50,7 +60,7 @@ git open-pr
 - Creates PR title in format: `[JIRA-123] branch-name`
 - Uses GitHub CLI to create PR
 
-### 2. Update PR Description with AI
+### 3. Update PR Description with AI
 
 **Basic usage:**
 
@@ -77,7 +87,7 @@ git update-pr-desc "Focus on performance improvements and add test coverage deta
 ✅ PR description updated successfully!
 ```
 
-### 3. Review Pull Request with AI
+### 4. Review Pull Request with AI
 
 **Review current branch PR:**
 
@@ -102,16 +112,6 @@ git pr-review https://github.com/owner/repo/pull/456
 # AI will analyze the PR and provide comprehensive review
 ✅ PR review completed and comment posted!
 ```
-
-## Configuration (Optional)
-
-The default agent is Claude. You can run the setup command to create your configuration:
-
-```bash
-git pr-ai init
-```
-
-The command will create a `.git-pr-ai.json` file in your project root with your selection.
 
 ## Troubleshooting
 
