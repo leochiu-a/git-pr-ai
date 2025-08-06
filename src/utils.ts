@@ -23,14 +23,13 @@ export async function getCurrentBranch() {
   return result.stdout.trim()
 }
 
-export function extractJiraTicket(branchName: string) {
+export function extractJiraTicket(branchName: string): string | null {
   const jiraPattern = /([A-Z][A-Z0-9]*-\d+)/
   const match = branchName.match(jiraPattern)
 
   if (!match) {
-    console.error('❌ Unable to extract JIRA ticket number from branch name')
-    console.error('Branch name should contain format like KB2C-123')
-    process.exit(1)
+    console.log('ℹ️ No JIRA ticket found in branch name, proceeding without it')
+    return null
   }
 
   return match[1]
