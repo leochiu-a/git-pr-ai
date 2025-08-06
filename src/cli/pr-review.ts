@@ -130,7 +130,6 @@ Description:
 
 Configuration:
   - Create .git-pr-ai.json with {"agent": "claude"} or {"agent": "gemini"}
-  - Or set GIT_PR_AI_AGENT environment variable to "claude" or "gemini"
   - Defaults to Claude if no configuration is provided
 
 Prerequisites:

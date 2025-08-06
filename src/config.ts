@@ -1,6 +1,7 @@
 import { $ } from 'zx'
 import { existsSync, readFileSync } from 'fs'
 import { join } from 'path'
+import { homedir } from 'os'
 
 export interface GitPrAiConfig {
   agent: 'claude' | 'gemini'
@@ -10,8 +11,18 @@ const DEFAULT_CONFIG: GitPrAiConfig = {
   agent: 'claude',
 }
 
+export const CONFIG_FILENAME = '.git-pr-ai.json'
+
+export function getConfigPath(): string {
+  return join(homedir(), '.git-pr-ai', CONFIG_FILENAME)
+}
+
+export function getConfigDir(): string {
+  return join(homedir(), '.git-pr-ai')
+}
+
 export async function loadConfig(): Promise<GitPrAiConfig> {
-  const configPath = join(process.cwd(), '.git-pr-ai.json')
+  const configPath = getConfigPath()
   let config = { ...DEFAULT_CONFIG }
 
   if (existsSync(configPath)) {
@@ -24,11 +35,6 @@ export async function loadConfig(): Promise<GitPrAiConfig> {
         '⚠️ Failed to parse .git-pr-ai.json, using default configuration',
       )
     }
-  }
-
-  const envAgent = process.env.GIT_PR_AI_AGENT
-  if (envAgent === 'claude' || envAgent === 'gemini') {
-    config.agent = envAgent
   }
 
   return config
