@@ -93,7 +93,7 @@ Please follow these steps:
    - Constructive feedback on areas for improvement
    - Specific suggestions for fixes if needed
    - Overall recommendation (approve, request changes, or comment)
-4. Post the review comment to the PR using GitHub CLI
+4. Post the review comment to the PR using GitHub CLI with --comment flag
 
 Focus on being constructive and helpful in the review.`
 
