@@ -42,12 +42,16 @@ function setupCommander() {
     .description(
       'Smart Pull Request Creator - Creates new PR or opens existing one',
     )
+    .option('-j, --jira <ticket>', 'specify JIRA ticket ID manually')
     .addHelpText(
       'after',
       `
 Examples:
   $ git open-pr
     Create a new PR for current branch or open existing PR
+
+  $ git open-pr --jira PROJ-123
+    Create a PR with specific JIRA ticket ID
 
 Features:
   - Automatically detects JIRA tickets from branch names (optional)
@@ -68,16 +72,22 @@ Prerequisites:
 async function main() {
   const program = setupCommander()
 
-  program.action(async () => {
+  program.action(async (options) => {
     try {
       await checkGitHubCLI()
 
       const currentBranch = await getCurrentBranch()
-      const jiraTicket = extractJiraTicket(currentBranch)
+      let jiraTicket = options.jira || extractJiraTicket(currentBranch)
 
       let jiraTitle: string | null = null
       if (jiraTicket) {
-        console.log(`Branch: ${currentBranch} | JIRA: ${jiraTicket}`)
+        if (options.jira) {
+          console.log(
+            `Branch: ${currentBranch} | JIRA: ${jiraTicket} (manually specified)`,
+          )
+        } else {
+          console.log(`Branch: ${currentBranch} | JIRA: ${jiraTicket}`)
+        }
         console.log('🔍 Fetching JIRA ticket title...')
         jiraTitle = await getJiraTicketTitle(jiraTicket)
         if (jiraTitle) {
