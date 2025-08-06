@@ -64,10 +64,16 @@ async function setupJiraConfig() {
     validate: (value) => {
       if (!value.trim()) return 'Base URL is required'
       try {
-        new URL(value)
+        const url = new URL(value)
+        if (url.protocol !== 'https:') {
+          return 'JIRA Base URL must use HTTPS'
+        }
+        if (!url.hostname.endsWith('.atlassian.net')) {
+          return 'JIRA Base URL must be a valid Atlassian domain (e.g., your-company.atlassian.net)'
+        }
         return true
       } catch {
-        return 'Please enter a valid URL'
+        return 'Please enter a valid JIRA URL'
       }
     },
   })
