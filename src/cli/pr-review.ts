@@ -1,4 +1,5 @@
 import { $ } from 'zx'
+import { Command } from 'commander'
 import { checkGitHubCLI } from '../utils.js'
 import { executeAICommand, loadConfig } from '../config.js'
 
@@ -106,75 +107,75 @@ Focus on being constructive and helpful in the review.`
   }
 }
 
-function showHelp() {
-  console.log(`
-Git PR Review - AI-powered Pull Request Review Tool
+function setupCommander() {
+  const program = new Command()
 
-Usage:
-  git pr-review [pr-url]
-
-Arguments:
-  pr-url    Optional GitHub PR URL to review
-            Format: https://github.com/owner/repo/pull/123
-
+  program
+    .name('git-pr-review')
+    .description('AI-powered Pull Request Review Tool')
+    .argument(
+      '[pr-url]',
+      'GitHub PR URL to review (format: https://github.com/owner/repo/pull/123)',
+    )
+    .addHelpText(
+      'after',
+      `
 Examples:
-  git pr-review
-    # Review PR for current branch
+  $ git pr-review
+    Review PR for current branch
 
-  git pr-review https://github.com/owner/repo/pull/123
-    # Review specific PR by URL
-
-Description:
-  This tool uses AI (Claude or Gemini) to perform comprehensive code reviews on GitHub Pull Requests.
-  It analyzes code changes, identifies potential issues, and posts constructive feedback.
+  $ git pr-review https://github.com/owner/repo/pull/123
+    Review specific PR by URL
 
 Configuration:
-  - Create .git-pr-ai.json with {"agent": "claude"} or {"agent": "gemini"}
-  - Defaults to Claude if no configuration is provided
+  Create .git-pr-ai.json with {"agent": "claude"} or {"agent": "gemini"}
+  Defaults to Claude if no configuration is provided
 
 Prerequisites:
   - GitHub CLI (gh) must be installed and authenticated
   - Claude Code (for Claude) or Gemini CLI (for Gemini) must be installed and authenticated
-  `)
+    `,
+    )
+
+  return program
 }
 
 async function main() {
-  try {
-    const prUrl = process.argv[2]
+  const program = setupCommander()
 
-    // Handle help flags
-    if (prUrl === '--help' || prUrl === '-h' || prUrl === 'help') {
-      showHelp()
-      process.exit(0)
-    }
+  program.action(async (prUrl: string | undefined) => {
+    try {
+      await checkGitHubCLI()
 
-    await checkGitHubCLI()
+      let prInfo: PRInfo | null = null
 
-    let prInfo: PRInfo | null = null
+      if (prUrl) {
+        console.log(`🔍 Reviewing PR from URL: ${prUrl}`)
+        prInfo = await parsePRUrl(prUrl)
+      } else {
+        console.log('🔍 Looking for PR on current branch...')
+        prInfo = await getCurrentBranchPRInfo()
 
-    if (prUrl) {
-      console.log(`🔍 Reviewing PR from URL: ${prUrl}`)
-      prInfo = await parsePRUrl(prUrl)
-    } else {
-      console.log('🔍 Looking for PR on current branch...')
-      prInfo = await getCurrentBranchPRInfo()
-
-      if (!prInfo) {
-        console.error('❌ No PR found for current branch')
-        console.error(
-          'Please provide a PR URL or switch to a branch with an existing PR',
-        )
-        console.error('Usage: git pr-review [pr-url]')
-        process.exit(1)
+        if (!prInfo) {
+          console.error('❌ No PR found for current branch')
+          console.error(
+            'Please provide a PR URL or switch to a branch with an existing PR',
+          )
+          console.error('Usage: git pr-review [pr-url]')
+          process.exit(1)
+        }
       }
-    }
 
-    await reviewPR(prInfo)
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
-    console.error('❌ Error:', errorMessage)
-    process.exit(1)
-  }
+      await reviewPR(prInfo)
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+      console.error('❌ Error:', errorMessage)
+      process.exit(1)
+    }
+  })
+
+  program.parse()
 }
 
 main()
