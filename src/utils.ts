@@ -1,5 +1,4 @@
 import { $ } from 'zx'
-import { loadConfig } from './config.js'
 
 $.verbose = false
 
@@ -22,60 +21,6 @@ export async function getDefaultBranch() {
 export async function getCurrentBranch() {
   const result = await $`git branch --show-current`
   return result.stdout.trim()
-}
-
-export function extractJiraTicket(branchName: string): string | null {
-  const jiraPattern = /([A-Z][A-Z0-9]*-\d+)/
-  const match = branchName.match(jiraPattern)
-
-  if (!match) {
-    console.log('ℹ️ No JIRA ticket found in branch name, proceeding without it')
-    return null
-  }
-
-  return match[1]
-}
-
-export async function getJiraTicketTitle(
-  ticketKey: string,
-): Promise<string | null> {
-  const config = await loadConfig()
-
-  if (!config.jira) {
-    console.log('ℹ️ No JIRA configuration found, using ticket key only')
-    return null
-  }
-
-  try {
-    const { baseUrl, email, apiToken } = config.jira
-    const auth = Buffer.from(`${email}:${apiToken}`).toString('base64')
-
-    const response = await fetch(
-      `${baseUrl}/rest/api/3/issue/${ticketKey}?fields=summary`,
-      {
-        headers: {
-          Authorization: `Basic ${auth}`,
-          Accept: 'application/json',
-        },
-      },
-    )
-
-    if (!response.ok) {
-      console.warn(
-        `⚠️ Could not fetch JIRA ticket ${ticketKey}: ${response.status}`,
-      )
-      return null
-    }
-
-    const data = await response.json()
-    return data.fields.summary
-  } catch (error) {
-    console.warn(
-      `⚠️ Error fetching JIRA ticket ${ticketKey}:`,
-      error instanceof Error ? error.message : String(error),
-    )
-    return null
-  }
 }
 
 export async function checkGitHubCLI() {
