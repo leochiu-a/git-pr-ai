@@ -5,6 +5,11 @@ import { homedir } from 'os'
 
 export interface GitPrAiConfig {
   agent: 'claude' | 'gemini'
+  jira?: {
+    baseUrl: string
+    email: string
+    apiToken: string
+  }
 }
 
 const DEFAULT_CONFIG: GitPrAiConfig = {

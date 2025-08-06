@@ -1,11 +1,7 @@
 import { $ } from 'zx'
 import { Command } from 'commander'
-import {
-  getCurrentBranch,
-  extractJiraTicket,
-  checkGitHubCLI,
-  getDefaultBranch,
-} from '../utils.js'
+import { getCurrentBranch, checkGitHubCLI, getDefaultBranch } from '../utils.js'
+import { extractJiraTicket, getJiraTicketTitle } from '../jira.js'
 
 async function checkExistingPR(): Promise<string | null> {
   try {
@@ -41,6 +37,7 @@ function setupCommander() {
     .description(
       'Smart Pull Request Creator - Creates new PR or opens existing one',
     )
+    .option('-j, --jira <ticket>', 'specify JIRA ticket ID manually')
     .addHelpText(
       'after',
       `
@@ -48,14 +45,19 @@ Examples:
   $ git open-pr
     Create a new PR for current branch or open existing PR
 
+  $ git open-pr --jira PROJ-123
+    Create a PR with specific JIRA ticket ID
+
 Features:
   - Automatically detects JIRA tickets from branch names (optional)
-  - Creates PR title with format: [JIRA-123] branch-name
+  - Fetches JIRA ticket title for enhanced PR titles when configured
+  - Creates PR title with format: [JIRA-123] ticket-title or [JIRA-123] branch-name
   - Falls back to branch name if no JIRA ticket found
   - Opens existing PR if one already exists for the current branch
 
 Prerequisites:
   - GitHub CLI (gh) must be installed and authenticated
+  - For JIRA integration: Configure JIRA credentials in ~/.git-pr-ai/.git-pr-ai.json
     `,
     )
 
@@ -65,15 +67,27 @@ Prerequisites:
 async function main() {
   const program = setupCommander()
 
-  program.action(async () => {
+  program.action(async (options) => {
     try {
       await checkGitHubCLI()
 
       const currentBranch = await getCurrentBranch()
-      const jiraTicket = extractJiraTicket(currentBranch)
+      let jiraTicket = options.jira || extractJiraTicket(currentBranch)
 
+      let jiraTitle: string | null = null
       if (jiraTicket) {
-        console.log(`Branch: ${currentBranch} | JIRA: ${jiraTicket}`)
+        if (options.jira) {
+          console.log(
+            `Branch: ${currentBranch} | JIRA: ${jiraTicket} (manually specified)`,
+          )
+        } else {
+          console.log(`Branch: ${currentBranch} | JIRA: ${jiraTicket}`)
+        }
+        console.log('🔍 Fetching JIRA ticket title...')
+        jiraTitle = await getJiraTicketTitle(jiraTicket)
+        if (jiraTitle) {
+          console.log(`📋 JIRA Title: ${jiraTitle}`)
+        }
       } else {
         console.log(`Branch: ${currentBranch}`)
       }
@@ -88,9 +102,15 @@ async function main() {
 
       // Create new PR if none exists
       const baseBranch = await getDefaultBranch()
-      const prTitle = jiraTicket
-        ? `[${jiraTicket}] ${currentBranch}`
-        : currentBranch
+      let prTitle = currentBranch
+
+      if (jiraTicket) {
+        if (jiraTitle) {
+          prTitle = `[${jiraTicket}] ${jiraTitle}`
+        } else {
+          prTitle = `[${jiraTicket}] ${currentBranch}`
+        }
+      }
 
       await createPullRequest(prTitle, currentBranch, baseBranch)
     } catch (error: unknown) {
