@@ -1,4 +1,5 @@
 import { $ } from 'zx'
+import { Command } from 'commander'
 import {
   getCurrentBranch,
   extractJiraTicket,
@@ -32,39 +33,75 @@ async function createPullRequest(
   console.log('✅ Pull Request created successfully!')
 }
 
+function setupCommander() {
+  const program = new Command()
+
+  program
+    .name('git-open-pr')
+    .description(
+      'Smart Pull Request Creator - Creates new PR or opens existing one',
+    )
+    .addHelpText(
+      'after',
+      `
+Examples:
+  $ git open-pr
+    Create a new PR for current branch or open existing PR
+
+Features:
+  - Automatically detects JIRA tickets from branch names (optional)
+  - Creates PR title with format: [JIRA-123] branch-name
+  - Falls back to branch name if no JIRA ticket found
+  - Opens existing PR if one already exists for the current branch
+
+Prerequisites:
+  - GitHub CLI (gh) must be installed and authenticated
+    `,
+    )
+
+  return program
+}
+
 async function main() {
-  try {
-    await checkGitHubCLI()
+  const program = setupCommander()
 
-    const currentBranch = await getCurrentBranch()
-    const jiraTicket = extractJiraTicket(currentBranch)
+  program.action(async () => {
+    try {
+      await checkGitHubCLI()
 
-    if (jiraTicket) {
-      console.log(`Branch: ${currentBranch} | JIRA: ${jiraTicket}`)
-    } else {
-      console.log(`Branch: ${currentBranch}`)
+      const currentBranch = await getCurrentBranch()
+      const jiraTicket = extractJiraTicket(currentBranch)
+
+      if (jiraTicket) {
+        console.log(`Branch: ${currentBranch} | JIRA: ${jiraTicket}`)
+      } else {
+        console.log(`Branch: ${currentBranch}`)
+      }
+
+      // Check if PR already exists for current branch
+      const existingPrUrl = await checkExistingPR()
+
+      if (existingPrUrl) {
+        await openPR(existingPrUrl)
+        return
+      }
+
+      // Create new PR if none exists
+      const baseBranch = await getDefaultBranch()
+      const prTitle = jiraTicket
+        ? `[${jiraTicket}] ${currentBranch}`
+        : currentBranch
+
+      await createPullRequest(prTitle, currentBranch, baseBranch)
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+      console.error('❌ Error:', errorMessage)
+      process.exit(1)
     }
+  })
 
-    // Check if PR already exists for current branch
-    const existingPrUrl = await checkExistingPR()
-
-    if (existingPrUrl) {
-      await openPR(existingPrUrl)
-      return
-    }
-
-    // Create new PR if none exists
-    const baseBranch = await getDefaultBranch()
-    const prTitle = jiraTicket
-      ? `[${jiraTicket}] ${currentBranch}`
-      : currentBranch
-
-    await createPullRequest(prTitle, currentBranch, baseBranch)
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
-    console.error('❌ Error:', errorMessage)
-    process.exit(1)
-  }
+  program.parse()
 }
 
 main()
