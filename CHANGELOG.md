@@ -1,5 +1,17 @@
 # git-pr-ai
 
+## 1.4.0
+
+### Minor Changes
+
+- 0d5a128: - enhance PR description update process for GitHub CLI
+  - update PR review instructions for GitHub CLI usage
+
+- 894e1da: - feat: make JIRA ticket detection optional - tool now works without JIRA tickets
+  - feat: add smart PR detection - opens existing PR instead of creating duplicates
+  - feat: upgrade open-pr command to use commander for better CLI experience
+  - improve: enhanced help text and examples for git-open-pr command
+
 ## 1.3.1
 
 ### Patch Changes
