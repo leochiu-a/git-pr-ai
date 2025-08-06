@@ -46,7 +46,7 @@ The default agent is Claude. You can run the setup command to create your config
 git pr-ai init
 ```
 
-The command will create a `.git-pr-ai.json` file in your project root with your selection.
+The command will create a `.git-pr-ai.json` file under `~/.git-pr-ai/` with your selection.
 
 ### 2. Create a Pull Request
 
