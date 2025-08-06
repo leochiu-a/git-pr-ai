@@ -1,5 +1,17 @@
 # git-pr-ai
 
+## 1.3.1
+
+### Patch Changes
+
+- f68b7a0: feat: implement git-pr-ai command for AI agent selection and configuration
+  - Add new git-pr-ai command with AI agent selection functionality
+  - Enhance configuration management with improved path handling
+  - Update postinstall script to use zx for better command execution
+  - Add commander for improved CLI command handling
+
+- d14fe43: configure oxlint and prettier
+
 ## 1.3.0
 
 ### Minor Changes
