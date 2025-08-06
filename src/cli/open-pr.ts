@@ -6,6 +6,22 @@ import {
   getDefaultBranch,
 } from '../utils.js'
 
+async function checkExistingPR(): Promise<string | null> {
+  try {
+    const result = await $`gh pr view --json url`
+    const { url } = JSON.parse(result.stdout)
+    return url
+  } catch {
+    return null
+  }
+}
+
+async function openPR(url: string) {
+  console.log('📖 Opening existing Pull Request...')
+  await $`gh pr view --web`
+  console.log(`✅ Opened PR: ${url}`)
+}
+
 async function createPullRequest(
   title: string,
   branch: string,
@@ -18,6 +34,8 @@ async function createPullRequest(
 
 async function main() {
   try {
+    await checkGitHubCLI()
+
     const currentBranch = await getCurrentBranch()
     const jiraTicket = extractJiraTicket(currentBranch)
 
@@ -27,12 +45,20 @@ async function main() {
       console.log(`Branch: ${currentBranch}`)
     }
 
-    await checkGitHubCLI()
-    const baseBranch = await getDefaultBranch()
+    // Check if PR already exists for current branch
+    const existingPrUrl = await checkExistingPR()
 
+    if (existingPrUrl) {
+      await openPR(existingPrUrl)
+      return
+    }
+
+    // Create new PR if none exists
+    const baseBranch = await getDefaultBranch()
     const prTitle = jiraTicket
       ? `[${jiraTicket}] ${currentBranch}`
       : currentBranch
+
     await createPullRequest(prTitle, currentBranch, baseBranch)
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error)
