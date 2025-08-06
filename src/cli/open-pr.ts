@@ -20,12 +20,19 @@ async function main() {
   try {
     const currentBranch = await getCurrentBranch()
     const jiraTicket = extractJiraTicket(currentBranch)
-    console.log(`Branch: ${currentBranch} | JIRA: ${jiraTicket}`)
+
+    if (jiraTicket) {
+      console.log(`Branch: ${currentBranch} | JIRA: ${jiraTicket}`)
+    } else {
+      console.log(`Branch: ${currentBranch}`)
+    }
 
     await checkGitHubCLI()
     const baseBranch = await getDefaultBranch()
 
-    const prTitle = `[${jiraTicket}] ${currentBranch}`
+    const prTitle = jiraTicket
+      ? `[${jiraTicket}] ${currentBranch}`
+      : currentBranch
     await createPullRequest(prTitle, currentBranch, baseBranch)
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error)
