@@ -51,7 +51,10 @@ async function main() {
 3. Analyze the changes between the target branch (${prInfo.targetBranch}) and current branch (${prInfo.currentBranch})
 4. Fill in the template sections based on the actual changes made
 5. Write a concise description that reviewers can understand at a glance
-6. Update the PR description using gh cli with the formatted content`
+6. Update the PR description:
+   - Save the formatted description to a temporary file
+   - Use GitHub CLI with --body-file flag to update from the file
+   - Delete the temporary file`
 
   // Add additional context if provided
   if (additionalPrompt) {
