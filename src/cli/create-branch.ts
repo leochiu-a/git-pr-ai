@@ -35,6 +35,33 @@ async function createBranch(branchName: string, baseBranch: string) {
   console.log(`✅ Created and switched to branch: ${branchName}`)
 }
 
+async function moveBranch(currentBranch: string, newBranchName: string) {
+  console.log(`🔄 Renaming branch: ${currentBranch} → ${newBranchName}`)
+
+  // Check if target branch already exists
+  try {
+    await $`git show-ref --verify --quiet refs/heads/${newBranchName}`
+    console.error(`⚠️ Branch '${newBranchName}' already exists`)
+    const overwrite = await confirm({
+      message: `Branch '${newBranchName}' already exists. Overwrite it?`,
+      default: false,
+    })
+
+    if (!overwrite) {
+      console.log('🚫 Branch rename cancelled')
+      process.exit(0)
+    } else {
+      // Force rename, which will overwrite the existing branch
+      await $`git branch -M ${newBranchName}`
+      console.log(`✅ Force renamed branch to: ${newBranchName}`)
+    }
+  } catch {
+    // Target branch doesn't exist, proceed with normal rename
+    await $`git branch -m ${newBranchName}`
+    console.log(`✅ Renamed branch to: ${newBranchName}`)
+  }
+}
+
 async function generateBranchName(
   jiraTicket: string,
   jiraTitle: string | null,
@@ -208,6 +235,7 @@ function setupCommander() {
     )
     .option('-j, --jira <ticket>', 'specify JIRA ticket ID')
     .option('-g, --git-diff', 'generate branch name based on current git diff')
+    .option('-m, --move', 'rename current branch instead of creating a new one')
     .addHelpText(
       'after',
       `
@@ -219,8 +247,16 @@ Examples:
     Create a branch named: fix/update-user-validation
     (Based on current git diff changes)
 
+  $ git create-branch --jira PROJ-123 --move
+    Rename current branch to: feat/PROJ-123-add-login-page
+
+  $ git create-branch --git-diff --move
+    Rename current branch to: fix/update-user-validation
+    (Based on current git diff changes)
+
 Features:
   - Two modes: JIRA ticket-based or git diff-based branch naming
+  - Create new branches or rename existing ones (--move)
   - Automatically fetches JIRA ticket title (JIRA mode)
   - AI-powered branch type detection (feat, fix, docs, etc.) following commitlint conventions
   - Uses current branch as base branch (simple and intuitive)
@@ -285,8 +321,13 @@ async function main() {
 
       console.log(`🌿 Generated branch name: ${branchName}`)
 
-      // Create the branch from current branch
-      await createBranch(branchName, currentBranch)
+      if (options.move) {
+        // Rename current branch
+        await moveBranch(currentBranch, branchName)
+      } else {
+        // Create the branch from current branch
+        await createBranch(branchName, currentBranch)
+      }
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
