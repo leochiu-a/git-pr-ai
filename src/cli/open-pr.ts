@@ -1,6 +1,10 @@
 import { $ } from 'zx'
 import { Command } from 'commander'
-import { getCurrentBranch, checkGitHubCLI, getDefaultBranch } from '../utils.js'
+import {
+  getCurrentBranch,
+  checkGitHubCLI,
+  getDefaultBranch,
+} from '../git-helpers.js'
 import { extractJiraTicket, getJiraTicketTitle } from '../jira.js'
 
 async function checkExistingPR(): Promise<string | null> {
