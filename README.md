@@ -9,6 +9,7 @@ A tool to automatically extract JIRA ticket numbers from branch names and create
 
 - 🔍 Automatically extract JIRA ticket numbers from current git branch names (e.g., KB2C-123)
 - 🎯 Manual JIRA ticket ID specification with `--jira` option
+- 🌿 Create branches automatically with `git create-branch` using JIRA ticket information
 - 📋 Automatically create PR titles with JIRA tickets: `[KB2C-123] feature description`
 - 🚀 Create Pull Requests directly using GitHub CLI
 - ⚡ Simple `git open-pr` command for one-click operation
@@ -23,7 +24,7 @@ Install globally via npm:
 pnpm add -g git-pr-ai
 ```
 
-The installation will automatically set up git aliases, so you can use `git pr-ai config`, `git open-pr`, `git update-pr-desc`, and `git pr-review` directly!
+The installation will automatically set up git aliases, so you can use `git pr-ai config`, `git open-pr`, `git create-branch`, `git update-pr-desc`, and `git pr-review` directly!
 
 ## Prerequisites
 
@@ -49,7 +50,25 @@ git pr-ai config
 
 The command will create a `.git-pr-ai.json` file under `~/.git-pr-ai/` with your selection.
 
-### 2. Create a Pull Request
+### 2. Create a Branch
+
+**Basic usage:**
+
+```bash
+git create-branch --jira PROJ-123
+```
+
+**What it does:**
+
+- **JIRA Integration**: Fetches JIRA ticket title automatically
+- **True AI Branch Generation**: Uses Claude or Gemini to analyze JIRA ticket content and generate optimal branch names
+- **Intelligent Branch Type Selection**: AI determines the most appropriate branch type (feature, bugfix, hotfix, etc.)
+- **Simple Base Branch Logic**: Uses your current branch as the base branch (intuitive and practical)
+- **Zero Configuration**: Completely automated - just provide the JIRA ticket ID
+- **Existing Branch Handling**: Gracefully handles existing branches
+- **Fallback Support**: Manual input option if AI generation fails
+
+### 3. Create a Pull Request
 
 **Basic usage:**
 
@@ -72,7 +91,7 @@ git open-pr --jira PROJ-123
 - **Fallback**: Uses branch name if no JIRA ticket found
 - **GitHub CLI Integration**: Uses GitHub CLI to create or open PRs
 
-### 3. Update PR Description with AI
+### 4. Update PR Description with AI
 
 **Basic usage:**
 
@@ -99,7 +118,7 @@ git update-pr-desc "Focus on performance improvements and add test coverage deta
 ✅ PR description updated successfully!
 ```
 
-### 4. Review Pull Request with AI
+### 5. Review Pull Request with AI
 
 **Review current branch PR:**
 
