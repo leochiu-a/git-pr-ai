@@ -1,6 +1,7 @@
 import { $ } from 'zx'
 import { Command } from 'commander'
 import { confirm } from '@inquirer/prompts'
+import ora from 'ora'
 import {
   checkGitHubCLI,
   getCurrentBranch,
@@ -16,13 +17,13 @@ import {
 } from './prompts.js'
 
 async function createBranch(branchName: string, baseBranch: string) {
-  console.log(`🌿 Creating branch: ${branchName}`)
-  console.log(`📋 Base branch: ${baseBranch}`)
+  console.log(`Creating branch: ${branchName}`)
+  console.log(`Base branch: ${baseBranch}`)
 
   // Check if branch already exists
   try {
     await $`git show-ref --verify --quiet refs/heads/${branchName}`
-    console.log(`⚠️ Branch '${branchName}' already exists`)
+    console.log(`Branch '${branchName}' already exists`)
     const switchToExisting = await confirm({
       message: `Do you want to switch to the existing branch '${branchName}'?`,
       default: true,
@@ -30,10 +31,10 @@ async function createBranch(branchName: string, baseBranch: string) {
 
     if (switchToExisting) {
       await $`git checkout ${branchName}`
-      console.log(`✅ Switched to existing branch: ${branchName}`)
+      console.log(`Switched to existing branch: ${branchName}`)
       return
     } else {
-      console.log('❌ Branch creation cancelled')
+      console.log('Branch creation cancelled')
       process.exit(0)
     }
   } catch {
@@ -42,31 +43,31 @@ async function createBranch(branchName: string, baseBranch: string) {
 
   // Create and switch to new branch
   await $`git checkout -b ${branchName} ${baseBranch}`
-  console.log(`✅ Created and switched to branch: ${branchName}`)
+  console.log(`Created and switched to branch: ${branchName}`)
 }
 
 async function moveBranch(currentBranch: string, newBranchName: string) {
   // Check if target branch already exists
   try {
     await $`git show-ref --verify --quiet refs/heads/${newBranchName}`
-    console.error(`⚠️ Branch '${newBranchName}' already exists`)
+    console.error(`Branch '${newBranchName}' already exists`)
     const overwrite = await confirm({
       message: `Branch '${newBranchName}' already exists. Overwrite it?`,
       default: false,
     })
 
     if (!overwrite) {
-      console.log('🚫 Branch rename cancelled')
+      console.log('Branch rename cancelled')
       process.exit(0)
     } else {
       // Force rename, which will overwrite the existing branch
       await $`git branch -M ${newBranchName}`
-      console.log(`✅ Force renamed branch to: ${newBranchName}`)
+      console.log(`Force renamed branch to: ${newBranchName}`)
     }
   } catch {
     // Target branch doesn't exist, proceed with normal rename
     await $`git branch -m ${newBranchName}`
-    console.log(`✅ Renamed branch to: ${newBranchName}`)
+    console.log(`Renamed branch to: ${newBranchName}`)
   }
 }
 
@@ -75,11 +76,11 @@ async function generateBranchNameWithAI(
 ): Promise<string | never> {
   const config = await loadConfig()
 
-  try {
-    console.log(
-      `🤖 Using ${config.agent.toUpperCase()} to generate branch name...`,
-    )
+  const spinner = ora(
+    `Using ${config.agent.toUpperCase()} to generate branch name...`,
+  ).start()
 
+  try {
     // Execute AI command and get output
     const aiOutput = await executeAIWithOutput(prompt)
 
@@ -88,6 +89,7 @@ async function generateBranchNameWithAI(
 
     if (branchMatch) {
       const aiBranchName = branchMatch[1].trim()
+      spinner.succeed('Branch name generated successfully!')
 
       // Confirm the AI suggestion
       const confirmAI = await confirm({
@@ -98,15 +100,15 @@ async function generateBranchNameWithAI(
       if (confirmAI) {
         return aiBranchName
       } else {
-        console.log('🚫 Branch creation cancelled')
+        console.log('Branch creation cancelled')
         process.exit(0)
       }
     } else {
-      console.error('⚠️ Could not parse AI output')
+      spinner.fail('Could not parse AI output')
       process.exit(1)
     }
   } catch {
-    console.error('⚠️ AI generation failed')
+    spinner.fail('AI generation failed')
     process.exit(1)
   }
 }
@@ -127,6 +129,8 @@ async function generateBranchNameFromPrompt(
 }
 
 async function generateBranchNameFromDiff(): Promise<string | never> {
+  const diffSpinner = ora('Analyzing git diff...').start()
+
   // Get git diff
   let gitDiff: string
   try {
@@ -134,32 +138,34 @@ async function generateBranchNameFromDiff(): Promise<string | never> {
     gitDiff = result.stdout.trim()
 
     if (!gitDiff) {
-      console.log('⚠️ No changes detected in git diff against HEAD')
+      diffSpinner.warn('No changes detected in git diff against HEAD')
 
       // Fallback to comparing with default branch
       const defaultBranch = await getDefaultBranch()
       const currentBranch = await getCurrentBranch()
 
       if (currentBranch === defaultBranch) {
-        console.error('⚠️ No changes detected and already on default branch')
+        diffSpinner.fail('No changes detected and already on default branch')
         process.exit(1)
       }
 
-      console.log(`🔄 Comparing with default branch: ${defaultBranch}`)
+      diffSpinner.text = `Comparing with default branch: ${defaultBranch}`
       const fallbackResult = await $`git diff ${defaultBranch}...HEAD`
       gitDiff = fallbackResult.stdout.trim()
 
       if (!gitDiff) {
-        console.error(
-          '⚠️ No changes detected even when comparing with default branch',
+        diffSpinner.fail(
+          'No changes detected even when comparing with default branch',
         )
         process.exit(1)
       }
 
-      console.log('✅ Found changes when comparing with default branch')
+      diffSpinner.succeed('Found changes when comparing with default branch')
+    } else {
+      diffSpinner.succeed('Git diff analysis completed')
     }
   } catch {
-    console.error('⚠️ Failed to get git diff')
+    diffSpinner.fail('Failed to get git diff')
     process.exit(1)
   }
 
@@ -254,7 +260,7 @@ async function main() {
 
       if (optionCount === 0) {
         console.error(
-          '🔴 One of the following options is required: --jira, --git-diff, or --prompt',
+          'One of the following options is required: --jira, --git-diff, or --prompt',
         )
         console.error('Usage: git create-branch --jira PROJ-123')
         console.error('   or: git create-branch --git-diff')
@@ -264,20 +270,19 @@ async function main() {
 
       if (optionCount > 1) {
         console.error(
-          '🔴 Only one option can be used at a time: --jira, --git-diff, or --prompt',
+          'Only one option can be used at a time: --jira, --git-diff, or --prompt',
         )
         process.exit(1)
       }
 
       // Get current branch as base branch
       const currentBranch = await getCurrentBranch()
-      console.log(`📍 Current branch: ${currentBranch}`)
+      console.log(`Current branch: ${currentBranch}`)
 
       let branchName: string
 
       if (options.gitDiff) {
         // Generate branch name from git diff
-        console.log('🔍 Analyzing git diff...')
         branchName = await generateBranchNameFromDiff()
       } else if (options.prompt) {
         // Generate branch name from custom prompt
@@ -286,16 +291,16 @@ async function main() {
       } else if (options.jira) {
         // Generate branch name from JIRA ticket
         const jiraTicket = options.jira
-        console.log(`🎯 JIRA Ticket: ${jiraTicket}`)
+        console.log(`JIRA Ticket: ${jiraTicket}`)
 
         // Fetch JIRA ticket title
-        console.log('🔍 Fetching JIRA ticket title...')
+        const jiraSpinner = ora('Fetching JIRA ticket title...').start()
         const jiraTitle = await getJiraTicketTitle(jiraTicket)
 
         if (jiraTitle) {
-          console.log(`📋 JIRA Title: ${jiraTitle}`)
+          jiraSpinner.succeed(`JIRA Title: ${jiraTitle}`)
         } else {
-          console.log('⚠️ Could not fetch JIRA title, using ticket ID only')
+          jiraSpinner.warn('Could not fetch JIRA title, using ticket ID only')
         }
 
         // Generate branch name using AI
@@ -315,7 +320,7 @@ async function main() {
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
-      console.error('⚠️ Error:', errorMessage)
+      console.error('Error:', errorMessage)
       process.exit(1)
     }
   })
