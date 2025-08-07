@@ -1,7 +1,8 @@
 import { $ } from 'zx'
 import { Command } from 'commander'
-import { checkGitHubCLI } from '../utils.js'
-import { executeAICommand, loadConfig } from '../config.js'
+import { checkGitHubCLI } from '../git-helpers.js'
+import { loadConfig } from '../config.js'
+import { executeAICommand } from '../ai-executor.js'
 
 interface PRInfo {
   url: string
