@@ -1,5 +1,6 @@
 import { $ } from 'zx'
 import { Command } from 'commander'
+import ora from 'ora'
 import {
   getCurrentBranch,
   checkGitHubCLI,
@@ -18,9 +19,9 @@ async function checkExistingPR(): Promise<string | null> {
 }
 
 async function openPR(url: string) {
-  console.log('📖 Opening existing Pull Request...')
+  const spinner = ora('Opening existing Pull Request...').start()
   await $`gh pr view --web`
-  console.log(`✅ Opened PR: ${url}`)
+  spinner.succeed(`Opened PR: ${url}`)
 }
 
 async function createPullRequest(
@@ -28,9 +29,9 @@ async function createPullRequest(
   branch: string,
   baseBranch: string,
 ) {
-  console.log('🚀 Creating Pull Request...')
+  const spinner = ora('Creating Pull Request...').start()
   await $`gh pr create --title ${title} --base ${baseBranch} --head ${branch} --web`
-  console.log('✅ Pull Request created successfully!')
+  spinner.succeed('Pull Request created successfully!')
 }
 
 function setupCommander() {
@@ -87,10 +88,14 @@ async function main() {
         } else {
           console.log(`Branch: ${currentBranch} | JIRA: ${jiraTicket}`)
         }
-        console.log('🔍 Fetching JIRA ticket title...')
+
+        const jiraSpinner = ora('Fetching JIRA ticket title...').start()
         jiraTitle = await getJiraTicketTitle(jiraTicket)
+
         if (jiraTitle) {
-          console.log(`📋 JIRA Title: ${jiraTitle}`)
+          jiraSpinner.succeed(`JIRA Title: ${jiraTitle}`)
+        } else {
+          jiraSpinner.warn('Could not fetch JIRA title')
         }
       } else {
         console.log(`Branch: ${currentBranch}`)
@@ -120,7 +125,7 @@ async function main() {
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
-      console.error('❌ Error:', errorMessage)
+      console.error('Error:', errorMessage)
       process.exit(1)
     }
   })
