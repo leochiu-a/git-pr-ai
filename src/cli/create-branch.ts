@@ -1,7 +1,7 @@
 import { $ } from 'zx'
 import { Command } from 'commander'
 import { confirm } from '@inquirer/prompts'
-import { checkGitHubCLI, getCurrentBranch } from '../utils.js'
+import { checkGitHubCLI, getCurrentBranch } from '../git-helpers.js'
 import { getJiraTicketTitle } from '../jira.js'
 import { loadConfig } from '../config.js'
 import { executeAIWithOutput } from '../ai-executor.js'

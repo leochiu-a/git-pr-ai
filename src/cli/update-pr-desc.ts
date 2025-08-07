@@ -1,5 +1,5 @@
 import { $ } from 'zx'
-import { checkGitHubCLI } from '../utils.js'
+import { checkGitHubCLI } from '../git-helpers.js'
 import { loadConfig } from '../config.js'
 import { executeAICommand } from '../ai-executor.js'
 
