@@ -23,7 +23,7 @@ Install globally via npm:
 pnpm add -g git-pr-ai
 ```
 
-The installation will automatically set up git aliases, so you can use `git pr-ai init`, `git open-pr`, `git update-pr-desc`, and `git pr-review` directly!
+The installation will automatically set up git aliases, so you can use `git pr-ai config`, `git open-pr`, `git update-pr-desc`, and `git pr-review` directly!
 
 ## Prerequisites
 
@@ -44,7 +44,7 @@ Before using this tool, you need to install:
 The default agent is Claude. You can run the setup command to create your configuration:
 
 ```bash
-git pr-ai init
+git pr-ai config
 ```
 
 The command will create a `.git-pr-ai.json` file under `~/.git-pr-ai/` with your selection.
