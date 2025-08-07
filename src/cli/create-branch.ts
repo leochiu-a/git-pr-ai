@@ -1,7 +1,11 @@
 import { $ } from 'zx'
 import { Command } from 'commander'
 import { confirm } from '@inquirer/prompts'
-import { checkGitHubCLI, getCurrentBranch } from '../git-helpers.js'
+import {
+  checkGitHubCLI,
+  getCurrentBranch,
+  getDefaultBranch,
+} from '../git-helpers.js'
 import { getJiraTicketTitle } from '../jira.js'
 import { loadConfig } from '../config.js'
 import { executeAIWithOutput } from '../ai-executor.js'
@@ -149,8 +153,29 @@ async function generateBranchNameFromDiff(): Promise<string | never> {
     gitDiff = result.stdout.trim()
 
     if (!gitDiff) {
-      console.error('⚠️ No changes detected in git diff')
-      process.exit(1)
+      console.log('⚠️ No changes detected in git diff against HEAD')
+
+      // Fallback to comparing with default branch
+      const defaultBranch = await getDefaultBranch()
+      const currentBranch = await getCurrentBranch()
+
+      if (currentBranch === defaultBranch) {
+        console.error('⚠️ No changes detected and already on default branch')
+        process.exit(1)
+      }
+
+      console.log(`🔄 Comparing with default branch: ${defaultBranch}`)
+      const fallbackResult = await $`git diff ${defaultBranch}...HEAD`
+      gitDiff = fallbackResult.stdout.trim()
+
+      if (!gitDiff) {
+        console.error(
+          '⚠️ No changes detected even when comparing with default branch',
+        )
+        process.exit(1)
+      }
+
+      console.log('✅ Found changes when comparing with default branch')
     }
   } catch {
     console.error('⚠️ Failed to get git diff')
