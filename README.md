@@ -65,10 +65,12 @@ git open-pr --jira PROJ-123
 
 **What it does:**
 
-- Extracts JIRA ticket number from current branch name `feature/KB2C-123-add-login-page`
-- Or uses manually specified JIRA ticket ID with `--jira` option
-- Creates PR title in format: `[JIRA-123] branch-name`
-- Uses GitHub CLI to create PR
+- **Smart PR Detection**: Opens existing PR if one already exists for the current branch
+- **Automatic JIRA Detection**: Extracts JIRA ticket number from current branch name `feature/KB2C-123-add-login-page`
+- **Manual JIRA Option**: Uses manually specified JIRA ticket ID with `--jira` option
+- **Enhanced PR Titles**: Creates PR title with format: `[JIRA-123] ticket-title` or `[JIRA-123] branch-name`
+- **Fallback**: Uses branch name if no JIRA ticket found
+- **GitHub CLI Integration**: Uses GitHub CLI to create or open PRs
 
 ### 3. Update PR Description with AI
 
