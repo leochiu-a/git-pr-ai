@@ -1,9 +1,14 @@
 import { $ } from 'zx'
 import { Command } from 'commander'
 import { confirm } from '@inquirer/prompts'
-import { checkGitHubCLI, getCurrentBranch } from '../utils.js'
+import {
+  checkGitHubCLI,
+  getCurrentBranch,
+  getDefaultBranch,
+} from '../git-helpers.js'
 import { getJiraTicketTitle } from '../jira.js'
-import { loadConfig, executeAIWithOutput } from '../config.js'
+import { loadConfig } from '../config.js'
+import { executeAIWithOutput } from '../ai-executor.js'
 
 async function createBranch(branchName: string, baseBranch: string) {
   console.log(`🌿 Creating branch: ${branchName}`)
@@ -36,8 +41,6 @@ async function createBranch(branchName: string, baseBranch: string) {
 }
 
 async function moveBranch(currentBranch: string, newBranchName: string) {
-  console.log(`🔄 Renaming branch: ${currentBranch} → ${newBranchName}`)
-
   // Check if target branch already exists
   try {
     await $`git show-ref --verify --quiet refs/heads/${newBranchName}`
@@ -114,8 +117,6 @@ BRANCH_NAME: feat/PROJ-123-add-user-auth`
     if (branchMatch) {
       const aiBranchName = branchMatch[1].trim()
 
-      console.log(`🤖 AI-generated branch name: ${aiBranchName}`)
-
       // Confirm the AI suggestion
       const confirmAI = await confirm({
         message: `Use AI suggestion: ${aiBranchName}?`,
@@ -148,8 +149,29 @@ async function generateBranchNameFromDiff(): Promise<string | never> {
     gitDiff = result.stdout.trim()
 
     if (!gitDiff) {
-      console.error('⚠️ No changes detected in git diff')
-      process.exit(1)
+      console.log('⚠️ No changes detected in git diff against HEAD')
+
+      // Fallback to comparing with default branch
+      const defaultBranch = await getDefaultBranch()
+      const currentBranch = await getCurrentBranch()
+
+      if (currentBranch === defaultBranch) {
+        console.error('⚠️ No changes detected and already on default branch')
+        process.exit(1)
+      }
+
+      console.log(`🔄 Comparing with default branch: ${defaultBranch}`)
+      const fallbackResult = await $`git diff ${defaultBranch}...HEAD`
+      gitDiff = fallbackResult.stdout.trim()
+
+      if (!gitDiff) {
+        console.error(
+          '⚠️ No changes detected even when comparing with default branch',
+        )
+        process.exit(1)
+      }
+
+      console.log('✅ Found changes when comparing with default branch')
     }
   } catch {
     console.error('⚠️ Failed to get git diff')
@@ -318,8 +340,6 @@ async function main() {
         // Generate branch name using AI
         branchName = await generateBranchName(jiraTicket, jiraTitle)
       }
-
-      console.log(`🌿 Generated branch name: ${branchName}`)
 
       if (options.move) {
         // Rename current branch
