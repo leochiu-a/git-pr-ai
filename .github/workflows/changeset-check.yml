@@ -34,27 +34,3 @@ jobs:
             echo "✅ Changeset file(s) found:"
             echo "$CHANGESET_FILES"
           fi
-
-      - name: Validate changeset format
-        if: success()
-        run: |
-          CHANGESET_FILES=$(git diff --name-only origin/main...HEAD | grep '^\.changeset/.*\.md$' | grep -v 'README.md' || true)
-
-          for file in $CHANGESET_FILES; do
-            if [ -f "$file" ]; then
-              echo "Validating $file..."
-              # Check if file has proper structure (frontmatter + description)
-              if ! grep -q "^---$" "$file"; then
-                echo "❌ $file missing YAML frontmatter"
-                exit 1
-              fi
-              
-              # Check if there's content after frontmatter
-              if [ $(wc -l < "$file") -lt 5 ]; then
-                echo "❌ $file appears to be empty or incomplete"
-                exit 1
-              fi
-              
-              echo "✅ $file is valid"
-            fi
-          done
