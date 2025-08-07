@@ -23,7 +23,8 @@ Please analyze the ticket and provide:
 Requirements:
 - Use kebab-case for the description
 - Keep the description concise but meaningful (max 30 characters)
-- Use only lowercase letters, numbers, and hyphens
+- Use only lowercase letters, numbers, and hyphens for the description part
+- IMPORTANT: Keep the ticket-id exactly as provided (do not convert to lowercase)
 - Choose the branch type based on the ticket content
 - Prefer 'feat' over 'feature' and 'fix' over 'bugfix' to align with commitlint
 
