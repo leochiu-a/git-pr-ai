@@ -9,24 +9,6 @@ import {
   loadConfig,
 } from '../config.js'
 
-async function promptAgentSelection(): Promise<'claude' | 'gemini'> {
-  const answer = await select({
-    message: '🤖 Which AI agent would you like to use?',
-    choices: [
-      {
-        name: 'Claude (Anthropic)',
-        value: 'claude' as const,
-      },
-      {
-        name: 'Gemini (Google)',
-        value: 'gemini' as const,
-      },
-    ],
-  })
-
-  return answer
-}
-
 async function openConfig() {
   const configPath = getConfigPath()
 
@@ -102,109 +84,103 @@ async function setupJiraConfig() {
   }
 }
 
-async function initConfig(options: {
-  force?: boolean
-  agent?: boolean
-  jira?: boolean
-}) {
+async function ensureConfigDir(): Promise<void> {
   const configDir = getConfigDir()
-  const configPath = getConfigPath()
-
-  // Ensure config directory exists first
   if (!existsSync(configDir)) {
     mkdirSync(configDir, { recursive: true })
   }
+}
 
-  let existingConfig: GitPrAiConfig | null = null
-
-  // Check if config already exists
-  if (existsSync(configPath)) {
-    try {
-      existingConfig = await loadConfig()
-      console.log('📋 Found existing configuration:')
-      console.log(`   Agent: ${existingConfig.agent}`)
-      if (existingConfig.jira) {
-        console.log(`   JIRA: ${existingConfig.jira.baseUrl}`)
-      } else {
-        console.log('   JIRA: Not configured')
-      }
-      console.log('')
-    } catch {
-      console.warn(
-        '⚠️ Failed to load existing configuration, will create new one',
-      )
-    }
-
-    if (!options.force) {
-      const shouldUpdate = await confirm({
-        message: 'Configuration already exists. Would you like to update it?',
-        default: true,
-      })
-
-      if (!shouldUpdate) {
-        console.log('❌ Configuration update cancelled.')
-        return
-      }
-    }
-  }
-
-  // Start with existing config or default
-  const config: GitPrAiConfig = existingConfig
-    ? { ...existingConfig }
-    : { agent: 'claude' }
-
-  // Determine what to update based on options or ask user
-  let whatToUpdate: string
-
-  if (options.agent && options.jira) {
-    whatToUpdate = 'both'
-  } else if (options.agent) {
-    whatToUpdate = 'agent'
-  } else if (options.jira) {
-    whatToUpdate = 'jira'
+function displayExistingConfig(config: GitPrAiConfig) {
+  console.log('📋 Found existing configuration:')
+  console.log(`   Agent: ${config.agent}`)
+  if (config.jira) {
+    console.log(`   JIRA: ${config.jira.baseUrl}`)
   } else {
-    // Ask user what to configure
-    whatToUpdate = await select({
-      message: '🔧 What would you like to configure?',
-      choices: [
-        {
-          name: 'AI Agent only',
-          value: 'agent',
-        },
-        {
-          name: 'JIRA integration only',
-          value: 'jira',
-        },
-        {
-          name: 'Both AI Agent and JIRA integration',
-          value: 'both',
-        },
-      ],
+    console.log('   JIRA: Not configured')
+  }
+  console.log('')
+}
+
+async function confirmUpdate(force: boolean): Promise<boolean> {
+  if (force) {
+    return true
+  }
+
+  return await confirm({
+    message: 'Configuration already exists. Would you like to update it?',
+    default: true,
+  })
+}
+
+function determineWhatToUpdate(options: {
+  agent?: boolean
+  jira?: boolean
+}): string {
+  if (options.agent && options.jira) {
+    return 'both'
+  } else if (options.agent) {
+    return 'agent'
+  } else if (options.jira) {
+    return 'jira'
+  }
+
+  // Will ask user interactively
+  return 'ask'
+}
+
+async function askWhatToUpdate(): Promise<string> {
+  return await select({
+    message: '🔧 What would you like to configure?',
+    choices: [
+      { name: 'AI Agent only', value: 'agent' },
+      { name: 'JIRA integration only', value: 'jira' },
+      { name: 'Both AI Agent and JIRA integration', value: 'both' },
+    ],
+  })
+}
+
+async function updateAgentConfig(
+  config: GitPrAiConfig,
+): Promise<GitPrAiConfig> {
+  const selectedAgent = await select({
+    message: '🤖 Which AI agent would you like to use?',
+    choices: [
+      {
+        name: 'Claude (Anthropic)',
+        value: 'claude' as const,
+      },
+      {
+        name: 'Gemini (Google)',
+        value: 'gemini' as const,
+      },
+    ],
+  })
+  return { ...config, agent: selectedAgent }
+}
+
+async function updateJiraConfig(config: GitPrAiConfig): Promise<GitPrAiConfig> {
+  if (config.jira) {
+    const shouldOverwrite = await confirm({
+      message:
+        'JIRA configuration already exists. Do you want to overwrite it?',
+      default: false,
     })
-  }
 
-  // Update agent if selected
-  if (whatToUpdate === 'agent' || whatToUpdate === 'both') {
-    const selectedAgent = await promptAgentSelection()
-    config.agent = selectedAgent
-  }
-
-  // Update JIRA if selected
-  if (whatToUpdate === 'jira' || whatToUpdate === 'both') {
-    if (config.jira) {
-      const shouldOverwriteJira = await confirm({
-        message:
-          'JIRA configuration already exists. Do you want to overwrite it?',
-        default: false,
-      })
-
-      if (shouldOverwriteJira) {
-        config.jira = await setupJiraConfig()
-      }
+    if (shouldOverwrite) {
+      const jira = await setupJiraConfig()
+      return { ...config, jira }
     } else {
-      config.jira = await setupJiraConfig()
+      return config
     }
+  } else {
+    const jira = await setupJiraConfig()
+    return { ...config, jira }
   }
+}
+
+async function saveConfig(config: GitPrAiConfig): Promise<void> {
+  const configPath = getConfigPath()
 
   try {
     writeFileSync(configPath, JSON.stringify(config, null, 2))
@@ -218,6 +194,51 @@ async function initConfig(options: {
     console.error(`❌ Failed to update configuration:`, error)
     process.exit(1)
   }
+}
+
+async function initConfig(options: {
+  force?: boolean
+  agent?: boolean
+  jira?: boolean
+}) {
+  await ensureConfigDir()
+
+  // Load existing config if available
+  const configPath = getConfigPath()
+  const hasExistingConfig = existsSync(configPath)
+
+  if (hasExistingConfig) {
+    const existingConfig = await loadConfig()
+    displayExistingConfig(existingConfig)
+
+    const shouldProceed = await confirmUpdate(options.force || false)
+    if (!shouldProceed) {
+      console.log('❌ Configuration update cancelled.')
+      return
+    }
+  }
+
+  // Load config (will use default if file doesn't exist)
+  let config: GitPrAiConfig = await loadConfig()
+
+  // Determine what to update
+  const whatToUpdate =
+    determineWhatToUpdate(options) === 'ask'
+      ? await askWhatToUpdate()
+      : determineWhatToUpdate(options)
+
+  // Update configurations based on selection
+  if (whatToUpdate === 'agent') {
+    config = await updateAgentConfig(config)
+  } else if (whatToUpdate === 'jira') {
+    config = await updateJiraConfig(config)
+  } else if (whatToUpdate === 'both') {
+    config = await updateAgentConfig(config)
+    config = await updateJiraConfig(config)
+  }
+
+  // Save the updated configuration
+  await saveConfig(config)
 }
 
 const program = new Command()
