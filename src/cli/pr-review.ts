@@ -1,5 +1,6 @@
 import { $ } from 'zx'
 import { Command } from 'commander'
+import ora from 'ora'
 import { checkGitHubCLI } from '../git-helpers.js'
 import { loadConfig } from '../config.js'
 import { executeAICommand } from '../ai-executor.js'
@@ -24,11 +25,13 @@ async function parsePRUrl(prUrl: string): Promise<PRInfo> {
   }
 
   const [, owner, repo, prNumber] = match
+  const spinner = ora('Fetching PR information...').start()
 
   try {
     const result =
       await $`gh pr view ${prNumber} --repo ${owner}/${repo} --json baseRefName,headRefName,url`
     const { baseRefName, headRefName, url } = JSON.parse(result.stdout)
+    spinner.succeed('PR information fetched successfully')
 
     return {
       url,
@@ -39,17 +42,22 @@ async function parsePRUrl(prUrl: string): Promise<PRInfo> {
       repo,
     }
   } catch (error) {
+    spinner.fail('Failed to fetch PR information')
     throw new Error(`Failed to fetch PR information: ${error}`)
   }
 }
 
 async function getCurrentBranchPRInfo(): Promise<PRInfo | null> {
+  const spinner = ora('Looking for PR on current branch...').start()
+
   try {
     const result = await $`gh pr view --json baseRefName,headRefName,url,number`
     const { baseRefName, headRefName, url, number } = JSON.parse(result.stdout)
 
     const repoResult = await $`gh repo view --json owner,name`
     const { owner, name: repo } = JSON.parse(repoResult.stdout)
+
+    spinner.succeed('Found PR for current branch')
 
     return {
       url,
@@ -60,6 +68,7 @@ async function getCurrentBranchPRInfo(): Promise<PRInfo | null> {
       repo,
     }
   } catch {
+    spinner.warn('No PR found for current branch')
     return null
   }
 }
@@ -67,11 +76,15 @@ async function getCurrentBranchPRInfo(): Promise<PRInfo | null> {
 async function reviewPR(prInfo: PRInfo): Promise<void> {
   const config = await loadConfig()
   console.log(
-    `🔍 Reviewing PR #${prInfo.number} using ${config.agent.toUpperCase()}...`,
+    `Reviewing PR #${prInfo.number} using ${config.agent.toUpperCase()}...`,
   )
-  console.log(`🔗 PR URL: ${prInfo.url}`)
-  console.log(`📋 Target branch: ${prInfo.targetBranch}`)
-  console.log(`🌿 Source branch: ${prInfo.currentBranch}`)
+  console.log(`PR URL: ${prInfo.url}`)
+  console.log(`Target branch: ${prInfo.targetBranch}`)
+  console.log(`Source branch: ${prInfo.currentBranch}`)
+
+  const reviewSpinner = ora(
+    'AI is analyzing the PR and generating review...',
+  ).start()
 
   const prompt = `Review this GitHub Pull Request and provide a comprehensive code review:
 
@@ -104,9 +117,9 @@ Focus on being constructive and helpful in the review.`
 
   try {
     await executeAICommand(prompt)
-    console.log('✅ PR review completed and comment posted!')
+    reviewSpinner.succeed('PR review completed and comment posted!')
   } catch (error) {
-    console.error('❌ Failed to complete PR review')
+    reviewSpinner.fail('Failed to complete PR review')
     throw error
   }
 }
@@ -154,14 +167,13 @@ async function main() {
       let prInfo: PRInfo | null = null
 
       if (prUrl) {
-        console.log(`🔍 Reviewing PR from URL: ${prUrl}`)
+        console.log(`Reviewing PR from URL: ${prUrl}`)
         prInfo = await parsePRUrl(prUrl)
       } else {
-        console.log('🔍 Looking for PR on current branch...')
         prInfo = await getCurrentBranchPRInfo()
 
         if (!prInfo) {
-          console.error('❌ No PR found for current branch')
+          console.error('No PR found for current branch')
           console.error(
             'Please provide a PR URL or switch to a branch with an existing PR',
           )
@@ -174,7 +186,7 @@ async function main() {
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
-      console.error('❌ Error:', errorMessage)
+      console.error('Error:', errorMessage)
       process.exit(1)
     }
   })
