@@ -13,7 +13,7 @@ async function openConfig() {
   const configPath = getConfigPath()
 
   if (!existsSync(configPath)) {
-    console.error(`❌ Configuration file not found: ${configPath}`)
+    console.error(`🔍 Configuration file not found: ${configPath}`)
     console.log('💡 Run "git pr-ai config" first to create configuration')
     process.exit(1)
   }
@@ -29,7 +29,7 @@ async function openConfig() {
     }
   } catch (error) {
     console.error(
-      '❌ Failed to open config file:',
+      '📝 Failed to open config file:',
       error instanceof Error ? error.message : String(error),
     )
     console.log(`📁 Config file location: ${configPath}`)
@@ -191,7 +191,7 @@ async function saveConfig(config: GitPrAiConfig): Promise<void> {
       console.log(`🔧 JIRA integration: ${config.jira.baseUrl}`)
     }
   } catch (error) {
-    console.error(`❌ Failed to update configuration:`, error)
+    console.error(`📝 Failed to update configuration:`, error)
     process.exit(1)
   }
 }
@@ -213,7 +213,7 @@ async function initConfig(options: {
 
     const shouldProceed = await confirmUpdate(options.force || false)
     if (!shouldProceed) {
-      console.log('❌ Configuration update cancelled.')
+      console.log('🚫 Configuration update cancelled.')
       return
     }
   }
@@ -262,7 +262,7 @@ program
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
-      console.error('❌ Error:', errorMessage)
+      console.error('💭 Error:', errorMessage)
       process.exit(1)
     }
   })
