@@ -1,5 +1,18 @@
 # git-pr-ai
 
+## 1.5.0
+
+### Minor Changes
+
+- 527e577: Consolidate config commands
+- 048a19b: Add create branch command
+
+### Patch Changes
+
+- 98ad6f5: fix: remove duplicate branch renaming messages in create-branch command
+
+  Remove redundant "Renaming branch" message to avoid duplication with "Generated branch name" message, providing cleaner output when using the --move option.
+
 ## 1.4.1
 
 ### Patch Changes
