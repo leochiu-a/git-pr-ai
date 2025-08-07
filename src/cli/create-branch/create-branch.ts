@@ -70,13 +70,10 @@ async function moveBranch(currentBranch: string, newBranchName: string) {
   }
 }
 
-async function generateBranchName(
-  jiraTicket: string,
-  jiraTitle: string | null,
+async function generateBranchNameWithAI(
+  prompt: string,
 ): Promise<string | never> {
   const config = await loadConfig()
-
-  const prompt = createJiraBranchPrompt(jiraTicket, jiraTitle)
 
   try {
     console.log(
@@ -114,52 +111,22 @@ async function generateBranchName(
   }
 }
 
+async function generateBranchName(
+  jiraTicket: string,
+  jiraTitle: string | null,
+): Promise<string | never> {
+  const prompt = createJiraBranchPrompt(jiraTicket, jiraTitle)
+  return generateBranchNameWithAI(prompt)
+}
+
 async function generateBranchNameFromPrompt(
   customPrompt: string,
 ): Promise<string | never> {
-  const config = await loadConfig()
-
   const prompt = createCustomBranchPrompt(customPrompt)
-
-  try {
-    console.log(
-      `🤖 Using ${config.agent.toUpperCase()} to generate branch name from prompt...`,
-    )
-
-    // Execute AI command and get output
-    const aiOutput = await executeAIWithOutput(prompt)
-
-    // Parse AI output
-    const branchMatch = aiOutput.match(/BRANCH_NAME:\s*(.+)/i)
-
-    if (branchMatch) {
-      const aiBranchName = branchMatch[1].trim()
-
-      // Confirm the AI suggestion
-      const confirmAI = await confirm({
-        message: `Use AI suggestion: ${aiBranchName}?`,
-        default: true,
-      })
-
-      if (confirmAI) {
-        return aiBranchName
-      } else {
-        console.log('🚫 Branch creation cancelled')
-        process.exit(0)
-      }
-    } else {
-      console.error('⚠️ Could not parse AI output')
-      process.exit(1)
-    }
-  } catch {
-    console.error('⚠️ AI generation failed')
-    process.exit(1)
-  }
+  return generateBranchNameWithAI(prompt)
 }
 
 async function generateBranchNameFromDiff(): Promise<string | never> {
-  const config = await loadConfig()
-
   // Get git diff
   let gitDiff: string
   try {
@@ -197,43 +164,7 @@ async function generateBranchNameFromDiff(): Promise<string | never> {
   }
 
   const prompt = createDiffBranchPrompt(gitDiff)
-
-  try {
-    console.log(
-      `🤖 Using ${config.agent.toUpperCase()} to generate branch name from git diff...`,
-    )
-
-    // Execute AI command and get output
-    const aiOutput = await executeAIWithOutput(prompt)
-
-    // Parse AI output
-    const branchMatch = aiOutput.match(/BRANCH_NAME:\s*(.+)/i)
-
-    if (branchMatch) {
-      const aiBranchName = branchMatch[1].trim()
-
-      console.log(`🤖 AI-generated branch name: ${aiBranchName}`)
-
-      // Confirm the AI suggestion
-      const confirmAI = await confirm({
-        message: `Use AI suggestion: ${aiBranchName}?`,
-        default: true,
-      })
-
-      if (confirmAI) {
-        return aiBranchName
-      } else {
-        console.log('🚫 Branch creation cancelled')
-        process.exit(0)
-      }
-    } else {
-      console.error('⚠️ Could not parse AI output')
-      process.exit(1)
-    }
-  } catch {
-    console.error('⚠️ AI generation failed')
-    process.exit(1)
-  }
+  return generateBranchNameWithAI(prompt)
 }
 
 function setupCommander() {
