@@ -1,4 +1,5 @@
 import { $ } from 'zx'
+import ora from 'ora'
 import { checkGitHubCLI } from '../git-helpers.js'
 import { loadConfig } from '../config.js'
 import { executeAICommand } from '../ai-executor.js'
@@ -8,9 +9,13 @@ async function getPRInfo(): Promise<{
   currentBranch: string
   url: string
 } | null> {
+  const spinner = ora('Checking for PR on current branch...').start()
+
   try {
     const result = await $`gh pr view --json baseRefName,headRefName,url`
     const { baseRefName, headRefName, url } = JSON.parse(result.stdout)
+
+    spinner.succeed('Found PR for current branch')
 
     return {
       targetBranch: baseRefName,
@@ -18,6 +23,7 @@ async function getPRInfo(): Promise<{
       url,
     }
   } catch {
+    spinner.warn('No PR found for current branch')
     return null
   }
 }
@@ -28,12 +34,10 @@ async function main() {
   // Get additional prompt from command line arguments
   const additionalPrompt = process.argv.slice(2).join(' ')
 
-  console.log('🔍 Checking for PR on current branch...')
-
   const prInfo = await getPRInfo()
 
   if (!prInfo) {
-    console.error('❌ No PR found for current branch')
+    console.error('No PR found for current branch')
     console.error(
       'Please create a PR first or switch to a branch with an existing PR',
     )
@@ -41,10 +45,10 @@ async function main() {
   }
 
   const config = await loadConfig()
-  console.log(`🔗 PR URL: ${prInfo.url}`)
-  console.log(`📋 Target branch: ${prInfo.targetBranch}`)
-  console.log(`🌿 Current branch: ${prInfo.currentBranch}`)
-  console.log(`🤖 Using ${config.agent.toUpperCase()} for AI assistance`)
+  console.log(`PR URL: ${prInfo.url}`)
+  console.log(`Target branch: ${prInfo.targetBranch}`)
+  console.log(`Current branch: ${prInfo.currentBranch}`)
+  console.log(`Using ${config.agent.toUpperCase()} for AI assistance`)
 
   let prompt = `Write a PR description following these steps:
 1. Look for pull_request_template.md in .github directory (use Glob pattern: ".github/**" to find it)
@@ -59,7 +63,7 @@ async function main() {
 
   // Add additional context if provided
   if (additionalPrompt) {
-    console.log(`📝 Additional context: ${additionalPrompt}`)
+    console.log(`Additional context: ${additionalPrompt}`)
     prompt += `
 
 Additional context from user:
@@ -68,11 +72,15 @@ ${additionalPrompt}
 Please incorporate this additional context into the PR description where relevant.`
   }
 
+  const updateSpinner = ora(
+    'AI is generating and updating PR description...',
+  ).start()
+
   try {
     await executeAICommand(prompt)
-    console.log('✅ PR description updated successfully!')
+    updateSpinner.succeed('PR description updated successfully!')
   } catch {
-    console.error('❌ Failed to update PR description')
+    updateSpinner.fail('Failed to update PR description')
     process.exit(1)
   }
 }

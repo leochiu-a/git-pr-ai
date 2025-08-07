@@ -2,6 +2,7 @@ import { writeFileSync, existsSync, mkdirSync } from 'fs'
 import { Command } from 'commander'
 import { select, confirm, input } from '@inquirer/prompts'
 import { $ } from 'zx'
+import ora from 'ora'
 import {
   GitPrAiConfig,
   getConfigPath,
@@ -13,35 +14,35 @@ async function openConfig() {
   const configPath = getConfigPath()
 
   if (!existsSync(configPath)) {
-    console.error(`🔍 Configuration file not found: ${configPath}`)
-    console.log('💡 Run "git pr-ai config" first to create configuration')
+    console.error(`Configuration file not found: ${configPath}`)
+    console.log('Run "git pr-ai config" first to create configuration')
     process.exit(1)
   }
+
+  const spinner = ora('Opening config file...').start()
 
   try {
     // Try to open with cursor first, then fallback to code
     try {
       await $`cursor ${configPath}`
-      console.log(`📖 Opened config file in Cursor: ${configPath}`)
+      spinner.succeed(`Opened config file in Cursor: ${configPath}`)
     } catch {
       await $`code ${configPath}`
-      console.log(`📖 Opened config file in VS Code: ${configPath}`)
+      spinner.succeed(`Opened config file in VS Code: ${configPath}`)
     }
   } catch (error) {
-    console.error(
-      '📝 Failed to open config file:',
-      error instanceof Error ? error.message : String(error),
-    )
-    console.log(`📁 Config file location: ${configPath}`)
+    spinner.fail('Failed to open config file')
+    console.error(error instanceof Error ? error.message : String(error))
+    console.log(`Config file location: ${configPath}`)
     process.exit(1)
   }
 }
 
 async function setupJiraConfig() {
-  console.log('🔧 Setting up JIRA integration...\n')
+  console.log('Setting up JIRA integration...\n')
 
   const baseUrl = await input({
-    message: '🌐 JIRA Base URL (e.g., https://your-company.atlassian.net):',
+    message: 'JIRA Base URL (e.g., https://your-company.atlassian.net):',
     validate: (value) => {
       if (!value.trim()) return 'Base URL is required'
       try {
@@ -60,7 +61,7 @@ async function setupJiraConfig() {
   })
 
   const email = await input({
-    message: '📧 JIRA Email:',
+    message: 'JIRA Email:',
     validate: (value) => {
       if (!value.trim()) return 'Email is required'
       if (!value.includes('@')) return 'Please enter a valid email'
@@ -70,7 +71,7 @@ async function setupJiraConfig() {
 
   const apiToken = await input({
     message:
-      '🔑 JIRA API Token (create at https://id.atlassian.com/manage-profile/security/api-tokens):',
+      'JIRA API Token (create at https://id.atlassian.com/manage-profile/security/api-tokens):',
     validate: (value) => {
       if (!value.trim()) return 'API Token is required'
       return true
@@ -92,12 +93,13 @@ async function ensureConfigDir(): Promise<void> {
 }
 
 function displayExistingConfig(config: GitPrAiConfig) {
-  console.log('📋 Found existing configuration:')
-  console.log(`   Agent: ${config.agent}`)
+  console.log('Found existing configuration:')
+  console.log('')
+  console.log(`Agent: ${config.agent}`)
   if (config.jira) {
-    console.log(`   JIRA: ${config.jira.baseUrl}`)
+    console.log(`JIRA: ${config.jira.baseUrl}`)
   } else {
-    console.log('   JIRA: Not configured')
+    console.log('JIRA: Not configured')
   }
   console.log('')
 }
@@ -131,7 +133,7 @@ function determineWhatToUpdate(options: {
 
 async function askWhatToUpdate(): Promise<string> {
   return await select({
-    message: '🔧 What would you like to configure?',
+    message: 'What would you like to configure?',
     choices: [
       { name: 'AI Agent only', value: 'agent' },
       { name: 'JIRA integration only', value: 'jira' },
@@ -144,7 +146,7 @@ async function updateAgentConfig(
   config: GitPrAiConfig,
 ): Promise<GitPrAiConfig> {
   const selectedAgent = await select({
-    message: '🤖 Which AI agent would you like to use?',
+    message: 'Which AI agent would you like to use?',
     choices: [
       {
         name: 'Claude (Anthropic)',
@@ -181,17 +183,19 @@ async function updateJiraConfig(config: GitPrAiConfig): Promise<GitPrAiConfig> {
 
 async function saveConfig(config: GitPrAiConfig): Promise<void> {
   const configPath = getConfigPath()
+  const spinner = ora('Saving configuration...').start()
 
   try {
     writeFileSync(configPath, JSON.stringify(config, null, 2))
-    console.log(`\n✅ Configuration updated successfully!`)
-    console.log(`📁 Config path: ${configPath}`)
-    console.log(`🎯 AI agent: ${config.agent}`)
+    spinner.succeed('Configuration updated successfully!')
+    console.log(`Config path: ${configPath}`)
+    console.log(`AI agent: ${config.agent}`)
     if (config.jira) {
-      console.log(`🔧 JIRA integration: ${config.jira.baseUrl}`)
+      console.log(`JIRA integration: ${config.jira.baseUrl}`)
     }
   } catch (error) {
-    console.error(`📝 Failed to update configuration:`, error)
+    spinner.fail('Failed to update configuration')
+    console.error(error)
     process.exit(1)
   }
 }
@@ -213,7 +217,7 @@ async function initConfig(options: {
 
     const shouldProceed = await confirmUpdate(options.force || false)
     if (!shouldProceed) {
-      console.log('🚫 Configuration update cancelled.')
+      console.log('Configuration update cancelled.')
       return
     }
   }
@@ -262,7 +266,7 @@ program
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
-      console.error('💭 Error:', errorMessage)
+      console.error('Error:', errorMessage)
       process.exit(1)
     }
   })
