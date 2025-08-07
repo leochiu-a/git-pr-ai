@@ -135,8 +135,6 @@ async function generateBranchNameFromPrompt(
     if (branchMatch) {
       const aiBranchName = branchMatch[1].trim()
 
-      console.log(`🤖 AI-generated branch name: ${aiBranchName}`)
-
       // Confirm the AI suggestion
       const confirmAI = await confirm({
         message: `Use AI suggestion: ${aiBranchName}?`,
