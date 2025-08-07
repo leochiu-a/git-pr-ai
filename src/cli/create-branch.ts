@@ -41,8 +41,6 @@ async function createBranch(branchName: string, baseBranch: string) {
 }
 
 async function moveBranch(currentBranch: string, newBranchName: string) {
-  console.log(`🔄 Renaming branch: ${currentBranch} → ${newBranchName}`)
-
   // Check if target branch already exists
   try {
     await $`git show-ref --verify --quiet refs/heads/${newBranchName}`
@@ -118,8 +116,6 @@ BRANCH_NAME: feat/PROJ-123-add-user-auth`
 
     if (branchMatch) {
       const aiBranchName = branchMatch[1].trim()
-
-      console.log(`🤖 AI-generated branch name: ${aiBranchName}`)
 
       // Confirm the AI suggestion
       const confirmAI = await confirm({
@@ -344,8 +340,6 @@ async function main() {
         // Generate branch name using AI
         branchName = await generateBranchName(jiraTicket, jiraTitle)
       }
-
-      console.log(`🌿 Generated branch name: ${branchName}`)
 
       if (options.move) {
         // Rename current branch
