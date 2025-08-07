@@ -6,33 +6,14 @@ import {
   GitPrAiConfig,
   getConfigPath,
   getConfigDir,
-  CONFIG_FILENAME,
   loadConfig,
 } from '../config.js'
-
-async function promptAgentSelection(): Promise<'claude' | 'gemini'> {
-  const answer = await select({
-    message: '🤖 Which AI agent would you like to use?',
-    choices: [
-      {
-        name: 'Claude (Anthropic)',
-        value: 'claude' as const,
-      },
-      {
-        name: 'Gemini (Google)',
-        value: 'gemini' as const,
-      },
-    ],
-  })
-
-  return answer
-}
 
 async function openConfig() {
   const configPath = getConfigPath()
 
   if (!existsSync(configPath)) {
-    console.error(`❌ Configuration file not found: ${configPath}`)
+    console.error(`🔍 Configuration file not found: ${configPath}`)
     console.log('💡 Run "git pr-ai config" first to create configuration')
     process.exit(1)
   }
@@ -48,7 +29,7 @@ async function openConfig() {
     }
   } catch (error) {
     console.error(
-      '❌ Failed to open config file:',
+      '📝 Failed to open config file:',
       error instanceof Error ? error.message : String(error),
     )
     console.log(`📁 Config file location: ${configPath}`)
@@ -103,82 +84,82 @@ async function setupJiraConfig() {
   }
 }
 
-async function initConfig(options: { force?: boolean }) {
+async function ensureConfigDir(): Promise<void> {
   const configDir = getConfigDir()
-  const configPath = getConfigPath()
-
-  // Ensure config directory exists first
   if (!existsSync(configDir)) {
     mkdirSync(configDir, { recursive: true })
-  }
-
-  if (existsSync(configPath) && !options.force) {
-    const shouldOverwrite = await confirm({
-      message: `${CONFIG_FILENAME} already exists. Do you want to overwrite it?`,
-      default: false,
-    })
-
-    if (!shouldOverwrite) {
-      console.log('❌ Configuration initialization cancelled.')
-      return
-    }
-  }
-
-  const selectedAgent = await promptAgentSelection()
-
-  const setupJira = await confirm({
-    message: '🔧 Would you like to setup JIRA integration?',
-    default: false,
-  })
-
-  const config: GitPrAiConfig = {
-    agent: selectedAgent,
-  }
-
-  if (setupJira) {
-    config.jira = await setupJiraConfig()
-  }
-
-  try {
-    writeFileSync(configPath, JSON.stringify(config, null, 2))
-    console.log(`\n✅ ${CONFIG_FILENAME} created successfully!`)
-    console.log(`📁 Config path: ${configPath}`)
-    console.log(`🎯 Selected AI agent: ${selectedAgent}`)
-    if (config.jira) {
-      console.log(`🔧 JIRA integration: ${config.jira.baseUrl}`)
-    }
-  } catch (error) {
-    console.error(`❌ Failed to create ${CONFIG_FILENAME}:`, error)
-    process.exit(1)
   }
 }
 
-async function configureJira() {
-  const configDir = getConfigDir()
-  const configPath = getConfigPath()
-
-  // Ensure config directory exists first
-  if (!existsSync(configDir)) {
-    mkdirSync(configDir, { recursive: true })
-  }
-
-  let config: GitPrAiConfig
-
-  if (existsSync(configPath)) {
-    try {
-      config = await loadConfig()
-    } catch {
-      console.error('❌ Failed to load existing configuration')
-      process.exit(1)
-    }
+function displayExistingConfig(config: GitPrAiConfig) {
+  console.log('📋 Found existing configuration:')
+  console.log(`   Agent: ${config.agent}`)
+  if (config.jira) {
+    console.log(`   JIRA: ${config.jira.baseUrl}`)
   } else {
-    config = {
-      agent: 'claude',
-    }
+    console.log('   JIRA: Not configured')
+  }
+  console.log('')
+}
+
+async function confirmUpdate(force: boolean): Promise<boolean> {
+  if (force) {
+    return true
   }
 
-  console.log('🔧 Configuring JIRA integration...')
+  return await confirm({
+    message: 'Configuration already exists. Would you like to update it?',
+    default: true,
+  })
+}
 
+function determineWhatToUpdate(options: {
+  agent?: boolean
+  jira?: boolean
+}): string {
+  if (options.agent && options.jira) {
+    return 'both'
+  } else if (options.agent) {
+    return 'agent'
+  } else if (options.jira) {
+    return 'jira'
+  }
+
+  // Will ask user interactively
+  return 'ask'
+}
+
+async function askWhatToUpdate(): Promise<string> {
+  return await select({
+    message: '🔧 What would you like to configure?',
+    choices: [
+      { name: 'AI Agent only', value: 'agent' },
+      { name: 'JIRA integration only', value: 'jira' },
+      { name: 'Both AI Agent and JIRA integration', value: 'both' },
+    ],
+  })
+}
+
+async function updateAgentConfig(
+  config: GitPrAiConfig,
+): Promise<GitPrAiConfig> {
+  const selectedAgent = await select({
+    message: '🤖 Which AI agent would you like to use?',
+    choices: [
+      {
+        name: 'Claude (Anthropic)',
+        value: 'claude' as const,
+      },
+      {
+        name: 'Gemini (Google)',
+        value: 'gemini' as const,
+      },
+    ],
+  })
+  return { ...config, agent: selectedAgent }
+}
+
+async function updateJiraConfig(config: GitPrAiConfig): Promise<GitPrAiConfig> {
   if (config.jira) {
     const shouldOverwrite = await confirm({
       message:
@@ -186,24 +167,78 @@ async function configureJira() {
       default: false,
     })
 
-    if (!shouldOverwrite) {
-      console.log('❌ JIRA configuration cancelled.')
+    if (shouldOverwrite) {
+      const jira = await setupJiraConfig()
+      return { ...config, jira }
+    } else {
+      return config
+    }
+  } else {
+    const jira = await setupJiraConfig()
+    return { ...config, jira }
+  }
+}
+
+async function saveConfig(config: GitPrAiConfig): Promise<void> {
+  const configPath = getConfigPath()
+
+  try {
+    writeFileSync(configPath, JSON.stringify(config, null, 2))
+    console.log(`\n✅ Configuration updated successfully!`)
+    console.log(`📁 Config path: ${configPath}`)
+    console.log(`🎯 AI agent: ${config.agent}`)
+    if (config.jira) {
+      console.log(`🔧 JIRA integration: ${config.jira.baseUrl}`)
+    }
+  } catch (error) {
+    console.error(`📝 Failed to update configuration:`, error)
+    process.exit(1)
+  }
+}
+
+async function initConfig(options: {
+  force?: boolean
+  agent?: boolean
+  jira?: boolean
+}) {
+  await ensureConfigDir()
+
+  // Load existing config if available
+  const configPath = getConfigPath()
+  const hasExistingConfig = existsSync(configPath)
+
+  if (hasExistingConfig) {
+    const existingConfig = await loadConfig()
+    displayExistingConfig(existingConfig)
+
+    const shouldProceed = await confirmUpdate(options.force || false)
+    if (!shouldProceed) {
+      console.log('🚫 Configuration update cancelled.')
       return
     }
   }
 
-  config.jira = await setupJiraConfig()
+  // Load config (will use default if file doesn't exist)
+  let config: GitPrAiConfig = await loadConfig()
 
-  try {
-    writeFileSync(configPath, JSON.stringify(config, null, 2))
-    console.log(`\n✅ JIRA configuration updated successfully!`)
-    console.log(`📁 Config path: ${configPath}`)
-    console.log(`🔧 JIRA Base URL: ${config.jira.baseUrl}`)
-    console.log(`📧 JIRA Email: ${config.jira.email}`)
-  } catch (error) {
-    console.error(`❌ Failed to update JIRA configuration:`, error)
-    process.exit(1)
+  // Determine what to update
+  const whatToUpdate =
+    determineWhatToUpdate(options) === 'ask'
+      ? await askWhatToUpdate()
+      : determineWhatToUpdate(options)
+
+  // Update configurations based on selection
+  if (whatToUpdate === 'agent') {
+    config = await updateAgentConfig(config)
+  } else if (whatToUpdate === 'jira') {
+    config = await updateJiraConfig(config)
+  } else if (whatToUpdate === 'both') {
+    config = await updateAgentConfig(config)
+    config = await updateJiraConfig(config)
   }
+
+  // Save the updated configuration
+  await saveConfig(config)
 }
 
 const program = new Command()
@@ -212,9 +247,11 @@ program.name('git-pr-ai').description('Git PR AI tools')
 
 program
   .command('config')
-  .description('Initialize Git PR AI configuration')
+  .description('Initialize or update Git PR AI configuration')
   .option('-f, --force', 'force overwrite existing configuration')
   .option('-o, --open', 'open existing configuration file')
+  .option('-a, --agent', 'configure AI agent only')
+  .option('-j, --jira', 'configure JIRA integration only')
   .action(async (options) => {
     try {
       if (options.open) {
@@ -225,21 +262,7 @@ program
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
-      console.error('❌ Error:', errorMessage)
-      process.exit(1)
-    }
-  })
-
-program
-  .command('jira')
-  .description('Configure JIRA integration settings')
-  .action(async () => {
-    try {
-      await configureJira()
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error)
-      console.error('❌ Error:', errorMessage)
+      console.error('💭 Error:', errorMessage)
       process.exit(1)
     }
   })
