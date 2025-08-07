@@ -296,10 +296,21 @@ Prerequisites:
   return program
 }
 
+interface CreateBranchOptions {
+  /** provide a JIRA ticket ID to create a branch from the ticket */
+  jira?: string
+  /** provide a git diff to create a branch from the diff */
+  gitDiff?: boolean
+  /** provide a custom prompt to create a branch from the prompt */
+  prompt?: string
+  /** move the current branch instead of creating a new one */
+  move?: boolean
+}
+
 async function main() {
   const program = setupCommander()
 
-  program.action(async (options) => {
+  program.action(async (options: CreateBranchOptions) => {
     try {
       await checkGitHubCLI()
 
@@ -341,7 +352,7 @@ async function main() {
         // Generate branch name from custom prompt
         console.log(`💭 Custom prompt: ${options.prompt}`)
         branchName = await generateBranchNameFromPrompt(options.prompt)
-      } else {
+      } else if (options.jira) {
         // Generate branch name from JIRA ticket
         const jiraTicket = options.jira
         console.log(`🎯 JIRA Ticket: ${jiraTicket}`)
@@ -358,6 +369,9 @@ async function main() {
 
         // Generate branch name using AI
         branchName = await generateBranchName(jiraTicket, jiraTitle)
+      } else {
+        // This should not happen due to earlier checks
+        throw new Error('No valid option provided')
       }
 
       if (options.move) {
