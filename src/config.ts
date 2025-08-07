@@ -62,6 +62,23 @@ export async function executeAICommand(prompt: string): Promise<void> {
   }
 }
 
+export async function executeAIWithOutput(prompt: string): Promise<string> {
+  const config = await loadConfig()
+
+  switch (config.agent) {
+    case 'claude':
+      await checkClaudeCLI()
+      const result = await $`echo ${prompt} | claude`.quiet()
+      return result.stdout.trim()
+    case 'gemini':
+      await checkGeminiCLI()
+      const geminiResult = await $`echo ${prompt} | gemini`.quiet()
+      return geminiResult.stdout.trim()
+    default:
+      throw new Error(`Unsupported AI agent: ${config.agent}`)
+  }
+}
+
 async function checkClaudeCLI(): Promise<void> {
   try {
     await $`claude --version`.quiet()
