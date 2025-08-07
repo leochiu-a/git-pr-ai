@@ -42,20 +42,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Create GitHub Release
-        if: steps.changesets.outputs.published == 'true'
-        run: |
-          # Get the latest version from package.json
-          VERSION=$(node -p "require('./package.json').version")
-
-          # Extract release notes from CHANGELOG.md for this version
-          RELEASE_NOTES=$(awk "/## $VERSION/,/## [0-9]/{if(/## [0-9]/ && !/## $VERSION/) exit; if(!/## $VERSION/) print}" CHANGELOG.md | sed '/^$/d')
-
-          # Create GitHub release
-          gh release create "v$VERSION" \
-            --title "Release v$VERSION" \
-            --notes "$RELEASE_NOTES" \
-            --latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
