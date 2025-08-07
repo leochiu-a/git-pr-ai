@@ -3,7 +3,8 @@ import { Command } from 'commander'
 import { confirm } from '@inquirer/prompts'
 import { checkGitHubCLI, getCurrentBranch } from '../utils.js'
 import { getJiraTicketTitle } from '../jira.js'
-import { loadConfig, executeAIWithOutput } from '../config.js'
+import { loadConfig } from '../config.js'
+import { executeAIWithOutput } from '../ai-executor.js'
 
 async function createBranch(branchName: string, baseBranch: string) {
   console.log(`🌿 Creating branch: ${branchName}`)

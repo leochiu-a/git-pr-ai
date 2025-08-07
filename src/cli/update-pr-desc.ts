@@ -1,6 +1,7 @@
 import { $ } from 'zx'
 import { checkGitHubCLI } from '../utils.js'
-import { executeAICommand, loadConfig } from '../config.js'
+import { loadConfig } from '../config.js'
+import { executeAICommand } from '../ai-executor.js'
 
 async function getPRInfo(): Promise<{
   targetBranch: string
