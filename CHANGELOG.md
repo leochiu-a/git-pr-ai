@@ -1,5 +1,12 @@
 # git-pr-ai
 
+## 1.5.1
+
+### Patch Changes
+
+- 3fff024: Enhance user feedback with ora spinners and refined console messages
+- bc9717e: Add custom prompt branch generation
+
 ## 1.5.0
 
 ### Minor Changes
