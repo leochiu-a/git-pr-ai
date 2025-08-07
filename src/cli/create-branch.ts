@@ -111,13 +111,103 @@ BRANCH_NAME: feat/PROJ-123-add-user-auth`
   }
 }
 
+async function generateBranchNameFromDiff(): Promise<string | never> {
+  const config = await loadConfig()
+
+  // Get git diff
+  let gitDiff: string
+  try {
+    const result = await $`git diff HEAD`
+    gitDiff = result.stdout.trim()
+
+    if (!gitDiff) {
+      console.error('⚠️ No changes detected in git diff')
+      process.exit(1)
+    }
+  } catch {
+    console.error('⚠️ Failed to get git diff')
+    process.exit(1)
+  }
+
+  const prompt = `Based on the following git diff, generate a git branch name:
+
+${gitDiff}
+
+Please analyze the changes and provide:
+1. An appropriate branch type prefix following commitlint conventional types:
+   - feat: new features
+   - fix: bug fixes  
+   - docs: documentation changes
+   - style: formatting changes
+   - refactor: code refactoring
+   - perf: performance improvements
+   - test: adding/updating tests
+   - chore: maintenance tasks
+   - ci: CI/CD changes
+   - build: build system changes
+2. A descriptive branch name following the format: {prefix}/{description}
+
+Requirements:
+- Use kebab-case for the description
+- Keep the description concise but meaningful (max 40 characters)
+- Use only lowercase letters, numbers, and hyphens
+- Choose the branch type based on the changes shown in the diff
+- Generate a description that captures the essence of the changes
+
+Please respond with exactly this format:
+BRANCH_NAME: {your_generated_branch_name}
+
+Example:
+BRANCH_NAME: feat/add-user-authentication`
+
+  try {
+    console.log(
+      `🤖 Using ${config.agent.toUpperCase()} to generate branch name from git diff...`,
+    )
+
+    // Execute AI command and get output
+    const aiOutput = await executeAIWithOutput(prompt)
+
+    // Parse AI output
+    const branchMatch = aiOutput.match(/BRANCH_NAME:\s*(.+)/i)
+
+    if (branchMatch) {
+      const aiBranchName = branchMatch[1].trim()
+
+      console.log(`🤖 AI-generated branch name: ${aiBranchName}`)
+
+      // Confirm the AI suggestion
+      const confirmAI = await confirm({
+        message: `Use AI suggestion: ${aiBranchName}?`,
+        default: true,
+      })
+
+      if (confirmAI) {
+        return aiBranchName
+      } else {
+        console.log('🚫 Branch creation cancelled')
+        process.exit(0)
+      }
+    } else {
+      console.error('⚠️ Could not parse AI output')
+      process.exit(1)
+    }
+  } catch {
+    console.error('⚠️ AI generation failed')
+    process.exit(1)
+  }
+}
+
 function setupCommander() {
   const program = new Command()
 
   program
     .name('git-create-branch')
-    .description('Create a new git branch based on JIRA ticket information')
+    .description(
+      'Create a new git branch based on JIRA ticket information or git diff',
+    )
     .option('-j, --jira <ticket>', 'specify JIRA ticket ID')
+    .option('-g, --git-diff', 'generate branch name based on current git diff')
     .addHelpText(
       'after',
       `
@@ -125,11 +215,16 @@ Examples:
   $ git create-branch --jira PROJ-123
     Create a branch named: feat/PROJ-123-add-login-page
 
+  $ git create-branch --git-diff
+    Create a branch named: fix/update-user-validation
+    (Based on current git diff changes)
+
 Features:
-  - Automatically fetches JIRA ticket title
+  - Two modes: JIRA ticket-based or git diff-based branch naming
+  - Automatically fetches JIRA ticket title (JIRA mode)
   - AI-powered branch type detection (feat, fix, docs, etc.) following commitlint conventions
   - Uses current branch as base branch (simple and intuitive)
-  - Creates descriptive branch names based on ticket title
+  - Creates descriptive branch names based on ticket title or code changes
   - Handles existing branches gracefully
   - No manual configuration needed
 
@@ -149,32 +244,44 @@ async function main() {
     try {
       await checkGitHubCLI()
 
-      if (!options.jira) {
-        console.error('🔴 JIRA ticket ID is required')
+      // Check if user provided either --jira or --git-diff
+      if (!options.jira && !options.gitDiff) {
+        console.error(
+          '🔴 Either JIRA ticket ID (--jira) or git diff mode (--git-diff) is required',
+        )
         console.error('Usage: git create-branch --jira PROJ-123')
+        console.error('   or: git create-branch --git-diff')
         process.exit(1)
       }
-
-      const jiraTicket = options.jira
-
-      console.log(`🎯 JIRA Ticket: ${jiraTicket}`)
 
       // Get current branch as base branch
       const currentBranch = await getCurrentBranch()
       console.log(`📍 Current branch: ${currentBranch}`)
 
-      // Fetch JIRA ticket title
-      console.log('🔍 Fetching JIRA ticket title...')
-      const jiraTitle = await getJiraTicketTitle(jiraTicket)
+      let branchName: string
 
-      if (jiraTitle) {
-        console.log(`📋 JIRA Title: ${jiraTitle}`)
+      if (options.gitDiff) {
+        // Generate branch name from git diff
+        console.log('🔍 Analyzing git diff...')
+        branchName = await generateBranchNameFromDiff()
       } else {
-        console.log('⚠️ Could not fetch JIRA title, using ticket ID only')
-      }
+        // Generate branch name from JIRA ticket
+        const jiraTicket = options.jira
+        console.log(`🎯 JIRA Ticket: ${jiraTicket}`)
 
-      // Generate branch name using AI
-      const branchName = await generateBranchName(jiraTicket, jiraTitle)
+        // Fetch JIRA ticket title
+        console.log('🔍 Fetching JIRA ticket title...')
+        const jiraTitle = await getJiraTicketTitle(jiraTicket)
+
+        if (jiraTitle) {
+          console.log(`📋 JIRA Title: ${jiraTitle}`)
+        } else {
+          console.log('⚠️ Could not fetch JIRA title, using ticket ID only')
+        }
+
+        // Generate branch name using AI
+        branchName = await generateBranchName(jiraTicket, jiraTitle)
+      }
 
       console.log(`🌿 Generated branch name: ${branchName}`)
 
