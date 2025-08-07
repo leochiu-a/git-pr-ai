@@ -5,10 +5,15 @@ import {
   checkGitHubCLI,
   getCurrentBranch,
   getDefaultBranch,
-} from '../git-helpers.js'
-import { getJiraTicketTitle } from '../jira.js'
-import { loadConfig } from '../config.js'
-import { executeAIWithOutput } from '../ai-executor.js'
+} from '../../git-helpers.js'
+import { getJiraTicketTitle } from '../../jira.js'
+import { loadConfig } from '../../config.js'
+import { executeAIWithOutput } from '../../ai-executor.js'
+import {
+  createJiraBranchPrompt,
+  createCustomBranchPrompt,
+  createDiffBranchPrompt,
+} from './prompts.js'
 
 async function createBranch(branchName: string, baseBranch: string) {
   console.log(`🌿 Creating branch: ${branchName}`)
@@ -65,43 +70,10 @@ async function moveBranch(currentBranch: string, newBranchName: string) {
   }
 }
 
-async function generateBranchName(
-  jiraTicket: string,
-  jiraTitle: string | null,
+async function generateBranchNameWithAI(
+  prompt: string,
 ): Promise<string | never> {
   const config = await loadConfig()
-
-  const prompt = `Based on the following JIRA ticket information, generate a git branch name:
-
-JIRA Ticket: ${jiraTicket}
-JIRA Title: ${jiraTitle || 'Not available'}
-
-Please analyze the ticket and provide:
-1. An appropriate branch type prefix following commitlint conventional types:
-   - feat: new features
-   - fix: bug fixes  
-   - docs: documentation changes
-   - style: formatting changes
-   - refactor: code refactoring
-   - perf: performance improvements
-   - test: adding/updating tests
-   - chore: maintenance tasks
-   - ci: CI/CD changes
-   - build: build system changes
-2. A descriptive branch name following the format: {prefix}/{ticket-id}-{description}
-
-Requirements:
-- Use kebab-case for the description
-- Keep the description concise but meaningful (max 30 characters)
-- Use only lowercase letters, numbers, and hyphens
-- Choose the branch type based on the ticket content
-- Prefer 'feat' over 'feature' and 'fix' over 'bugfix' to align with commitlint
-
-Please respond with exactly this format:
-BRANCH_NAME: {your_generated_branch_name}
-
-Example:
-BRANCH_NAME: feat/PROJ-123-add-user-auth`
 
   try {
     console.log(
@@ -139,9 +111,22 @@ BRANCH_NAME: feat/PROJ-123-add-user-auth`
   }
 }
 
-async function generateBranchNameFromDiff(): Promise<string | never> {
-  const config = await loadConfig()
+async function generateBranchName(
+  jiraTicket: string,
+  jiraTitle: string | null,
+): Promise<string | never> {
+  const prompt = createJiraBranchPrompt(jiraTicket, jiraTitle)
+  return generateBranchNameWithAI(prompt)
+}
 
+async function generateBranchNameFromPrompt(
+  customPrompt: string,
+): Promise<string | never> {
+  const prompt = createCustomBranchPrompt(customPrompt)
+  return generateBranchNameWithAI(prompt)
+}
+
+async function generateBranchNameFromDiff(): Promise<string | never> {
   // Get git diff
   let gitDiff: string
   try {
@@ -178,73 +163,8 @@ async function generateBranchNameFromDiff(): Promise<string | never> {
     process.exit(1)
   }
 
-  const prompt = `Based on the following git diff, generate a git branch name:
-
-${gitDiff}
-
-Please analyze the changes and provide:
-1. An appropriate branch type prefix following commitlint conventional types:
-   - feat: new features
-   - fix: bug fixes  
-   - docs: documentation changes
-   - style: formatting changes
-   - refactor: code refactoring
-   - perf: performance improvements
-   - test: adding/updating tests
-   - chore: maintenance tasks
-   - ci: CI/CD changes
-   - build: build system changes
-2. A descriptive branch name following the format: {prefix}/{description}
-
-Requirements:
-- Use kebab-case for the description
-- Keep the description concise but meaningful (max 40 characters)
-- Use only lowercase letters, numbers, and hyphens
-- Choose the branch type based on the changes shown in the diff
-- Generate a description that captures the essence of the changes
-
-Please respond with exactly this format:
-BRANCH_NAME: {your_generated_branch_name}
-
-Example:
-BRANCH_NAME: feat/add-user-authentication`
-
-  try {
-    console.log(
-      `🤖 Using ${config.agent.toUpperCase()} to generate branch name from git diff...`,
-    )
-
-    // Execute AI command and get output
-    const aiOutput = await executeAIWithOutput(prompt)
-
-    // Parse AI output
-    const branchMatch = aiOutput.match(/BRANCH_NAME:\s*(.+)/i)
-
-    if (branchMatch) {
-      const aiBranchName = branchMatch[1].trim()
-
-      console.log(`🤖 AI-generated branch name: ${aiBranchName}`)
-
-      // Confirm the AI suggestion
-      const confirmAI = await confirm({
-        message: `Use AI suggestion: ${aiBranchName}?`,
-        default: true,
-      })
-
-      if (confirmAI) {
-        return aiBranchName
-      } else {
-        console.log('🚫 Branch creation cancelled')
-        process.exit(0)
-      }
-    } else {
-      console.error('⚠️ Could not parse AI output')
-      process.exit(1)
-    }
-  } catch {
-    console.error('⚠️ AI generation failed')
-    process.exit(1)
-  }
+  const prompt = createDiffBranchPrompt(gitDiff)
+  return generateBranchNameWithAI(prompt)
 }
 
 function setupCommander() {
@@ -253,10 +173,14 @@ function setupCommander() {
   program
     .name('git-create-branch')
     .description(
-      'Create a new git branch based on JIRA ticket information or git diff',
+      'Create a new git branch based on JIRA ticket information, git diff, or custom prompt',
     )
     .option('-j, --jira <ticket>', 'specify JIRA ticket ID')
     .option('-g, --git-diff', 'generate branch name based on current git diff')
+    .option(
+      '-p, --prompt <prompt>',
+      'generate branch name based on custom prompt',
+    )
     .option('-m, --move', 'rename current branch instead of creating a new one')
     .addHelpText(
       'after',
@@ -269,6 +193,10 @@ Examples:
     Create a branch named: fix/update-user-validation
     (Based on current git diff changes)
 
+  $ git create-branch --prompt "Add user authentication system"
+    Create a branch named: feat/add-user-auth-system
+    (Based on custom prompt)
+
   $ git create-branch --jira PROJ-123 --move
     Rename current branch to: feat/PROJ-123-add-login-page
 
@@ -276,8 +204,12 @@ Examples:
     Rename current branch to: fix/update-user-validation
     (Based on current git diff changes)
 
+  $ git create-branch --prompt "Fix memory leak in cache" --move
+    Rename current branch to: fix/memory-leak-cache
+    (Based on custom prompt)
+
 Features:
-  - Two modes: JIRA ticket-based or git diff-based branch naming
+  - Three modes: JIRA ticket-based, git diff-based, or custom prompt-based branch naming
   - Create new branches or rename existing ones (--move)
   - Automatically fetches JIRA ticket title (JIRA mode)
   - AI-powered branch type detection (feat, fix, docs, etc.) following commitlint conventions
@@ -295,20 +227,45 @@ Prerequisites:
   return program
 }
 
+interface CreateBranchOptions {
+  /** provide a JIRA ticket ID to create a branch from the ticket */
+  jira?: string
+  /** provide a git diff to create a branch from the diff */
+  gitDiff?: boolean
+  /** provide a custom prompt to create a branch from the prompt */
+  prompt?: string
+  /** move the current branch instead of creating a new one */
+  move?: boolean
+}
+
 async function main() {
   const program = setupCommander()
 
-  program.action(async (options) => {
+  program.action(async (options: CreateBranchOptions) => {
     try {
       await checkGitHubCLI()
 
-      // Check if user provided either --jira or --git-diff
-      if (!options.jira && !options.gitDiff) {
+      // Check if user provided one of the required options
+      const optionCount = [
+        options.jira,
+        options.gitDiff,
+        options.prompt,
+      ].filter(Boolean).length
+
+      if (optionCount === 0) {
         console.error(
-          '🔴 Either JIRA ticket ID (--jira) or git diff mode (--git-diff) is required',
+          '🔴 One of the following options is required: --jira, --git-diff, or --prompt',
         )
         console.error('Usage: git create-branch --jira PROJ-123')
         console.error('   or: git create-branch --git-diff')
+        console.error('   or: git create-branch --prompt "description"')
+        process.exit(1)
+      }
+
+      if (optionCount > 1) {
+        console.error(
+          '🔴 Only one option can be used at a time: --jira, --git-diff, or --prompt',
+        )
         process.exit(1)
       }
 
@@ -322,7 +279,11 @@ async function main() {
         // Generate branch name from git diff
         console.log('🔍 Analyzing git diff...')
         branchName = await generateBranchNameFromDiff()
-      } else {
+      } else if (options.prompt) {
+        // Generate branch name from custom prompt
+        console.log(`💭 Custom prompt: ${options.prompt}`)
+        branchName = await generateBranchNameFromPrompt(options.prompt)
+      } else if (options.jira) {
         // Generate branch name from JIRA ticket
         const jiraTicket = options.jira
         console.log(`🎯 JIRA Ticket: ${jiraTicket}`)
@@ -339,6 +300,9 @@ async function main() {
 
         // Generate branch name using AI
         branchName = await generateBranchName(jiraTicket, jiraTitle)
+      } else {
+        // This should not happen due to earlier checks
+        throw new Error('No valid option provided')
       }
 
       if (options.move) {

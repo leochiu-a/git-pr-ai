@@ -6,7 +6,7 @@ export default defineConfig({
     'git-update-pr-desc': 'src/cli/update-pr-desc.ts',
     'git-pr-review': 'src/cli/pr-review.ts',
     'git-pr-ai': 'src/cli/pr-ai.ts',
-    'git-create-branch': 'src/cli/create-branch.ts',
+    'git-create-branch': 'src/cli/create-branch/create-branch.ts',
     postinstall: 'scripts/postinstall.ts',
   },
   format: ['esm'],
