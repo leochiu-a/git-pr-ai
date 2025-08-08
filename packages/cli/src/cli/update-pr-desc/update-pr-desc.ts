@@ -15,16 +15,16 @@ async function main() {
   const config = await loadConfig()
   const provider = await getCurrentProvider()
 
-  const prUrl = await getPRUrl()
-
-  console.log(`PR URL: ${prUrl}`)
-  console.log(`Using ${config.agent.toUpperCase()} for AI assistance`)
-
-  const updateSpinner = ora(
-    'AI is generating and updating PR description...',
-  ).start()
+  let updateSpinner = ora('AI is generating and updating PR description...')
 
   try {
+    const prUrl = await getPRUrl()
+
+    console.log(`PR URL: ${prUrl}`)
+    console.log(`Using ${config.agent.toUpperCase()} for AI assistance`)
+
+    updateSpinner = updateSpinner.start()
+
     // Use provider to get detailed PR info
     const prDetails = await provider.getPRDetails()
     const template = await provider.findPRTemplate()
