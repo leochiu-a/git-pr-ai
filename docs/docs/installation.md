@@ -6,8 +6,8 @@ This guide will walk you through installing Git PR AI Tool and setting up the re
 
 - **Node.js**: Version 20.0.0 or higher
 - **Git**: Installed and configured
-- **GitHub CLI**: Required for PR operations
-- **AI Provider**: Claude Code or Gemini CLI (for AI features)
+- **Platform CLI**: GitHub CLI (gh) or GitLab CLI (glab) for PR operations
+- **AI Provider**: Claude Code (required for AI features)
 
 ## Step 1: Install Git PR AI Tool
 
@@ -32,37 +32,45 @@ The installation automatically sets up git aliases, so you can use these command
 - `git update-pr-desc`
 - `git pr-review`
 
-## Step 2: Install GitHub CLI
+## Step 2: Install Platform CLI
 
-To install the GitHub CLI (`gh`), please follow these steps:
+Choose the appropriate CLI tool based on your platform:
 
-1. Visit the official GitHub CLI website: https://cli.github.com/
-2. Follow the installation instructions provided on the website for your platform.
+### For GitHub Users
 
-For example, on macOS you can use Homebrew:
+Install the GitHub CLI (`gh`):
 
 ```bash
+# macOS
 brew install gh
 ```
 
-## Step 3: Install an AI Provider
+Visit https://cli.github.com/ for more installation options.
 
-Choose one of the following AI providers for enhanced features:
+### For GitLab Users
 
-### Option A: Claude Code (Recommended)
+Install the GitLab CLI (`glab`):
 
-Claude Code provides excellent code understanding and generation capabilities.
+```bash
+brew install glab
+```
+
+Visit https://gitlab.com/gitlab-org/cli for more installation options.
+
+## Step 3: Install Claude Code (Required)
+
+Claude Code is required for AI-powered features like PR description generation and code reviews.
 
 1. Visit the [Claude Code documentation](https://docs.anthropic.com/en/docs/claude-code)
 2. Follow the installation instructions for your platform
-3. Ensure Claude Code is properly authenticated
+3. Ensure Claude Code is properly authenticated with your Anthropic account
 
-### Option B: Gemini CLI
+Claude Code provides:
 
-Gemini CLI offers powerful AI assistance for code-related tasks.
-
-1. Install the Gemini CLI tool following Google's official documentation
-2. Configure authentication as required
+- Intelligent code analysis
+- Automatic PR description generation
+- Comprehensive code reviews
+- Context-aware suggestions
 
 ## Step 4: Verify Installation
 
@@ -72,12 +80,12 @@ Run the following commands to verify everything is installed correctly:
 # Check Git PR AI Tool
 git pr-ai --help
 
-# Check GitHub CLI
-gh --version
+# Check Platform CLI
+gh --version      # For GitHub users
+glab --version    # For GitLab users
 
-# Check your chosen AI provider
-# For Claude Code: ensure it's accessible in your terminal
-# For Gemini CLI: check according to its documentation
+# Check Claude Code
+claude --version  # Ensure Claude Code is installed and accessible
 ```
 
 ## Step 5: Optional Configuration

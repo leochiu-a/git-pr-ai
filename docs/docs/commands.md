@@ -61,7 +61,7 @@ git create-branch --jira PROJ-456 --move
 
 ## git open-pr
 
-Create or open a GitHub Pull Request for the current branch.
+Create or open a Pull Request for the current branch (works with both GitHub and GitLab).
 
 ### Usage
 
@@ -79,9 +79,10 @@ git open-pr --jira PROJ-123
 
 ### Features
 
+- **Multi-Platform Support**: Works with both GitHub and GitLab automatically
 - **Smart PR Detection**: Opens existing PR if one already exists
 - **Automatic JIRA Detection**: Extracts JIRA ticket from branch name
-- **Enhanced PR Titles**: Format: `[JIRA-123] ticket-title`
+- **Enhanced Titles**: Format: `[JIRA-123] ticket-title`
 - **Fallback Support**: Uses branch name if no JIRA ticket found
 
 ### Examples
@@ -112,9 +113,10 @@ git update-pr-desc "Focus on performance improvements and add test coverage deta
 
 ### Features
 
-- **AI-Powered Descriptions**: Uses Claude or Gemini for intelligent content
-- **Interactive Process**: Guides you through description creation
-- **Context Aware**: Analyzes code changes and PR context
+- **AI-Powered Descriptions**: Uses Claude Code for intelligent content generation
+- **Smart Analysis**: AI analyzes your code changes automatically without manual diff input
+- **Platform Agnostic**: Works with both GitHub and GitLab Pull Requests
+- **Context Aware**: Understands your repository structure and changes
 - **Additional Context**: Accepts custom context for focused descriptions
 
 ### Example Output
@@ -139,9 +141,6 @@ Get AI-powered code review for a Pull Request.
 ```bash
 # Review current branch PR
 git pr-review
-
-# Review specific PR by URL
-git pr-review https://github.com/owner/repo/pull/456
 ```
 
 ### Features
