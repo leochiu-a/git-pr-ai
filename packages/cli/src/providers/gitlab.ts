@@ -1,6 +1,13 @@
 import { $ } from 'zx'
 import ora from 'ora'
-import { GitProvider, PR, ReviewOptions } from './types.js'
+import fs from 'fs/promises'
+import {
+  GitProvider,
+  PR,
+  ReviewOptions,
+  PRDetails,
+  TemplateInfo,
+} from './types.js'
 
 export class GitLabProvider implements GitProvider {
   name = 'GitLab'
@@ -115,6 +122,7 @@ export class GitLabProvider implements GitProvider {
       const result = await $`glab mr list --json iid,title,webUrl,state,author`
       const mrs = JSON.parse(result.stdout)
 
+      // oxlint-disable-next-line no-explicit-any
       return mrs.map((mr: any) => ({
         number: mr.iid.toString(),
         title: mr.title,
@@ -124,6 +132,127 @@ export class GitLabProvider implements GitProvider {
       }))
     } catch {
       return []
+    }
+  }
+
+  async getPRDetails(prNumberOrUrl?: string): Promise<PRDetails> {
+    let mrNumber = prNumberOrUrl
+
+    // If it looks like a URL, extract the MR number
+    if (prNumberOrUrl && prNumberOrUrl.startsWith('http')) {
+      const gitlabPattern =
+        /https:\/\/gitlab\.com\/[^/]+\/[^/]+\/-\/merge_requests\/(\d+)/
+      const match = prNumberOrUrl.match(gitlabPattern)
+      if (!match) {
+        throw new Error(
+          'Invalid GitLab MR URL format. Expected: https://gitlab.com/owner/repo/-/merge_requests/123',
+        )
+      }
+      mrNumber = match[1]
+    }
+
+    const cmd = mrNumber
+      ? `glab mr view ${mrNumber} --json iid,title,webUrl,targetBranch,sourceBranch,state,author`
+      : `glab mr view --json iid,title,webUrl,targetBranch,sourceBranch,state,author`
+
+    const [mrResult, repoResult] = await Promise.all([
+      $`${cmd}`,
+      $`glab repo view --json owner,name`,
+    ])
+
+    const mrData = JSON.parse(mrResult.stdout)
+    const repoData = JSON.parse(repoResult.stdout)
+
+    return {
+      number: mrData.iid.toString(),
+      title: mrData.title,
+      url: mrData.webUrl,
+      baseBranch: mrData.targetBranch,
+      headBranch: mrData.sourceBranch,
+      owner: repoData.owner,
+      repo: repoData.name,
+      state: mrData.state.toLowerCase(),
+      author: mrData.author.username,
+    }
+  }
+
+  async getPRDiff(prNumber?: string): Promise<string> {
+    const cmd = prNumber ? `glab mr diff ${prNumber}` : `glab mr diff`
+    const result = await $`${cmd}`
+    return result.stdout
+  }
+
+  async findPRTemplate(): Promise<TemplateInfo> {
+    const possiblePaths = [
+      '.gitlab/merge_request_templates/default.md',
+      '.gitlab/merge_request_templates/Default.md',
+      '.gitlab/merge_request_templates/merge_request_template.md',
+    ]
+
+    for (const templatePath of possiblePaths) {
+      try {
+        const content = await fs.readFile(templatePath, 'utf-8')
+        return {
+          exists: true,
+          content,
+          path: templatePath,
+        }
+      } catch {
+        // Continue to next path
+      }
+    }
+
+    return { exists: false }
+  }
+
+  async postComment(content: string, prNumber?: string): Promise<void> {
+    const tempFile = 'temp_comment.md'
+    await fs.writeFile(tempFile, content)
+
+    try {
+      const cmd = prNumber
+        ? `glab mr note ${prNumber} --message-file ${tempFile}`
+        : `glab mr note --message-file ${tempFile}`
+      await $`${cmd}`
+    } finally {
+      try {
+        await fs.unlink(tempFile)
+      } catch {
+        // Ignore cleanup errors
+      }
+    }
+  }
+
+  async updateDescription(content: string, prNumber?: string): Promise<void> {
+    const tempFile = 'temp_description.md'
+    await fs.writeFile(tempFile, content)
+
+    try {
+      const cmd = prNumber
+        ? `glab mr update ${prNumber} --description-file ${tempFile}`
+        : `glab mr update --description-file ${tempFile}`
+      await $`${cmd}`
+    } finally {
+      try {
+        await fs.unlink(tempFile)
+      } catch {
+        // Ignore cleanup errors
+      }
+    }
+  }
+
+  async getCurrentBranchPR(): Promise<PRDetails | null> {
+    try {
+      // Check if there's an existing MR for current branch
+      const mrUrl = await this.checkExistingPR()
+      if (!mrUrl) {
+        return null
+      }
+
+      // Get detailed MR information for current branch
+      return await this.getPRDetails()
+    } catch {
+      return null
     }
   }
 }

@@ -1,6 +1,13 @@
 import { $ } from 'zx'
 import ora from 'ora'
-import { GitProvider, PR, ReviewOptions } from './types.js'
+import fs from 'fs/promises'
+import {
+  GitProvider,
+  PR,
+  ReviewOptions,
+  PRDetails,
+  TemplateInfo,
+} from './types.js'
 
 export class GitHubProvider implements GitProvider {
   name = 'GitHub'
@@ -120,6 +127,7 @@ export class GitHubProvider implements GitProvider {
       const result = await $`gh pr list --json number,title,url,state,author`
       const prs = JSON.parse(result.stdout)
 
+      // oxlint-disable-next-line no-explicit-any
       return prs.map((pr: any) => ({
         number: pr.number.toString(),
         title: pr.title,
@@ -129,6 +137,126 @@ export class GitHubProvider implements GitProvider {
       }))
     } catch {
       return []
+    }
+  }
+
+  async getPRDetails(prNumberOrUrl?: string): Promise<PRDetails> {
+    let prNumber = prNumberOrUrl
+
+    // If it looks like a URL, extract the PR number
+    if (prNumberOrUrl && prNumberOrUrl.startsWith('http')) {
+      const githubPattern = /https:\/\/github\.com\/[^/]+\/[^/]+\/pull\/(\d+)/
+      const match = prNumberOrUrl.match(githubPattern)
+      if (!match) {
+        throw new Error(
+          'Invalid GitHub PR URL format. Expected: https://github.com/owner/repo/pull/123',
+        )
+      }
+      prNumber = match[1]
+    }
+
+    const cmd = prNumber
+      ? `gh pr view ${prNumber} --json number,title,url,baseRefName,headRefName,state,author`
+      : `gh pr view --json number,title,url,baseRefName,headRefName,state,author`
+
+    const [prResult, repoResult] = await Promise.all([
+      $`${cmd}`,
+      $`gh repo view --json owner,name`,
+    ])
+
+    const prData = JSON.parse(prResult.stdout)
+    const repoData = JSON.parse(repoResult.stdout)
+
+    return {
+      number: prData.number.toString(),
+      title: prData.title,
+      url: prData.url,
+      baseBranch: prData.baseRefName,
+      headBranch: prData.headRefName,
+      owner: repoData.owner.login,
+      repo: repoData.name,
+      state: prData.state.toLowerCase(),
+      author: prData.author.login,
+    }
+  }
+
+  async getPRDiff(prNumber?: string): Promise<string> {
+    const cmd = prNumber ? `gh pr diff ${prNumber}` : `gh pr diff`
+    const result = await $`${cmd}`
+    return result.stdout
+  }
+
+  async findPRTemplate(): Promise<TemplateInfo> {
+    const possiblePaths = [
+      '.github/pull_request_template.md',
+      '.github/PULL_REQUEST_TEMPLATE.md',
+      '.github/pull_request_template/default.md',
+    ]
+
+    for (const templatePath of possiblePaths) {
+      try {
+        const content = await fs.readFile(templatePath, 'utf-8')
+        return {
+          exists: true,
+          content,
+          path: templatePath,
+        }
+      } catch {
+        // Continue to next path
+      }
+    }
+
+    return { exists: false }
+  }
+
+  async postComment(content: string, prNumber?: string): Promise<void> {
+    const tempFile = 'temp_comment.md'
+    await fs.writeFile(tempFile, content)
+
+    try {
+      const cmd = prNumber
+        ? `gh pr comment ${prNumber} --body-file ${tempFile}`
+        : `gh pr comment --body-file ${tempFile}`
+      await $`${cmd}`
+    } finally {
+      try {
+        await fs.unlink(tempFile)
+      } catch {
+        // Ignore cleanup errors
+      }
+    }
+  }
+
+  async updateDescription(content: string, prNumber?: string): Promise<void> {
+    const tempFile = 'temp_description.md'
+    await fs.writeFile(tempFile, content)
+
+    try {
+      const cmd = prNumber
+        ? `gh pr edit ${prNumber} --body-file ${tempFile}`
+        : `gh pr edit --body-file ${tempFile}`
+      await $`${cmd}`
+    } finally {
+      try {
+        await fs.unlink(tempFile)
+      } catch {
+        // Ignore cleanup errors
+      }
+    }
+  }
+
+  async getCurrentBranchPR(): Promise<PRDetails | null> {
+    try {
+      // Check if there's an existing PR for current branch
+      const prUrl = await this.checkExistingPR()
+      if (!prUrl) {
+        return null
+      }
+
+      // Get detailed PR information for current branch
+      return await this.getPRDetails()
+    } catch {
+      return null
     }
   }
 }
