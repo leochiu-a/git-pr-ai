@@ -3,7 +3,7 @@ import { Command } from 'commander'
 import { confirm } from '@inquirer/prompts'
 import ora from 'ora'
 import {
-  checkGitHubCLI,
+  checkGitCLI,
   getCurrentBranch,
   getDefaultBranch,
 } from '../../git-helpers.js'
@@ -249,7 +249,7 @@ async function main() {
 
   program.action(async (options: CreateBranchOptions) => {
     try {
-      await checkGitHubCLI()
+      await checkGitCLI()
 
       // Check if user provided one of the required options
       const optionCount = [

@@ -1,51 +1,17 @@
 import { $ } from 'zx'
-
-$.verbose = false
-
-export async function getDefaultBranch() {
-  try {
-    const result = await $`gh repo view --json defaultBranchRef`
-    const json = JSON.parse(result.stdout)
-    if (json.defaultBranchRef && json.defaultBranchRef.name) {
-      return json.defaultBranchRef.name
-    }
-    return 'main'
-  } catch {
-    console.warn(
-      "⚠️ Could not determine default branch via gh, falling back to 'main'",
-    )
-    return 'main'
-  }
-}
+import { getCurrentProvider } from './providers/factory.js'
 
 export async function getCurrentBranch() {
   const result = await $`git branch --show-current`
   return result.stdout.trim()
 }
 
-export async function checkGitHubCLI() {
-  try {
-    await $`gh --version`.quiet()
-  } catch {
-    console.error('❌ Please install GitHub CLI (gh) first')
-    console.error('Installation: https://cli.github.com/')
-    process.exit(1)
-  }
+export async function getDefaultBranch() {
+  const provider = await getCurrentProvider()
+  return provider.getDefaultBranch()
+}
 
-  try {
-    const result = await $`gh auth status`.quiet()
-    // Check if there's at least one authenticated account
-    if (!result.stdout.includes('✓ Logged in to')) {
-      throw new Error('No authenticated accounts found')
-    }
-  } catch {
-    // If no output captured, try alternative check
-    try {
-      await $`gh api user`.quiet()
-    } catch {
-      console.error('❌ Please authenticate with GitHub CLI first')
-      console.error('Run: gh auth login')
-      process.exit(1)
-    }
-  }
+export async function checkGitCLI() {
+  const provider = await getCurrentProvider()
+  return provider.checkCLI()
 }
