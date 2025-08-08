@@ -1,7 +1,7 @@
 {
   "name": "git-pr-ai",
   "version": "1.6.0",
-  "description": "A tool to automatically extract JIRA ticket numbers from branch names and create GitHub PRs",
+  "description": "A tool to automatically extract JIRA ticket numbers from branch names and create GitHub/GitLab PRs",
   "type": "module",
   "bin": {
     "git-open-pr": "./dist/git-open-pr.js",
@@ -26,9 +26,12 @@
   "keywords": [
     "git",
     "github",
+    "gitlab",
     "jira",
     "pull-request",
-    "automation"
+    "merge-request",
+    "automation",
+    "ai"
   ],
   "author": "leochiu-a",
   "license": "MIT",
