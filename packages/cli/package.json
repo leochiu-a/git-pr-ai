@@ -1,4 +1,5 @@
 {
+  "name": "git-pr-ai",
   "version": "1.5.1",
   "description": "A tool to automatically extract JIRA ticket numbers from branch names and create GitHub PRs",
   "type": "module",
@@ -15,19 +16,12 @@
     "package.json"
   ],
   "scripts": {
-    "build": "pnpm -r build",
-    "build:cli": "pnpm --filter @git-pr-ai/cli build",
-    "build:docs": "pnpm --filter @git-pr-ai/docs build",
-    "dev:docs": "pnpm --filter @git-pr-ai/docs start",
-    "changeset": "changeset",
-    "version": "changeset version",
-    "release": "pnpm build && changeset publish",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsdown",
+    "postinstall": "test -f dist/postinstall.js && node dist/postinstall.js || echo 'Skipping git alias setup during build'",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check . --experimental-cli",
-    "prepare": "husky"
+    "format:check": "prettier --check . --experimental-cli"
   },
   "keywords": [
     "git",
@@ -49,24 +43,17 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "packageManager": "pnpm@10.14.0+sha512.ad27a79641b49c3e481a16a805baa71817a04bbe06a38d17e60e2eaee83f6a146c6a688125f5792e48dd5ba30e7da52a5cda4c3992b9ccf333f9ce223af84748",
+  "dependencies": {
+    "@inquirer/prompts": "^7.8.0",
+    "commander": "^14.0.0",
+    "ora": "^8.2.0",
+    "zx": "^8.7.2"
+  },
   "devDependencies": {
-    "@changesets/cli": "^2.29.5",
-    "@prettier/plugin-oxc": "^0.0.4",
     "@types/node": "^24.1.0",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.1.4",
     "oxlint": "^1.9.0",
     "prettier": "^3.6.2",
+    "tsdown": "^0.13.2",
     "typescript": "^5.9.2"
-  },
-  "lint-staged": {
-    "*.{ts,js}": [
-      "oxlint --fix",
-      "prettier --write"
-    ],
-    "*.{json,md,yml,yaml}": [
-      "prettier --write"
-    ]
   }
 }
