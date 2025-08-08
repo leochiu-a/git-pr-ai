@@ -5,85 +5,86 @@ export interface ReviewPromptOptions {
   additionalContext?: string
 }
 
-export function buildReviewPrompt(
-  prData: PRDetails & { diff: string },
-  options: ReviewPromptOptions = {},
-  providerName: string,
-): string {
+export interface BuildReviewPromptArgs {
+  prDetails: PRDetails
+  options?: ReviewPromptOptions
+  providerName: string
+}
+
+export function buildReviewPrompt({
+  prDetails,
+  options = {},
+  providerName,
+}: BuildReviewPromptArgs): string {
   const { additionalContext, reviewType = 'comprehensive' } = options
 
-  const basePrompt = `請分析以下 Pull Request 並提供代碼審查：
+  const basePrompt = `Please analyze this Pull Request and provide code review:
 
-## PR 資訊
-- Repository: ${prData.owner}/${prData.repo}
-- PR #${prData.number}: ${prData.title}
-- URL: ${prData.url}
-- Target branch: ${prData.baseBranch}
-- Source branch: ${prData.headBranch}
-
-## 代碼變更
-\`\`\`diff
-${prData.diff}
-\`\`\``
+## PR Information
+- Repository: ${prDetails.owner}/${prDetails.repo}
+- PR #${prDetails.number}: ${prDetails.title}
+- URL: ${prDetails.url}
+- Target branch: ${prDetails.baseBranch}
+- Source branch: ${prDetails.headBranch}`
 
   let analysisInstructions = ''
 
   switch (reviewType) {
     case 'security':
       analysisInstructions = `
-請專注於安全性分析：
-- 潛在的安全漏洞
-- 輸入驗證問題
-- 權限控制檢查
-- 敏感資料處理`
+Focus on security analysis:
+- Potential security vulnerabilities
+- Input validation issues
+- Permission control checks
+- Sensitive data handling`
       break
     case 'focused':
       analysisInstructions = `
-請提供重點摘要審查：
-- 主要變更概述
-- 潛在問題識別
-- 關鍵建議`
+Provide focused summary review:
+- Main changes overview
+- Potential issues identification
+- Key recommendations`
       break
     default:
       analysisInstructions = `
-請分析以下方面：
-- 代碼品質和最佳實踐
-- 潛在的 bug 或問題
-- 效能考量
-- 代碼一致性和風格
-- 測試覆蓋率`
+Analyze the following aspects:
+- Code quality and best practices
+- Potential bugs or issues
+- Performance considerations
+- Code consistency and style
+- Test coverage`
   }
 
   const reviewStructure = `
 
-請按以下格式提供結構化審查：
+Please provide structured review in the following format:
 
-## 📋 變更摘要
-[簡述主要變更內容]
+## 📋 Changes Summary
+[Brief description of main changes]
 
-## ✅ 優點
-[指出好的實踐和改進]
+## ✅ Strengths
+[Point out good practices and improvements]
 
-## ⚠️ 建議改進
-[具體的改進建議]
+## ⚠️ Suggestions for Improvement
+[Specific improvement suggestions]
 
-## 🐛 潛在問題
-[如有發現問題，請列出]
+## 🐛 Potential Issues
+[List any issues found]
 
-## 總體評估
-[批准/請求變更/僅評論]
+## Overall Assessment
+[Approve/Request Changes/Comment Only]
 
-請按以下步驟執行審查：
-1. 分析提供的代碼變更
-2. 根據上述格式生成審查內容
-3. 將審查內容發布為 PR/MR 評論
+Please follow these steps:
+- Analyze the code changes
+- Generate review content according to the above format
+- Post the review content as PR/MR comment
 
-注意：使用適當的 ${providerName} CLI 指令來發布評論。`
+Note: Use the appropriate ${providerName} CLI command to post the comment.`
 
   let finalPrompt = basePrompt + analysisInstructions + reviewStructure
 
   if (additionalContext) {
-    finalPrompt += `\n\n## 額外上下文\n${additionalContext}\n\n請將此上下文納入審查考量。`
+    finalPrompt += `\n\n## Additional Context\n${additionalContext}\n\nPlease incorporate this context into your review.`
   }
 
   return finalPrompt
