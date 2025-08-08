@@ -8,7 +8,6 @@ export async function detectProvider(): Promise<ProviderType> {
     const result = await $`git remote get-url origin`
     const remoteUrl = result.stdout.trim().toLowerCase()
 
-    // 更精確的偵測邏輯
     if (
       remoteUrl.includes('gitlab.com') ||
       remoteUrl.includes('gitlab') ||
