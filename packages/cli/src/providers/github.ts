@@ -155,14 +155,11 @@ export class GitHubProvider implements GitProvider {
       prNumber = match[1]
     }
 
-    const cmd = prNumber
-      ? `gh pr view ${prNumber} --json number,title,url,baseRefName,headRefName,state,author`
-      : `gh pr view --json number,title,url,baseRefName,headRefName,state,author`
+    const prResult = prNumber
+      ? await $`gh pr view ${prNumber} --json number,title,url,baseRefName,headRefName,state,author`
+      : await $`gh pr view --json number,title,url,baseRefName,headRefName,state,author`
 
-    const [prResult, repoResult] = await Promise.all([
-      $`${cmd}`,
-      $`gh repo view --json owner,name`,
-    ])
+    const repoResult = await $`gh repo view --json owner,name`
 
     const prData = JSON.parse(prResult.stdout)
     const repoData = JSON.parse(repoResult.stdout)
