@@ -32,9 +32,9 @@ export class GitLabProvider implements GitProvider {
 
   async getDefaultBranch(): Promise<string> {
     try {
-      const result = await $`glab repo view --json defaultBranch`
+      const result = await $`glab repo view -F json`
       const json = JSON.parse(result.stdout)
-      return json.defaultBranch || 'main'
+      return json.default_branch || 'main'
     } catch {
       console.warn(
         "⚠️ Could not determine default branch via glab, falling back to 'main'",
@@ -45,9 +45,9 @@ export class GitLabProvider implements GitProvider {
 
   async checkExistingPR(): Promise<string | null> {
     try {
-      const result = await $`glab mr view --json webUrl`
-      const { webUrl } = JSON.parse(result.stdout)
-      return webUrl
+      const result = await $`glab mr view -F json`
+      const json = JSON.parse(result.stdout)
+      return json.web_url
     } catch {
       return null
     }
@@ -56,9 +56,9 @@ export class GitLabProvider implements GitProvider {
   async openPR(): Promise<void> {
     const spinner = ora('Opening existing Merge Request...').start()
     await $`glab mr view --web`
-    const result = await $`glab mr view --json webUrl`
-    const { webUrl } = JSON.parse(result.stdout)
-    spinner.succeed(`Opened MR: ${webUrl}`)
+    const result = await $`glab mr view -F json`
+    const json = JSON.parse(result.stdout)
+    spinner.succeed(`Opened MR: ${json.web_url}`)
   }
 
   async createPR(
@@ -67,7 +67,7 @@ export class GitLabProvider implements GitProvider {
     baseBranch: string,
   ): Promise<void> {
     const spinner = ora('Creating Merge Request...').start()
-    await $`glab mr create --title ${title} --target-branch ${baseBranch} --source-branch ${branch} --web`
+    await $`glab mr create --title "${title}" --target-branch ${baseBranch} --source-branch ${branch} --web`
     spinner.succeed('Merge Request created successfully!')
   }
 
@@ -119,14 +119,14 @@ export class GitLabProvider implements GitProvider {
 
   async listPRs(): Promise<PR[]> {
     try {
-      const result = await $`glab mr list --json iid,title,webUrl,state,author`
+      const result = await $`glab mr list -F json`
       const mrs = JSON.parse(result.stdout)
 
       // oxlint-disable-next-line no-explicit-any
       return mrs.map((mr: any) => ({
         number: mr.iid.toString(),
         title: mr.title,
-        url: mr.webUrl,
+        url: mr.web_url,
         state: mr.state.toLowerCase(),
         author: mr.author.username,
       }))
@@ -152,12 +152,12 @@ export class GitLabProvider implements GitProvider {
     }
 
     const cmd = mrNumber
-      ? `glab mr view ${mrNumber} --json iid,title,webUrl,targetBranch,sourceBranch,state,author`
-      : `glab mr view --json iid,title,webUrl,targetBranch,sourceBranch,state,author`
+      ? `glab mr view ${mrNumber} -F json`
+      : `glab mr view -F json`
 
     const [mrResult, repoResult] = await Promise.all([
       $`${cmd}`,
-      $`glab repo view --json owner,name`,
+      $`glab repo view -F json`,
     ])
 
     const mrData = JSON.parse(mrResult.stdout)
@@ -166,10 +166,10 @@ export class GitLabProvider implements GitProvider {
     return {
       number: mrData.iid.toString(),
       title: mrData.title,
-      url: mrData.webUrl,
-      baseBranch: mrData.targetBranch,
-      headBranch: mrData.sourceBranch,
-      owner: repoData.owner,
+      url: mrData.web_url,
+      baseBranch: mrData.target_branch,
+      headBranch: mrData.source_branch,
+      owner: repoData.owner?.username || repoData.namespace?.path,
       repo: repoData.name,
       state: mrData.state.toLowerCase(),
       author: mrData.author.username,
