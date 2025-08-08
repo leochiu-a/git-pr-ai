@@ -1,6 +1,6 @@
 import ora from 'ora'
 
-import { checkGitCLI, getPRUrl } from '../../git-helpers.js'
+import { checkGitCLI } from '../../git-helpers.js'
 import { loadConfig } from '../../config.js'
 import { executeAICommand } from '../../ai-executor.js'
 import { getCurrentProvider } from '../../providers/factory.js'
@@ -18,9 +18,6 @@ async function main() {
   let updateSpinner = ora('AI is generating and updating PR description...')
 
   try {
-    const prUrl = await getPRUrl()
-
-    console.log(`PR URL: ${prUrl}`)
     console.log(`Using ${config.agent.toUpperCase()} for AI assistance`)
 
     updateSpinner = updateSpinner.start()
