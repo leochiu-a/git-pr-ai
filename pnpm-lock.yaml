@@ -6,19 +6,6 @@ settings:
 
 importers:
   .:
-    dependencies:
-      '@inquirer/prompts':
-        specifier: ^7.8.0
-        version: 7.8.0(@types/node@24.1.0)
-      commander:
-        specifier: ^14.0.0
-        version: 14.0.0
-      ora:
-        specifier: ^8.2.0
-        version: 8.2.0
-      zx:
-        specifier: ^8.7.2
-        version: 8.7.2
     devDependencies:
       '@changesets/cli':
         specifier: ^2.29.5
@@ -41,9 +28,6 @@ importers:
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
-      tsdown:
-        specifier: ^0.13.2
-        version: 0.13.2(typescript@5.9.2)
       typescript:
         specifier: ^5.9.2
         version: 5.9.2
