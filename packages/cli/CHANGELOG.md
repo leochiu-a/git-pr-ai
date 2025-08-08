@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.7.1
+
+### Patch Changes
+
+- a46affb: chore: add step to copy README to cli package in release workflow
+
 ## 1.7.0
 
 ### Minor Changes
