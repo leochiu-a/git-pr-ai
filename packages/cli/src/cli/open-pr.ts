@@ -46,7 +46,7 @@ Prerequisites:
 async function main() {
   const program = setupCommander()
 
-  program.action(async (options) => {
+  program.action(async (options: { jira?: string }) => {
     try {
       await checkGitCLI()
       const provider = await getCurrentProvider()

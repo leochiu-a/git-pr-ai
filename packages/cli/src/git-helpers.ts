@@ -28,17 +28,14 @@ export async function getPRUrl(): Promise<string> {
   const provider = await getCurrentProvider()
   const spinner = ora('Looking for PR/MR on current branch...').start()
 
-  try {
-    const prDetails = await provider.getCurrentBranchPR()
-    if (!prDetails) {
-      spinner.warn('No PR/MR found for current branch')
-      throw new Error('No PR/MR found for current branch')
-    }
-
-    spinner.succeed('Found PR/MR for current branch')
-    return prDetails.url
-  } catch (error) {
-    spinner.fail('Failed to get PR/MR information')
-    throw error
+  const prDetails = await provider.getCurrentBranchPR()
+  if (!prDetails) {
+    console.log(
+      `💡 Tip: Create a ${provider.name === 'GitHub' ? 'PR' : 'MR'} first using: open-pr`,
+    )
+    throw new Error('No PR/MR found for current branch')
   }
+
+  spinner.succeed('Found PR/MR for current branch')
+  return prDetails.url
 }

@@ -1,7 +1,7 @@
 import { Command } from 'commander'
 import ora from 'ora'
 
-import { checkGitCLI, getPRUrl } from '../../git-helpers.js'
+import { checkGitCLI } from '../../git-helpers.js'
 import { loadConfig } from '../../config.js'
 import { executeAICommand } from '../../ai-executor.js'
 import { getCurrentProvider } from '../../providers/factory.js'
@@ -47,7 +47,6 @@ function setupCommander() {
   program
     .name('git-pr-review')
     .description('AI-powered Pull Request/Merge Request Review Tool')
-    .argument('[pr-url]', 'PR/MR URL to review (supports GitHub and GitLab)')
     .option('-c, --context <context>', 'Additional context for the review')
     .addHelpText(
       'after',
@@ -86,29 +85,21 @@ Prerequisites:
 async function main() {
   const program = setupCommander()
 
-  program.action(
-    async (prUrl: string | undefined | null, options: { context?: string }) => {
-      try {
-        await checkGitCLI()
+  program.action(async (options: { context?: string }) => {
+    try {
+      await checkGitCLI()
 
-        const provider = await getCurrentProvider()
+      const provider = await getCurrentProvider()
+      const prDetails = await provider.getPRDetails()
 
-        if (!prUrl) {
-          prUrl = await getPRUrl()
-        } else {
-          console.log(`Reviewing PR/MR from URL: ${prUrl}`)
-        }
-
-        const prDetails = await provider.getPRDetails(prUrl)
-        await reviewPR(prDetails, { additionalContext: options.context })
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : String(error)
-        console.error('Error:', errorMessage)
-        process.exit(1)
-      }
-    },
-  )
+      await reviewPR(prDetails, { additionalContext: options.context })
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+      console.error('Error:', errorMessage)
+      process.exit(1)
+    }
+  })
 
   program.parse()
 }

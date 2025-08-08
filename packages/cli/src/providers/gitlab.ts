@@ -135,30 +135,9 @@ export class GitLabProvider implements GitProvider {
     }
   }
 
-  async getPRDetails(prNumberOrUrl?: string): Promise<PRDetails> {
-    let mrNumber = prNumberOrUrl
-
-    // If it looks like a URL, extract the MR number
-    if (prNumberOrUrl && prNumberOrUrl.startsWith('http')) {
-      const gitlabPattern =
-        /https:\/\/gitlab\.com\/[^/]+\/[^/]+\/-\/merge_requests\/(\d+)/
-      const match = prNumberOrUrl.match(gitlabPattern)
-      if (!match) {
-        throw new Error(
-          'Invalid GitLab MR URL format. Expected: https://gitlab.com/owner/repo/-/merge_requests/123',
-        )
-      }
-      mrNumber = match[1]
-    }
-
-    const cmd = mrNumber
-      ? `glab mr view ${mrNumber} -F json`
-      : `glab mr view -F json`
-
-    const [mrResult, repoResult] = await Promise.all([
-      $`${cmd}`,
-      $`glab repo view -F json`,
-    ])
+  async getPRDetails(): Promise<PRDetails> {
+    const mrResult = await $`glab mr view -F json`
+    const repoResult = await $`glab repo view -F json`
 
     const mrData = JSON.parse(mrResult.stdout)
     const repoData = JSON.parse(repoResult.stdout)
