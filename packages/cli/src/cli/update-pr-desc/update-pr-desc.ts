@@ -27,7 +27,6 @@ async function main() {
   try {
     // Use provider to get detailed PR info
     const prDetails = await provider.getPRDetails()
-    const diff = await provider.getPRDiff()
     const template = await provider.findPRTemplate()
 
     // Show template info to user
@@ -39,8 +38,7 @@ async function main() {
 
     // Use prompts function to construct the complete prompt
     const prompt = buildUpdateDescriptionPrompt({
-      prData: { ...prDetails, diff },
-      template,
+      prData: prDetails,
       additionalContext: additionalPrompt,
       providerName: provider.name,
     })

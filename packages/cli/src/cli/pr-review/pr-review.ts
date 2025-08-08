@@ -27,15 +27,11 @@ async function reviewPR(
   ).start()
 
   try {
-    // Use provider to get diff (we already have the PR details)
-    const diff = await provider.getPRDiff(prDetails.number)
-
-    // Build the complete prompt using the prompts function
-    const prompt = buildReviewPrompt(
-      { ...prDetails, diff },
+    const prompt = buildReviewPrompt({
+      prDetails,
       options,
-      provider.name,
-    )
+      providerName: provider.name,
+    })
 
     await executeAICommand(prompt)
     reviewSpinner.succeed('PR/MR review completed and comment posted!')
@@ -97,7 +93,6 @@ async function main() {
 
         const provider = await getCurrentProvider()
 
-        // 如果沒有提供 URL，自動獲取
         if (!prUrl) {
           prUrl = await getPRUrl()
         } else {
