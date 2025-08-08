@@ -48,38 +48,7 @@ importers:
         specifier: ^5.9.2
         version: 5.9.2
 
-  packages/cli:
-    dependencies:
-      '@inquirer/prompts':
-        specifier: ^7.8.0
-        version: 7.8.0(@types/node@24.1.0)
-      commander:
-        specifier: ^14.0.0
-        version: 14.0.0
-      ora:
-        specifier: ^8.2.0
-        version: 8.2.0
-      zx:
-        specifier: ^8.7.2
-        version: 8.7.2
-    devDependencies:
-      '@types/node':
-        specifier: ^24.1.0
-        version: 24.1.0
-      oxlint:
-        specifier: ^1.9.0
-        version: 1.9.0
-      prettier:
-        specifier: ^3.6.2
-        version: 3.6.2
-      tsdown:
-        specifier: ^0.13.2
-        version: 0.13.2(typescript@5.9.2)
-      typescript:
-        specifier: ^5.9.2
-        version: 5.9.2
-
-  packages/docs:
+  docs:
     dependencies:
       '@docusaurus/core':
         specifier: 3.8.1
@@ -115,6 +84,37 @@ importers:
       typescript:
         specifier: ~5.6.2
         version: 5.6.3
+
+  packages/cli:
+    dependencies:
+      '@inquirer/prompts':
+        specifier: ^7.8.0
+        version: 7.8.0(@types/node@24.1.0)
+      commander:
+        specifier: ^14.0.0
+        version: 14.0.0
+      ora:
+        specifier: ^8.2.0
+        version: 8.2.0
+      zx:
+        specifier: ^8.7.2
+        version: 8.7.2
+    devDependencies:
+      '@types/node':
+        specifier: ^24.1.0
+        version: 24.1.0
+      oxlint:
+        specifier: ^1.9.0
+        version: 1.9.0
+      prettier:
+        specifier: ^3.6.2
+        version: 3.6.2
+      tsdown:
+        specifier: ^0.13.2
+        version: 0.13.2(typescript@5.9.2)
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
 
 packages:
   '@algolia/abtesting@1.1.0':
