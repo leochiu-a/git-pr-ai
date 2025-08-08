@@ -1,5 +1,15 @@
 # git-pr-ai
 
+## 1.7.0
+
+### Minor Changes
+
+- 228821a: feat: add GitLab CLI support and improve multi-platform compatibility
+  - Add support for GitLab CLI commands with new JSON flag format
+  - Streamline PR retrieval and update CLI command structure
+  - Improve PR description update flow and review prompts
+  - Enhance documentation for multi-platform support and AI features
+
 ## 1.6.0
 
 ### Minor Changes
