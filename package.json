@@ -15,7 +15,10 @@
     "package.json"
   ],
   "scripts": {
-    "build": "tsdown",
+    "build": "pnpm -r build",
+    "build:cli": "pnpm --filter @git-pr-ai/cli build",
+    "build:docs": "pnpm --filter @git-pr-ai/docs build",
+    "dev:docs": "pnpm --filter @git-pr-ai/docs start",
     "postinstall": "test -f dist/postinstall.js && node dist/postinstall.js || echo 'Skipping git alias setup during build'",
     "changeset": "changeset",
     "version": "changeset version",
