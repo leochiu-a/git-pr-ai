@@ -1,38 +1,12 @@
-import { $ } from 'zx'
 import { Command } from 'commander'
 import ora from 'ora'
 import {
   getCurrentBranch,
-  checkGitHubCLI,
+  checkGitCLI,
   getDefaultBranch,
 } from '../git-helpers.js'
+import { getCurrentProvider } from '../providers/factory.js'
 import { extractJiraTicket, getJiraTicketTitle } from '../jira.js'
-
-async function checkExistingPR(): Promise<string | null> {
-  try {
-    const result = await $`gh pr view --json url`
-    const { url } = JSON.parse(result.stdout)
-    return url
-  } catch {
-    return null
-  }
-}
-
-async function openPR(url: string) {
-  const spinner = ora('Opening existing Pull Request...').start()
-  await $`gh pr view --web`
-  spinner.succeed(`Opened PR: ${url}`)
-}
-
-async function createPullRequest(
-  title: string,
-  branch: string,
-  baseBranch: string,
-) {
-  const spinner = ora('Creating Pull Request...').start()
-  await $`gh pr create --title ${title} --base ${baseBranch} --head ${branch} --web`
-  spinner.succeed('Pull Request created successfully!')
-}
 
 function setupCommander() {
   const program = new Command()
@@ -61,7 +35,7 @@ Features:
   - Opens existing PR if one already exists for the current branch
 
 Prerequisites:
-  - GitHub CLI (gh) must be installed and authenticated
+  - Git provider CLI (gh for GitHub, glab for GitLab) must be installed and authenticated
   - For JIRA integration: Configure JIRA credentials in ~/.git-pr-ai/.git-pr-ai.json
     `,
     )
@@ -72,9 +46,10 @@ Prerequisites:
 async function main() {
   const program = setupCommander()
 
-  program.action(async (options) => {
+  program.action(async (options: { jira?: string }) => {
     try {
-      await checkGitHubCLI()
+      await checkGitCLI()
+      const provider = await getCurrentProvider()
 
       const currentBranch = await getCurrentBranch()
       let jiraTicket = options.jira || extractJiraTicket(currentBranch)
@@ -102,10 +77,10 @@ async function main() {
       }
 
       // Check if PR already exists for current branch
-      const existingPrUrl = await checkExistingPR()
+      const existingPrUrl = await provider.checkExistingPR()
 
       if (existingPrUrl) {
-        await openPR(existingPrUrl)
+        await provider.openPR()
         return
       }
 
@@ -121,7 +96,7 @@ async function main() {
         }
       }
 
-      await createPullRequest(prTitle, currentBranch, baseBranch)
+      await provider.createPR(prTitle, currentBranch, baseBranch)
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)

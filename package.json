@@ -1,5 +1,5 @@
 {
-  "version": "1.5.1",
+  "version": "1.6.0",
   "description": "A tool to automatically extract JIRA ticket numbers from branch names and create GitHub PRs",
   "type": "module",
   "bin": {
@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "build": "pnpm -r build",
-    "build:cli": "pnpm --filter @git-pr-ai/cli build",
+    "build:cli": "pnpm --filter git-pr-ai build",
     "build:docs": "pnpm --filter @git-pr-ai/docs build",
     "dev:docs": "pnpm --filter @git-pr-ai/docs start",
     "changeset": "changeset",
