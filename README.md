@@ -1,194 +1,71 @@
-# Git PR AI Tool
+# 🚀 Git PR AI
 
-[![npm version](https://badge.fury.io/js/git-pr-ai.svg)](https://badge.fury.io/js/git-pr-ai)
-[![GitHub release](https://img.shields.io/github/release/leochiu-a/git-pr-ai.svg)](https://github.com/leochiu-a/git-pr-ai/releases)
+A CLI tool that empowers developers to create GitHub Pull Requests faster and more efficiently with the help of AI.
 
-A tool to automatically extract JIRA ticket numbers from branch names and create GitHub Pull Requests.
+---
 
-## Features
+**[Read the Docs](https://leochiu-a.github.io/git-pr-ai/intro)**
 
-- 🔍 Automatically extract JIRA ticket numbers from current git branch names (e.g., KB2C-123)
-- 🎯 Manual JIRA ticket ID specification with `--jira` option
-- 🌿 Create branches automatically with `git create-branch` using JIRA ticket information
-- 📋 Automatically create PR titles with JIRA tickets: `[KB2C-123] feature description`
-- 🚀 Create Pull Requests directly using GitHub CLI
-- ⚡ Simple `git open-pr` command for one-click operation
-- 🤖 AI-powered PR description updates with `git update-pr-desc` using Claude or Gemini
-- 🔍 AI-powered PR code reviews with `git pr-review` using Claude or Gemini
+`git-pr-ai` is a command-line tool designed to streamline the process of creating GitHub Pull Requests from JIRA tickets. By leveraging the power of AI, it can automatically generate branch names, PR descriptions, and even assist with code reviews, allowing you to focus on what truly matters: writing high-quality code.
 
-## Installation
+## ✨ Key Features
 
-Install globally via npm:
+- **🤖 AI-Powered Assistance**: Utilizes powerful AI models (Claude Code or Gemini) to automatically generate PR descriptions and review code.
+- **🎫 JIRA Integration**: Directly create git branches with standardized names from JIRA tickets.
+- **⚙️ Simplified Workflow**: Consolidates multiple git commands into single, easy-to-remember commands.
+- **🚀 Quick Start**: Get up and running with just a few simple installation and setup steps.
+
+## 📦 Installation
 
 ```bash
 pnpm add -g git-pr-ai
 ```
 
-The installation will automatically set up git aliases, so you can use `git pr-ai config`, `git open-pr`, `git create-branch`, `git update-pr-desc`, and `git pr-review` directly!
+## 📋 Prerequisites
 
-## Prerequisites
+Before you begin, please ensure you have completed the following setup:
 
-Before using this tool, you need to install:
+- **GitHub CLI**: [Install the GitHub CLI](https://cli.github.com/) and authenticate with `gh auth login`.
+- **AI Provider**: Depending on your preference, set up access for either [Claude Code](https://console.anthropic.com/dashboard) or [Gemini CLI](https://ai.google.dev/tutorials/gemini_cli_quickstart).
 
-1. **GitHub CLI** - Required for creating and managing PRs
-   - Install: https://cli.github.com/
-   - Authenticate: `gh auth login`
+## 🚀 Quick Start
 
-2. **AI Provider** - Required for AI-powered feature (Choose only one)
-   - **Claude Code**
-   - **Gemini CLI**
+1.  **Configure the tool** (optional):
 
-## Usage
+    ```bash
+    # Set up your preferred AI provider (Claude or Gemini)
+    git pr-ai config
+    ```
 
-### 1. Configuration (Optional)
+2.  **Create a branch from a JIRA Ticket**:
 
-The default agent is Claude. You can run the setup command to create your configuration:
+    ```bash
+    # The system will automatically generate a branch name from the JIRA ticket ID (e.g., PROJ-123)
+    git create-branch --jira PROJ-123
+    ```
 
-```bash
-git pr-ai config
-```
+3.  **Create a Pull Request**:
 
-The command will create a `.git-pr-ai.json` file under `~/.git-pr-ai/` with your selection.
+    ```bash
+    # Automatically detects the current branch and initiates the PR creation process
+    git open-pr
+    ```
 
-### 2. Create a Branch
+4.  **Update PR Description with AI**:
 
-**Basic usage:**
+    ```bash
+    # Let AI generate or update the PR description based on your code changes
+    git update-pr-desc
+    ```
 
-```bash
-git create-branch --jira PROJ-123
-```
+5.  **Review PR with AI**:
+    ```bash
+    # Let AI review your code and provide suggestions for improvement
+    git pr-review
+    ```
 
-**What it does:**
+## 📚 Documentation
 
-- **JIRA Integration**: Fetches JIRA ticket title automatically
-- **True AI Branch Generation**: Uses Claude or Gemini to analyze JIRA ticket content and generate optimal branch names
-- **Intelligent Branch Type Selection**: AI determines the most appropriate branch type (feature, bugfix, hotfix, etc.)
-- **Simple Base Branch Logic**: Uses your current branch as the base branch (intuitive and practical)
-- **Zero Configuration**: Completely automated - just provide the JIRA ticket ID
-- **Existing Branch Handling**: Gracefully handles existing branches
-- **Fallback Support**: Manual input option if AI generation fails
+Want to learn more about detailed configurations and features?
 
-### 3. Create a Pull Request
-
-**Basic usage:**
-
-```bash
-git open-pr
-```
-
-**With manual JIRA ticket ID:**
-
-```bash
-git open-pr --jira PROJ-123
-```
-
-**What it does:**
-
-- **Smart PR Detection**: Opens existing PR if one already exists for the current branch
-- **Automatic JIRA Detection**: Extracts JIRA ticket number from current branch name `feature/KB2C-123-add-login-page`
-- **Manual JIRA Option**: Uses manually specified JIRA ticket ID with `--jira` option
-- **Enhanced PR Titles**: Creates PR title with format: `[JIRA-123] ticket-title` or `[JIRA-123] branch-name`
-- **Fallback**: Uses branch name if no JIRA ticket found
-- **GitHub CLI Integration**: Uses GitHub CLI to create or open PRs
-
-### 4. Update PR Description with AI
-
-**Basic usage:**
-
-```bash
-git update-pr-desc
-```
-
-**With additional context:**
-
-```bash
-git update-pr-desc "Focus on performance improvements and add test coverage details"
-```
-
-**Example Output:**
-
-```
-🔍 Checking for PR on current branch...
-🔗 PR URL: https://github.com/owner/repo/pull/123
-📋 Target branch: main
-🌿 Current branch: feature/KB2C-123-add-login-page
-🤖 Using CLAUDE for AI assistance
-📝 Additional context: Focus on performance improvements and add test coverage details
-# AI will then interactively help you generate the description
-✅ PR description updated successfully!
-```
-
-### 5. Review Pull Request with AI
-
-**Review current branch PR:**
-
-```bash
-git pr-review
-```
-
-**Review specific PR by URL:**
-
-```bash
-git pr-review https://github.com/owner/repo/pull/456
-```
-
-**Example Output:**
-
-```
-🔍 Looking for PR on current branch...
-🔍 Reviewing PR #123 using CLAUDE...
-🔗 PR URL: https://github.com/owner/repo/pull/123
-📋 Target branch: main
-🌿 Source branch: feature/KB2C-123-add-login-page
-# AI will analyze the PR and provide comprehensive review
-✅ PR review completed and comment posted!
-```
-
-## Troubleshooting
-
-### Common Errors
-
-1. **Unable to extract JIRA ticket number**
-   - Ensure branch name contains correct JIRA ticket format
-
-2. **GitHub CLI not installed**
-   - Install GitHub CLI from https://cli.github.com/
-
-3. **GitHub CLI not authenticated**
-   - Run `gh auth login` to authenticate
-
-4. **Repository information error**
-   - Ensure current directory is a git repository
-   - Ensure remote origin points to GitHub repository
-
-5. **No PR found for current branch**
-   - Create a PR first using `git open-pr`
-   - Or switch to a branch that has an existing PR
-
-6. **AI Provider not installed**
-   - For Claude: Install Claude Code from https://docs.anthropic.com/en/docs/claude-code
-   - For Gemini: Install the Gemini CLI tool
-   - Ensure your chosen provider is properly authenticated
-
-## Contributing
-
-This project is written in TypeScript and uses tsdown for bundling. To contribute:
-
-1. Clone this repository:
-
-```bash
-git clone https://github.com/leochiu-a/git-pr-ai.git
-cd git-pr-ai
-```
-
-2. Install dependencies:
-
-```bash
-pnpm install
-```
-
-3. Build the project:
-
-```bash
-pnpm run build
-```
+Please refer to our **[full documentation](https://leochiu-a.github.io/git-pr-ai/intro)**.
