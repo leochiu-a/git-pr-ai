@@ -225,7 +225,7 @@ Features:
   - No manual configuration needed
 
 Prerequisites:
-  - GitHub CLI (gh) must be installed and authenticated
+  - Git provider CLI must be installed and authenticated: GitHub CLI (gh) or GitLab CLI (glab)
   - For JIRA integration: Configure JIRA credentials in ~/.git-pr-ai/.git-pr-ai.json
     `,
     )
