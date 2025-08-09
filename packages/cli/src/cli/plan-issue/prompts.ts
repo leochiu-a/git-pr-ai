@@ -1,4 +1,4 @@
-import { IssueDetails } from './types'
+import { IssueDetails, JiraTicketDetails } from './types'
 
 export function createOptimizePrompt(issue: IssueDetails): string {
   return `
@@ -53,5 +53,37 @@ Respond in JSON format:
 }
 
 Provide practical, actionable guidance that helps move the issue forward.
+`
+}
+
+export function createJiraPrompt(ticket: JiraTicketDetails): string {
+  return `
+You are a senior software engineer tasked with converting a JIRA ticket into a well-structured GitHub issue.
+
+JIRA Ticket Details:
+- Key: ${ticket.key}
+- Summary: ${ticket.summary}
+- Description: ${ticket.description}
+- Type: ${ticket.issueType}
+- Priority: ${ticket.priority}
+- Status: ${ticket.status}
+${ticket.assignee ? `- Assignee: ${ticket.assignee}` : ''}
+- Labels: ${ticket.labels.join(', ')}
+
+Please convert this JIRA ticket into a GitHub/GitLab issue format:
+1. **Title**: Convert the summary into a clear, actionable issue title
+2. **Body**: Rewrite the description in markdown format with proper structure
+3. **Labels**: Suggest appropriate labels based on the JIRA ticket
+4. **Convert Reason**: Explain how you transformed the JIRA content for Git platform
+
+Respond in JSON format:
+{
+  "title": "string",
+  "body": "string", 
+  "labels": ["string"],
+  "convertReason": "string"
+}
+
+Focus on making the Git platform issue developer-friendly and actionable.
 `
 }

@@ -1,4 +1,4 @@
-import { OptimizedContent, CommentSolution } from './types'
+import { OptimizedContent, CommentSolution, JiraGeneratedIssue } from './types'
 
 export function formatOptimizedContent(content: OptimizedContent): string {
   return `## ✨ Optimized Issue Content
@@ -32,4 +32,20 @@ export function formatOptimizedIssueBody(content: OptimizedContent): string {
 
 export function formatCommentIssueComment(solution: CommentSolution): string {
   return formatCommentSolution(solution)
+}
+
+export function formatJiraGeneratedIssue(content: JiraGeneratedIssue): string {
+  return `## 🎫 JIRA to Git Platform Conversion
+
+### Generated Title
+${content.title}
+
+### Generated Body
+${content.body}
+
+### Suggested Labels
+${content.labels.map((label) => `\`${label}\``).join(', ')}
+
+### Conversion Details
+${content.convertReason}`
 }
