@@ -1,10 +1,8 @@
-import ora from 'ora'
-
-import { checkGitCLI } from '../../git-helpers.js'
-import { loadConfig } from '../../config.js'
-import { executeAICommand } from '../../ai-executor.js'
-import { getCurrentProvider } from '../../providers/factory.js'
-import { buildUpdateDescriptionPrompt } from './prompts.js'
+import { checkGitCLI } from '../../git-helpers'
+import { loadConfig } from '../../config'
+import { executeAICommand } from '../../ai-executor'
+import { getCurrentProvider } from '../../providers/factory'
+import { buildUpdateDescriptionPrompt } from './prompts'
 
 async function main() {
   await checkGitCLI()
@@ -14,8 +12,6 @@ async function main() {
 
   const config = await loadConfig()
   const provider = await getCurrentProvider()
-
-  let updateSpinner = ora('AI is generating and updating PR description...')
 
   try {
     console.log(`Using ${config.agent.toUpperCase()} for AI assistance`)
@@ -31,8 +27,6 @@ async function main() {
       console.log('📝 No PR template found, using default template')
     }
 
-    updateSpinner = updateSpinner.start()
-
     // Use prompts function to construct the complete prompt
     const prompt = buildUpdateDescriptionPrompt({
       prData: prDetails,
@@ -40,10 +34,14 @@ async function main() {
       providerName: provider.name,
     })
 
+    console.log('🤖 Launching AI assistant...')
+
     await executeAICommand(prompt)
-    updateSpinner.succeed('PR description updated successfully!')
+
+    // Show success message
+    console.log('✅ PR description updated successfully!')
   } catch {
-    updateSpinner.fail('Failed to update PR description')
+    console.error('❌ Failed to update PR description')
     process.exit(1)
   }
 }

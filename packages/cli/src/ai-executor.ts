@@ -1,5 +1,5 @@
 import { $ } from 'zx'
-import { loadConfig } from './config.js'
+import { loadConfig } from './config'
 
 export async function executeAICommand(prompt: string): Promise<void> {
   const config = await loadConfig()

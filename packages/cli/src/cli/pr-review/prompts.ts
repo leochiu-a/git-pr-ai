@@ -1,4 +1,4 @@
-import { PRDetails } from '../../providers/types.js'
+import { PRDetails } from '../../providers/types'
 
 export interface ReviewPromptOptions {
   reviewType?: 'comprehensive' | 'focused' | 'security'

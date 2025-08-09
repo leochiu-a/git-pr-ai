@@ -1,12 +1,11 @@
 import { Command } from 'commander'
-import ora from 'ora'
 
-import { checkGitCLI } from '../../git-helpers.js'
-import { loadConfig } from '../../config.js'
-import { executeAICommand } from '../../ai-executor.js'
-import { getCurrentProvider } from '../../providers/factory.js'
-import { PRDetails } from '../../providers/types.js'
-import { buildReviewPrompt, ReviewPromptOptions } from './prompts.js'
+import { checkGitCLI } from '../../git-helpers'
+import { loadConfig } from '../../config'
+import { executeAICommand } from '../../ai-executor'
+import { getCurrentProvider } from '../../providers/factory'
+import { PRDetails } from '../../providers/types'
+import { buildReviewPrompt, ReviewPromptOptions } from './prompts'
 
 async function reviewPR(
   prDetails: PRDetails,
@@ -22,9 +21,7 @@ async function reviewPR(
   console.log(`Target branch: ${prDetails.baseBranch}`)
   console.log(`Source branch: ${prDetails.headBranch}`)
 
-  const reviewSpinner = ora(
-    'AI is analyzing the PR and generating the review...',
-  ).start()
+  console.log('🤖 Launching AI assistant for PR review...')
 
   try {
     const prompt = buildReviewPrompt({
@@ -34,9 +31,9 @@ async function reviewPR(
     })
 
     await executeAICommand(prompt)
-    reviewSpinner.succeed('PR/MR review completed and comment posted!')
+    console.log('✅ PR/MR review completed and comment posted!')
   } catch (error) {
-    reviewSpinner.fail('Failed to complete PR/MR review')
+    console.error('❌ Failed to complete PR/MR review')
     throw error
   }
 }

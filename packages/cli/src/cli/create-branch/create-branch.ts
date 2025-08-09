@@ -6,15 +6,15 @@ import {
   checkGitCLI,
   getCurrentBranch,
   getDefaultBranch,
-} from '../../git-helpers.js'
-import { getJiraTicketTitle } from '../../jira.js'
-import { loadConfig } from '../../config.js'
-import { executeAIWithOutput } from '../../ai-executor.js'
+} from '../../git-helpers'
+import { getJiraTicketTitle } from '../../jira'
+import { loadConfig } from '../../config'
+import { executeAIWithOutput } from '../../ai-executor'
 import {
   createJiraBranchPrompt,
   createCustomBranchPrompt,
   createDiffBranchPrompt,
-} from './prompts.js'
+} from './prompts'
 
 async function createBranch(branchName: string, baseBranch: string) {
   console.log(`Creating branch: ${branchName}`)

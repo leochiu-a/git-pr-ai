@@ -1,7 +1,7 @@
 import { $ } from 'zx'
-import { GitProvider, ProviderType } from './types.js'
-import { GitHubProvider } from './github.js'
-import { GitLabProvider } from './gitlab.js'
+import { GitProvider, ProviderType } from './types'
+import { GitHubProvider } from './github'
+import { GitLabProvider } from './gitlab'
 
 let cachedProviderType: ProviderType | null = null
 let cachedProvider: GitProvider | null = null

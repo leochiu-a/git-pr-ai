@@ -1,4 +1,4 @@
-import { loadConfig } from './config.js'
+import { loadConfig } from './config'
 
 export function extractJiraTicket(branchName: string): string | null {
   const jiraPattern = /([A-Z]+-\d+)/
