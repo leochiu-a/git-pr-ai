@@ -21,10 +21,28 @@ function createJiraAuthHeader(email: string, apiToken: string): string {
   return Buffer.from(`${email}:${apiToken}`).toString('base64')
 }
 
+type JiraDescriptionADF = {
+  content?: Array<{
+    content?: Array<{ text?: string }>
+  }>
+}
+
+interface JiraIssueResponse {
+  fields: {
+    summary?: string
+    description?: string | JiraDescriptionADF
+    issuetype?: { name?: string }
+    priority?: { name?: string }
+    status?: { name?: string }
+    assignee?: { displayName?: string }
+    labels?: unknown[]
+  }
+}
+
 async function fetchJiraTicketData(
   url: string,
   authHeader: string,
-): Promise<any> {
+): Promise<JiraIssueResponse> {
   const response = await fetch(url, {
     headers: {
       Authorization: `Basic ${authHeader}`,
@@ -36,7 +54,8 @@ async function fetchJiraTicketData(
     throw new Error(`HTTP ${response.status}`)
   }
 
-  return response.json()
+  const data: JiraIssueResponse = await response.json()
+  return data
 }
 
 export async function getJiraTicketTitle(
@@ -56,7 +75,7 @@ export async function getJiraTicketTitle(
     const authHeader = createJiraAuthHeader(email, apiToken)
     const data = await fetchJiraTicketData(apiUrl, authHeader)
 
-    return data.fields.summary
+    return data.fields.summary ?? null
   } catch (error) {
     console.warn(
       `⚠️ Error fetching JIRA ticket ${ticketKey}:`,
@@ -87,9 +106,9 @@ export async function getJiraTicketDetails(
       key: ticketKey,
       summary: data.fields.summary || '',
       description:
-        data.fields.description?.content?.[0]?.content?.[0]?.text ||
-        data.fields.description ||
-        '',
+        (typeof data.fields.description === 'string'
+          ? data.fields.description
+          : data.fields.description?.content?.[0]?.content?.[0]?.text) || '',
       issueType: data.fields.issuetype?.name || '',
       priority: data.fields.priority?.name || '',
       status: data.fields.status?.name || '',
