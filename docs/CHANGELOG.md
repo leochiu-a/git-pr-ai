@@ -1,5 +1,11 @@
 # @git-pr-ai/docs
 
+## 1.7.1
+
+### Patch Changes
+
+- f4488b3: Update docs
+
 ## 1.7.0
 
 ### Minor Changes

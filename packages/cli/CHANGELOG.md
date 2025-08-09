@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.7.2
+
+### Patch Changes
+
+- 17c9f56: ora and AI command conflic
+
 ## 1.7.1
 
 ### Patch Changes
