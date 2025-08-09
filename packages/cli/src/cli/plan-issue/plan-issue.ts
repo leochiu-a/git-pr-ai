@@ -1,20 +1,19 @@
 import { Command } from 'commander'
 import { select, confirm } from '@inquirer/prompts'
 import ora from 'ora'
-import { $ } from 'zx'
 import { writeFileSync } from 'fs'
 import { join } from 'path'
 
-import { checkGitCLI } from '../../git-helpers'
 import { executeAIWithOutput } from '../../ai-executor'
 import { getJiraTicketDetails } from '../../jira'
+import { getCurrentProvider } from '../../providers/factory'
 import {
-  IssueDetails,
   PlanMode,
   OptimizedContent,
   CommentSolution,
   JiraGeneratedIssue,
 } from './types'
+import { IssueDetails } from '../../providers/types'
 import {
   createOptimizePrompt,
   createCommentPrompt,
@@ -29,35 +28,16 @@ import {
 } from './templates'
 
 async function fetchIssueDetails(issueNumber: number): Promise<IssueDetails> {
+  const provider = await getCurrentProvider()
   const spinner = ora('Fetching issue details...').start()
 
   try {
-    const result =
-      await $`gh issue view ${issueNumber} --json number,title,body,labels,assignees,milestone`
-    const issue = JSON.parse(result.stdout) as {
-      number: number
-      title: string
-      body: string
-      labels: Array<{ name: string }>
-      assignees: Array<{ login: string }>
-      milestone?: { title: string }
-    }
-
+    const issue = await provider.getIssue(issueNumber)
     spinner.succeed(`Fetched issue #${issue.number}: ${issue.title}`)
-
-    return {
-      number: issue.number,
-      title: issue.title,
-      body: issue.body || '',
-      labels: issue.labels?.map((label) => label.name) || [],
-      assignee: issue.assignees?.[0]?.login,
-      milestone: issue.milestone?.title,
-    }
-  } catch {
+    return issue
+  } catch (error) {
     spinner.fail('Failed to fetch issue details')
-    throw new Error(
-      `Could not fetch issue #${issueNumber}. Make sure it exists and you have access to it.`,
-    )
+    throw error
   }
 }
 
@@ -131,42 +111,16 @@ async function updateIssue(
   title?: string,
   body?: string,
 ): Promise<void> {
-  const spinner = ora('Updating issue...').start()
-
-  try {
-    const args = ['gh', 'issue', 'edit', issueNumber.toString()]
-    if (title) {
-      args.push('--title', title)
-    }
-    if (body) {
-      args.push('--body', body)
-    }
-
-    await $`${args}`
-    spinner.succeed(`Updated issue #${issueNumber}`)
-  } catch (error) {
-    spinner.fail('Failed to update issue')
-    throw new Error(
-      `Could not update issue: ${error instanceof Error ? error.message : String(error)}`,
-    )
-  }
+  const provider = await getCurrentProvider()
+  await provider.updateIssue(issueNumber, title, body)
 }
 
 async function addIssueComment(
   issueNumber: number,
   comment: string,
 ): Promise<void> {
-  const spinner = ora('Adding comment to issue...').start()
-
-  try {
-    await $`gh issue comment ${issueNumber} --body ${comment}`
-    spinner.succeed(`Added comment to issue #${issueNumber}`)
-  } catch (error) {
-    spinner.fail('Failed to add comment')
-    throw new Error(
-      `Could not add comment: ${error instanceof Error ? error.message : String(error)}`,
-    )
-  }
+  const provider = await getCurrentProvider()
+  await provider.addIssueComment(issueNumber, comment)
 }
 
 async function createNewIssue(
@@ -174,23 +128,8 @@ async function createNewIssue(
   body: string,
   labels: string[],
 ): Promise<void> {
-  const spinner = ora('Creating new issue...').start()
-
-  try {
-    const args = ['gh', 'issue', 'create', '--title', title, '--body', body]
-    if (labels.length > 0) {
-      args.push('--label', labels.join(','))
-    }
-
-    const result = await $`${args}`
-    spinner.succeed('New issue created successfully')
-    console.log(result.stdout.trim())
-  } catch (error) {
-    spinner.fail('Failed to create issue')
-    throw new Error(
-      `Could not create issue: ${error instanceof Error ? error.message : String(error)}`,
-    )
-  }
+  const provider = await getCurrentProvider()
+  await provider.createIssue(title, body, labels)
 }
 
 async function saveContentToFile(
@@ -264,7 +203,8 @@ async function main() {
 
   program.action(async (options: { issue?: string; jira?: string }) => {
     try {
-      await checkGitCLI()
+      const provider = await getCurrentProvider()
+      await provider.checkCLI()
 
       // Validate input - must have either issue or jira
       if (!options.issue && !options.jira) {

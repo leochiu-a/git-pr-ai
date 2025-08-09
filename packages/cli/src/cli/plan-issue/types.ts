@@ -1,12 +1,3 @@
-export interface IssueDetails {
-  number: number
-  title: string
-  body: string
-  labels: string[]
-  assignee?: string
-  milestone?: string
-}
-
 export type PlanMode = 'optimize' | 'comment' | 'jira'
 
 export interface OptimizedContent {
