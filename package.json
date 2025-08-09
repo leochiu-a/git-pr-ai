@@ -7,7 +7,8 @@
     "git-update-pr-desc": "./dist/git-update-pr-desc.js",
     "git-pr-review": "./dist/git-pr-review.js",
     "git-pr-ai": "./dist/git-pr-ai.js",
-    "git-create-branch": "./dist/git-create-branch.js"
+    "git-create-branch": "./dist/git-create-branch.js",
+    "git-plan-issue": "./dist/git-plan-issue.js"
   },
   "files": [
     "dist",

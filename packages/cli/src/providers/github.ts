@@ -7,6 +7,7 @@ import {
   ReviewOptions,
   PRDetails,
   TemplateInfo,
+  IssueDetails,
 } from './types'
 
 export class GitHubProvider implements GitProvider {
@@ -254,6 +255,98 @@ export class GitHubProvider implements GitProvider {
       return await this.getPRDetails()
     } catch {
       return null
+    }
+  }
+
+  async getIssue(issueNumber: number): Promise<IssueDetails> {
+    try {
+      const result =
+        await $`gh issue view ${issueNumber} --json number,title,body,labels,assignees,milestone`
+      const issue = JSON.parse(result.stdout) as {
+        number: number
+        title: string
+        body: string
+        labels: Array<{ name: string }>
+        assignees: Array<{ login: string }>
+        milestone?: { title: string }
+      }
+
+      return {
+        number: issue.number,
+        title: issue.title,
+        body: issue.body || '',
+        labels: issue.labels?.map((label) => label.name) || [],
+        assignee: issue.assignees?.[0]?.login,
+        milestone: issue.milestone?.title,
+      }
+    } catch {
+      throw new Error(
+        `Could not fetch issue #${issueNumber}. Make sure it exists and you have access to it.`,
+      )
+    }
+  }
+
+  async updateIssue(
+    issueNumber: number,
+    title?: string,
+    body?: string,
+  ): Promise<void> {
+    const spinner = ora('Updating issue...').start()
+
+    try {
+      const args = ['gh', 'issue', 'edit', issueNumber.toString()]
+      if (title) {
+        args.push('--title', title)
+      }
+      if (body) {
+        args.push('--body', body)
+      }
+
+      await $`${args}`
+      spinner.succeed(`Updated issue #${issueNumber}`)
+    } catch (error) {
+      spinner.fail('Failed to update issue')
+      throw new Error(
+        `Could not update issue: ${error instanceof Error ? error.message : String(error)}`,
+      )
+    }
+  }
+
+  async addIssueComment(issueNumber: number, comment: string): Promise<void> {
+    const spinner = ora('Adding comment to issue...').start()
+
+    try {
+      await $`gh issue comment ${issueNumber} --body ${comment}`
+      spinner.succeed(`Added comment to issue #${issueNumber}`)
+    } catch (error) {
+      spinner.fail('Failed to add comment')
+      throw new Error(
+        `Could not add comment: ${error instanceof Error ? error.message : String(error)}`,
+      )
+    }
+  }
+
+  async createIssue(
+    title: string,
+    body: string,
+    labels?: string[],
+  ): Promise<void> {
+    const spinner = ora('Creating new issue...').start()
+
+    try {
+      const args = ['gh', 'issue', 'create', '--title', title, '--body', body]
+      if (labels && labels.length > 0) {
+        args.push('--label', labels.join(','))
+      }
+
+      const result = await $`${args}`
+      spinner.succeed('New issue created successfully')
+      console.log(result.stdout.trim())
+    } catch (error) {
+      spinner.fail('Failed to create issue')
+      throw new Error(
+        `Could not create issue: ${error instanceof Error ? error.message : String(error)}`,
+      )
     }
   }
 }

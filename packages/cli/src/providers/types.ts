@@ -43,6 +43,28 @@ export interface GitProvider {
 
   /** Get PR/MR information for the current branch */
   getCurrentBranchPR(): Promise<PRDetails | null>
+
+  /** Issue management methods */
+  /** Fetch issue details by number */
+  getIssue(issueNumber: number): Promise<IssueDetails>
+
+  /** Update an issue with new title and/or body */
+  updateIssue(issueNumber: number, title?: string, body?: string): Promise<void>
+
+  /** Add a comment to an issue */
+  addIssueComment(issueNumber: number, comment: string): Promise<void>
+
+  /** Create a new issue */
+  createIssue(title: string, body: string, labels?: string[]): Promise<void>
+}
+
+export interface IssueDetails {
+  number: number
+  title: string
+  body: string
+  labels: string[]
+  assignee?: string
+  milestone?: string
 }
 
 /** Basic PR/MR information for listing purposes */

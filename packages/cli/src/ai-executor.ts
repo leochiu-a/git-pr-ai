@@ -25,14 +25,26 @@ export async function executeAIWithOutput(prompt: string): Promise<string> {
     case 'claude':
       await checkClaudeCLI()
       const result = await $`echo ${prompt} | claude`.quiet()
-      return result.stdout.trim()
+      return extractJsonFromOutput(result.stdout.trim())
     case 'gemini':
       await checkGeminiCLI()
       const geminiResult = await $`echo ${prompt} | gemini`.quiet()
-      return geminiResult.stdout.trim()
+      return extractJsonFromOutput(geminiResult.stdout.trim())
     default:
       throw new Error(`Unsupported AI agent: ${config.agent}`)
   }
+}
+
+function extractJsonFromOutput(output: string): string {
+  // Find the JSON object in the output by looking for the first '{' and last '}'
+  const firstBrace = output.indexOf('{')
+  const lastBrace = output.lastIndexOf('}')
+
+  if (firstBrace === -1 || lastBrace === -1 || firstBrace >= lastBrace) {
+    throw new Error('No valid JSON object found in AI response')
+  }
+
+  return output.substring(firstBrace, lastBrace + 1)
 }
 
 async function checkClaudeCLI(): Promise<void> {

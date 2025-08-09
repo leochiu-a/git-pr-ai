@@ -7,6 +7,7 @@ import {
   ReviewOptions,
   PRDetails,
   TemplateInfo,
+  IssueDetails,
 } from './types'
 
 export class GitLabProvider implements GitProvider {
@@ -232,6 +233,105 @@ export class GitLabProvider implements GitProvider {
       return await this.getPRDetails()
     } catch {
       return null
+    }
+  }
+
+  async getIssue(issueNumber: number): Promise<IssueDetails> {
+    try {
+      const result = await $`glab issue view ${issueNumber} -F json`
+      const issue = JSON.parse(result.stdout) as {
+        iid: number
+        title: string
+        description: string
+        labels: string[]
+        assignee?: { username: string }
+        milestone?: { title: string }
+      }
+
+      return {
+        number: issue.iid,
+        title: issue.title,
+        body: issue.description || '',
+        labels: issue.labels || [],
+        assignee: issue.assignee?.username,
+        milestone: issue.milestone?.title,
+      }
+    } catch {
+      throw new Error(
+        `Could not fetch issue #${issueNumber}. Make sure it exists and you have access to it.`,
+      )
+    }
+  }
+
+  async updateIssue(
+    issueNumber: number,
+    title?: string,
+    body?: string,
+  ): Promise<void> {
+    const spinner = ora('Updating issue...').start()
+
+    try {
+      const args = ['glab', 'issue', 'update', issueNumber.toString()]
+      if (title) {
+        args.push('--title', title)
+      }
+      if (body) {
+        args.push('--description', body)
+      }
+
+      await $`${args}`
+      spinner.succeed(`Updated issue #${issueNumber}`)
+    } catch (error) {
+      spinner.fail('Failed to update issue')
+      throw new Error(
+        `Could not update issue: ${error instanceof Error ? error.message : String(error)}`,
+      )
+    }
+  }
+
+  async addIssueComment(issueNumber: number, comment: string): Promise<void> {
+    const spinner = ora('Adding comment to issue...').start()
+
+    try {
+      await $`glab issue note ${issueNumber} --message ${comment}`
+      spinner.succeed(`Added comment to issue #${issueNumber}`)
+    } catch (error) {
+      spinner.fail('Failed to add comment')
+      throw new Error(
+        `Could not add comment: ${error instanceof Error ? error.message : String(error)}`,
+      )
+    }
+  }
+
+  async createIssue(
+    title: string,
+    body: string,
+    labels?: string[],
+  ): Promise<void> {
+    const spinner = ora('Creating new issue...').start()
+
+    try {
+      const args = [
+        'glab',
+        'issue',
+        'create',
+        '--title',
+        title,
+        '--description',
+        body,
+      ]
+      if (labels && labels.length > 0) {
+        args.push('--label', labels.join(','))
+      }
+
+      const result = await $`${args}`
+      spinner.succeed('New issue created successfully')
+      console.log(result.stdout.trim())
+    } catch (error) {
+      spinner.fail('Failed to create issue')
+      throw new Error(
+        `Could not create issue: ${error instanceof Error ? error.message : String(error)}`,
+      )
     }
   }
 }
