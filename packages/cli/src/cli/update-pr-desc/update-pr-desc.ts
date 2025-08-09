@@ -20,8 +20,6 @@ async function main() {
   try {
     console.log(`Using ${config.agent.toUpperCase()} for AI assistance`)
 
-    updateSpinner = updateSpinner.start()
-
     // Use provider to get detailed PR info
     const prDetails = await provider.getPRDetails()
     const template = await provider.findPRTemplate()
@@ -32,6 +30,8 @@ async function main() {
     } else {
       console.log('📝 No PR template found, using default template')
     }
+
+    updateSpinner = updateSpinner.start()
 
     // Use prompts function to construct the complete prompt
     const prompt = buildUpdateDescriptionPrompt({

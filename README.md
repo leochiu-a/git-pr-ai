@@ -25,7 +25,9 @@ pnpm add -g git-pr-ai
 
 Before you begin, please ensure you have completed the following setup:
 
-- **GitHub CLI**: [Install the GitHub CLI](https://cli.github.com/) and authenticate with `gh auth login`.
+- **Platform CLI**: Install and authenticate either GitHub CLI (`gh`) or GitLab CLI (`glab`).
+  - GitHub: [Install GitHub CLI](https://cli.github.com/) and run `gh auth login`
+  - GitLab: [Install GitLab CLI](https://gitlab.com/gitlab-org/cli) and run `glab auth login`
 - **AI Provider**: Depending on your preference, set up access for either [Claude Code](https://console.anthropic.com/dashboard) or [Gemini CLI](https://ai.google.dev/tutorials/gemini_cli_quickstart).
 
 ## 🚀 Quick Start
