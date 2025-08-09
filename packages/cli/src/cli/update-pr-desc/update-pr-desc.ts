@@ -1,8 +1,8 @@
-import { checkGitCLI } from '../../git-helpers.js'
-import { loadConfig } from '../../config.js'
-import { executeAICommand } from '../../ai-executor.js'
-import { getCurrentProvider } from '../../providers/factory.js'
-import { buildUpdateDescriptionPrompt } from './prompts.js'
+import { checkGitCLI } from '../../git-helpers'
+import { loadConfig } from '../../config'
+import { executeAICommand } from '../../ai-executor'
+import { getCurrentProvider } from '../../providers/factory'
+import { buildUpdateDescriptionPrompt } from './prompts'
 
 async function main() {
   await checkGitCLI()

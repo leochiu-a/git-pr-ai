@@ -8,7 +8,7 @@ import {
   getConfigPath,
   getConfigDir,
   loadConfig,
-} from '../config.js'
+} from '../config'
 
 async function openConfig() {
   const configPath = getConfigPath()

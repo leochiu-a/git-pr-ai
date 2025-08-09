@@ -7,7 +7,7 @@ import {
   ReviewOptions,
   PRDetails,
   TemplateInfo,
-} from './types.js'
+} from './types'
 
 export class GitHubProvider implements GitProvider {
   name = 'GitHub'

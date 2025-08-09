@@ -1,12 +1,8 @@
 import { Command } from 'commander'
 import ora from 'ora'
-import {
-  getCurrentBranch,
-  checkGitCLI,
-  getDefaultBranch,
-} from '../git-helpers.js'
-import { getCurrentProvider } from '../providers/factory.js'
-import { extractJiraTicket, getJiraTicketTitle } from '../jira.js'
+import { getCurrentBranch, checkGitCLI, getDefaultBranch } from '../git-helpers'
+import { getCurrentProvider } from '../providers/factory'
+import { extractJiraTicket, getJiraTicketTitle } from '../jira'
 
 function setupCommander() {
   const program = new Command()

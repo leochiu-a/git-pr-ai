@@ -1,4 +1,4 @@
-import { PRDetails } from '../../providers/types.js'
+import { PRDetails } from '../../providers/types'
 
 interface BuildUpdateDescriptionPromptArgs {
   prData: PRDetails

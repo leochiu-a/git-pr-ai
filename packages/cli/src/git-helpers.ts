@@ -1,5 +1,5 @@
 import { $ } from 'zx'
-import { getCurrentProvider } from './providers/factory.js'
+import { getCurrentProvider } from './providers/factory'
 
 export async function getCurrentBranch() {
   const result = await $`git branch --show-current`
