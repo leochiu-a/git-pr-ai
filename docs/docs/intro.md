@@ -4,13 +4,12 @@ Git PR AI Tool is a powerful command-line tool that automates Pull Request creat
 
 ## Key Features
 
-- 🔍 **Smart JIRA Integration**: Automatically extracts JIRA ticket numbers from branch names
-- 🌿 **AI-Powered Branch Creation**: Create branches using JIRA ticket information with intelligent naming
-- 🚀 **Multi-Platform Support**: Works with both GitHub and GitLab Pull Requests
-- 🤖 **AI-Enhanced Descriptions**: Update PR descriptions using Claude Code AI assistance
-- 🔍 **AI Code Reviews**: Get comprehensive PR reviews with intelligent feedback
-- ⚡ **Zero Configuration**: Works out of the box with minimal setup
-- 🎯 **Smart Context Analysis**: AI analyzes your code changes without manual diff input
+- 🚀 **Multi-Platform Support**: Works with both GitHub and GitLab repositories
+- 🔍 **JIRA Integration**: Seamlessly integrates with JIRA for ticket management
+- 🤖 **AI-Powered Intelligence**: Leverages Claude Code for smart content generation and code analysis
+- ⚡ **Zero Configuration**: Works out of the box with minimal setup required
+- 🛠️ **Complete Workflow Coverage**: From branch creation to PR reviews in one tool
+- 🎯 **Context-Aware Analysis**: Understands your repository without manual input
 
 ## Quick Start
 
@@ -50,11 +49,11 @@ That's it! The tool handles the rest automatically.
 
 The Git PR AI Tool integrates seamlessly with your existing Git workflow:
 
-1. **Branch Creation**: Uses JIRA API to fetch ticket information and AI to generate meaningful branch names
-2. **PR Creation**: Automatically detects JIRA tickets from branch names and creates PRs with proper titles
-3. **AI Enhancement**: Leverages Claude Code for intelligent content generation and code analysis
-4. **Platform Integration**: Uses GitHub CLI or GitLab CLI for platform-specific operations
-5. **Smart Analysis**: AI analyzes your repository context without requiring manual diff input
+1. **Create Branch**: `git create-branch --jira PROJ-123` fetches JIRA ticket details and generates an appropriate branch name
+2. **Make Changes**: Work on your feature/fix as usual with your standard Git workflow
+3. **Open PR**: `git open-pr` automatically creates a pull request with JIRA ticket information and smart titles
+4. **Enhance with AI**: `git update-pr-desc` uses AI to analyze your changes and generate comprehensive descriptions
+5. **Review & Merge**: `git pr-review` provides AI-powered code review feedback before merging
 
 ## Next Steps
 
