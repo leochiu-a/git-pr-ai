@@ -7,15 +7,16 @@ export interface IssueDetails {
   milestone?: string
 }
 
-export interface ImplementationPlan {
-  overview: string
-  tasks: Array<{
-    title: string
-    description: string
-    priority: 'high' | 'medium' | 'low'
-    estimatedTime: string
-  }>
-  suggestedBranchName: string
-  prerequisites: string[]
-  testingStrategy: string[]
+export type PlanMode = 'optimize' | 'comment'
+
+export interface OptimizedContent {
+  improvedTitle: string
+  improvedBody: string
+  improvementReason: string
+}
+
+export interface CommentSolution {
+  analysis: string
+  suggestedSolution: string
+  implementationNotes: string[]
 }

@@ -1,10 +1,10 @@
 import { IssueDetails } from './types'
 
-export function createImplementationPlanPrompt(issue: IssueDetails): string {
+export function createOptimizePrompt(issue: IssueDetails): string {
   return `
-You are a senior software engineer tasked with creating an implementation plan for a GitHub issue.
+You are a senior product manager tasked with improving an existing GitHub issue to make it clearer and more actionable.
 
-Issue Details:
+Current Issue:
 - Number: #${issue.number}
 - Title: ${issue.title}
 - Description: ${issue.body}
@@ -12,34 +12,46 @@ Issue Details:
 ${issue.assignee ? `- Assignee: ${issue.assignee}` : ''}
 ${issue.milestone ? `- Milestone: ${issue.milestone}` : ''}
 
-Please create a comprehensive implementation plan that includes:
+Please optimize this issue by:
+1. **Improved Title**: Make it more specific and actionable
+2. **Improved Body**: Rewrite the description to be clearer and more structured
+3. **Improvement Reason**: Explain what was unclear and how you improved it
 
-1. **Overview**: A brief summary of what needs to be implemented
-2. **Tasks**: Break down the implementation into specific, actionable tasks with:
-   - Title (concise task description)
-   - Description (detailed explanation)
-   - Priority (high/medium/low)
-   - Estimated time (e.g., "2-3 hours", "1 day", etc.)
-3. **Suggested Branch Name**: Following conventional naming (e.g., feat/issue-123-short-description, fix/issue-123-bug-description)
-4. **Prerequisites**: Any dependencies, tools, or setup required
-5. **Testing Strategy**: How to test the implementation
-
-Respond in JSON format matching this structure:
+Respond in JSON format:
 {
-  "overview": "string",
-  "tasks": [
-    {
-      "title": "string",
-      "description": "string",
-      "priority": "high|medium|low",
-      "estimatedTime": "string"
-    }
-  ],
-  "suggestedBranchName": "string",
-  "prerequisites": ["string"],
-  "testingStrategy": ["string"]
+  "improvedTitle": "string",
+  "improvedBody": "string", 
+  "improvementReason": "string"
 }
 
-Focus on practical, actionable steps that a developer can follow to implement this issue.
+Focus on clarity, specificity, and actionability.
+`
+}
+
+export function createCommentPrompt(issue: IssueDetails): string {
+  return `
+You are a senior software engineer reviewing a GitHub issue and providing expert analysis and solutions.
+
+Issue to Analyze:
+- Number: #${issue.number}
+- Title: ${issue.title}
+- Description: ${issue.body}
+- Labels: ${issue.labels.join(', ')}
+${issue.assignee ? `- Assignee: ${issue.assignee}` : ''}
+${issue.milestone ? `- Milestone: ${issue.milestone}` : ''}
+
+Please provide:
+1. **Analysis**: Your assessment of the issue, its complexity, and scope
+2. **Suggested Solution**: Your recommended approach to solving this issue
+3. **Implementation Notes**: Key considerations and technical details
+
+Respond in JSON format:
+{
+  "analysis": "string",
+  "suggestedSolution": "string", 
+  "implementationNotes": ["string"]
+}
+
+Provide practical, actionable guidance that helps move the issue forward.
 `
 }

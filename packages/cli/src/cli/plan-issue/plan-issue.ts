@@ -1,5 +1,5 @@
 import { Command } from 'commander'
-import { select } from '@inquirer/prompts'
+import { select, confirm } from '@inquirer/prompts'
 import ora from 'ora'
 import { $ } from 'zx'
 import { writeFileSync } from 'fs'
@@ -7,12 +7,18 @@ import { join } from 'path'
 
 import { checkGitCLI } from '../../git-helpers'
 import { executeAIWithOutput } from '../../ai-executor'
-import { IssueDetails, ImplementationPlan } from './types'
-import { createImplementationPlanPrompt } from './prompts'
 import {
-  formatUpdatedIssueBody,
-  formatPlanComment,
-  formatPlanSection,
+  IssueDetails,
+  PlanMode,
+  OptimizedContent,
+  CommentSolution,
+} from './types'
+import { createOptimizePrompt, createCommentPrompt } from './prompts'
+import {
+  formatOptimizedContent,
+  formatCommentSolution,
+  formatOptimizedIssueBody,
+  formatCommentIssueComment,
 } from './templates'
 
 async function fetchIssueDetails(issueNumber: number): Promise<IssueDetails> {
@@ -48,37 +54,62 @@ async function fetchIssueDetails(issueNumber: number): Promise<IssueDetails> {
   }
 }
 
-async function generateImplementationPlan(
-  issue: IssueDetails,
-): Promise<ImplementationPlan> {
-  const spinner = ora('Generating implementation plan...').start()
+async function optimizeIssue(issue: IssueDetails): Promise<OptimizedContent> {
+  const spinner = ora('Optimizing issue content...').start()
 
   try {
-    const prompt = createImplementationPlanPrompt(issue)
+    const prompt = createOptimizePrompt(issue)
     const response = await executeAIWithOutput(prompt)
-    const plan = JSON.parse(response)
+    const content = JSON.parse(response)
 
-    spinner.succeed('Implementation plan generated')
-    return plan
+    spinner.succeed('Issue content optimized')
+    return content
   } catch (error) {
-    spinner.fail('Failed to generate implementation plan')
+    spinner.fail('Failed to optimize issue')
     throw new Error(
-      `Could not generate plan: ${error instanceof Error ? error.message : String(error)}`,
+      `Could not optimize issue: ${error instanceof Error ? error.message : String(error)}`,
     )
   }
 }
 
-async function updateIssueDescription(
-  issueNumber: number,
-  updatedBody: string,
-): Promise<void> {
-  const spinner = ora('Updating issue description...').start()
+async function generateComment(issue: IssueDetails): Promise<CommentSolution> {
+  const spinner = ora('Analyzing issue and generating solution...').start()
 
   try {
-    await $`gh issue edit ${issueNumber} --body ${updatedBody}`
-    spinner.succeed(`Updated issue #${issueNumber} with implementation plan`)
+    const prompt = createCommentPrompt(issue)
+    const response = await executeAIWithOutput(prompt)
+    const solution = JSON.parse(response)
+
+    spinner.succeed('Analysis and solution generated')
+    return solution
   } catch (error) {
-    spinner.fail('Failed to update issue description')
+    spinner.fail('Failed to generate analysis')
+    throw new Error(
+      `Could not generate analysis: ${error instanceof Error ? error.message : String(error)}`,
+    )
+  }
+}
+
+async function updateIssue(
+  issueNumber: number,
+  title?: string,
+  body?: string,
+): Promise<void> {
+  const spinner = ora('Updating issue...').start()
+
+  try {
+    const args = ['gh', 'issue', 'edit', issueNumber.toString()]
+    if (title) {
+      args.push('--title', title)
+    }
+    if (body) {
+      args.push('--body', body)
+    }
+
+    await $`${args}`
+    spinner.succeed(`Updated issue #${issueNumber}`)
+  } catch (error) {
+    spinner.fail('Failed to update issue')
     throw new Error(
       `Could not update issue: ${error instanceof Error ? error.message : String(error)}`,
     )
@@ -89,13 +120,11 @@ async function addIssueComment(
   issueNumber: number,
   comment: string,
 ): Promise<void> {
-  const spinner = ora('Adding implementation plan as comment...').start()
+  const spinner = ora('Adding comment to issue...').start()
 
   try {
     await $`gh issue comment ${issueNumber} --body ${comment}`
-    spinner.succeed(
-      `Added implementation plan comment to issue #${issueNumber}`,
-    )
+    spinner.succeed(`Added comment to issue #${issueNumber}`)
   } catch (error) {
     spinner.fail('Failed to add comment')
     throw new Error(
@@ -104,19 +133,23 @@ async function addIssueComment(
   }
 }
 
-async function savePlanToFile(
+async function saveContentToFile(
   issue: IssueDetails,
-  plan: ImplementationPlan,
+  content: string,
+  mode: PlanMode,
 ): Promise<void> {
-  const spinner = ora('Saving implementation plan to file...').start()
+  const spinner = ora('Saving content to file...').start()
 
   try {
-    const fileName = `issue-${issue.number}-plan.md`
+    const modeNames = {
+      optimize: 'optimized',
+      comment: 'analysis',
+    }
+    const fileName = `issue-${issue.number}-${modeNames[mode]}.md`
     const filePath = join(process.cwd(), fileName)
-    const content = formatPlanSection(plan)
 
     writeFileSync(filePath, content, 'utf8')
-    spinner.succeed(`Implementation plan saved to ${fileName}`)
+    spinner.succeed(`Content saved to ${fileName}`)
   } catch (error) {
     spinner.fail('Failed to save file')
     throw new Error(
@@ -139,15 +172,17 @@ function setupCommander() {
       `
 Examples:
   $ git plan-issue -i 42
-    Create implementation plan for issue #42
+    Enhance issue #42 with AI-powered assistance
+
+Modes:
+  1. Optimize - Improve existing issue for clarity and actionability
+  2. Comment - Provide analysis and solution recommendations
 
 Features:
-  - Fetches issue details from GitHub
-  - Generates AI-powered implementation plan
-  - Creates structured task breakdown
-  - Suggests branch naming convention
-  - Identifies prerequisites and testing strategy
-  - Interactively ask if you want to update issue, add comment, or save to file
+  - Two focused AI-powered enhancement modes
+  - Smart content optimization
+  - Interactive replacement confirmation
+  - Save enhanced content to files
 
 Prerequisites:
   - GitHub CLI (gh) must be installed and authenticated
@@ -174,32 +209,81 @@ async function main() {
       // Fetch issue details
       const issue = await fetchIssueDetails(issueNumber)
 
-      // Generate implementation plan
-      const plan = await generateImplementationPlan(issue)
-
-      // Output the plan
-      console.log(formatPlanSection(plan))
-
-      // Ask user what they want to do next
-      const action = await select({
-        message: 'What would you like to do with this implementation plan?',
+      // Ask user to choose mode
+      const mode = await select({
+        message: 'How would you like to enhance this issue?',
         choices: [
-          { name: 'Update issue description', value: 'update' },
-          { name: 'Add as comment to issue', value: 'comment' },
-          { name: 'Save to file', value: 'save' },
-          { name: 'Nothing (just display)', value: 'none' },
+          {
+            name: 'Optimize - Improve existing content for clarity',
+            value: 'optimize' as PlanMode,
+          },
+          {
+            name: 'Comment - Add analysis and solution recommendations',
+            value: 'comment' as PlanMode,
+          },
         ],
+      })
+
+      let result: OptimizedContent | CommentSolution
+      let displayContent: string
+      let updateTitle: string | undefined
+      let updateBody: string | undefined
+
+      // Process based on selected mode
+      switch (mode) {
+        case 'optimize': {
+          const optimizedResult = await optimizeIssue(issue)
+          result = optimizedResult
+          displayContent = formatOptimizedContent(optimizedResult)
+          updateTitle = optimizedResult.improvedTitle
+          updateBody = formatOptimizedIssueBody(optimizedResult)
+          break
+        }
+        case 'comment': {
+          const commentResult = await generateComment(issue)
+          result = commentResult
+          displayContent = formatCommentSolution(commentResult)
+          break
+        }
+        default:
+          throw new Error('Invalid mode selected')
+      }
+
+      // Display the result
+      console.log(displayContent)
+
+      // Ask what to do with the result
+      const actions: Array<{ name: string; value: string }> = [
+        { name: 'Save to file', value: 'save' },
+        { name: 'Nothing (just display)', value: 'none' },
+      ]
+
+      if (mode !== 'comment') {
+        actions.unshift({ name: 'Replace issue content', value: 'replace' })
+      } else {
+        actions.unshift({ name: 'Add as comment', value: 'comment' })
+      }
+
+      const action = await select({
+        message: 'What would you like to do with this content?',
+        choices: actions,
         default: 'none',
       })
 
-      if (action === 'update') {
-        const updatedBody = formatUpdatedIssueBody(issue, plan)
-        await updateIssueDescription(issue.number, updatedBody)
-      } else if (action === 'comment') {
-        const comment = formatPlanComment(plan)
+      if (action === 'replace' && (updateTitle || updateBody)) {
+        const shouldReplace = await confirm({
+          message: `Replace the issue content? This will ${updateTitle ? 'update the title and ' : ''}overwrite the existing description.`,
+          default: false,
+        })
+
+        if (shouldReplace) {
+          await updateIssue(issue.number, updateTitle, updateBody)
+        }
+      } else if (action === 'comment' && mode === 'comment') {
+        const comment = formatCommentIssueComment(result as CommentSolution)
         await addIssueComment(issue.number, comment)
       } else if (action === 'save') {
-        await savePlanToFile(issue, plan)
+        await saveContentToFile(issue, displayContent, mode)
       }
     } catch (error: unknown) {
       const errorMessage =
