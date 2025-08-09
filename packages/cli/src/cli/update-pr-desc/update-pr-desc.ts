@@ -40,8 +40,13 @@ async function main() {
       providerName: provider.name,
     })
 
+    // Complete preparation phase and hand over to AI
+    updateSpinner.succeed('Preparation complete, launching AI assistant...')
+
     await executeAICommand(prompt)
-    updateSpinner.succeed('PR description updated successfully!')
+
+    // Show success message
+    console.log('✅ PR description updated successfully!')
   } catch {
     updateSpinner.fail('Failed to update PR description')
     process.exit(1)
