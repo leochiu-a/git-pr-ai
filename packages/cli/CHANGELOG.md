@@ -1,5 +1,16 @@
 # git-pr-ai
 
+## 1.8.0
+
+### Minor Changes
+
+- 41e5d35: Add `git take-issue` cli
+- 75ac865: Implement plan-issue Command for AI-Powered Jira Implementation Plans
+
+### Patch Changes
+
+- 6b04067: Fix create-branch fail
+
 ## 1.7.2
 
 ### Patch Changes
