@@ -4,7 +4,7 @@ import ora from 'ora'
 import { writeFileSync } from 'fs'
 import { join } from 'path'
 
-import { executeAIWithOutput } from '../../ai-executor'
+import { executeAIWithJsonOutput } from '../../ai-executor'
 import { getJiraTicketDetails } from '../../jira'
 import { getCurrentProvider } from '../../providers/factory'
 import {
@@ -46,7 +46,7 @@ async function optimizeIssue(issue: IssueDetails): Promise<OptimizedContent> {
 
   try {
     const prompt = createOptimizePrompt(issue)
-    const response = await executeAIWithOutput(prompt)
+    const response = await executeAIWithJsonOutput(prompt)
     const content = JSON.parse(response)
 
     spinner.succeed('Issue content optimized')
@@ -64,7 +64,7 @@ async function generateComment(issue: IssueDetails): Promise<CommentSolution> {
 
   try {
     const prompt = createCommentPrompt(issue)
-    const response = await executeAIWithOutput(prompt)
+    const response = await executeAIWithJsonOutput(prompt)
     const solution = JSON.parse(response)
 
     spinner.succeed('Analysis and solution generated')
@@ -93,7 +93,7 @@ async function processJiraTicket(
       'Converting JIRA ticket to GitHub issue...',
     ).start()
     const prompt = createJiraPrompt(ticketDetails)
-    const response = await executeAIWithOutput(prompt)
+    const response = await executeAIWithJsonOutput(prompt)
     const issue = JSON.parse(response)
 
     convertSpinner.succeed('JIRA ticket converted to GitHub issue')
