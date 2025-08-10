@@ -99,6 +99,44 @@ interface TakeIssueOptions {
   planFile?: string
 }
 
+function validateOptions(options: TakeIssueOptions): void {
+  if (!options.planFile && !options.issue) {
+    console.error(
+      'Error: Either --plan-file <path> or --issue <number> is required',
+    )
+    console.error('Usage: git take-issue [--plan-file plan.md | --issue 42]')
+    process.exit(1)
+  }
+
+  if (options.planFile && options.issue) {
+    console.error(
+      'Error: Cannot use both --plan-file and --issue options. Choose one.',
+    )
+    console.error('Usage: git take-issue [--plan-file plan.md | --issue 42]')
+    process.exit(1)
+  }
+}
+
+async function handleIssueMode(issueNumberStr: string): Promise<void> {
+  const issueNumber = parseInt(issueNumberStr, 10)
+  if (isNaN(issueNumber)) {
+    console.error('Error: Issue number must be a valid number')
+    process.exit(1)
+  }
+
+  const issue = await fetchIssueDetails(issueNumber)
+  console.log(`\n🎯 Target Issue: #${issue.number} - ${issue.title}`)
+
+  await executeAICommand(createIssuePrompt(issue))
+}
+
+async function handlePlanFileMode(planFilePath: string): Promise<void> {
+  const planContent = await loadPlanFile(planFilePath)
+  console.log(`\n📋 Loaded plan from file: ${planFilePath}`)
+
+  await executeAICommand(createPlanPrompt(planContent))
+}
+
 async function main() {
   const program = setupCommander()
 
@@ -107,44 +145,12 @@ async function main() {
       const provider = await getCurrentProvider()
       await provider.checkCLI()
 
-      // Validate that one of the required options is provided
-      if (!options.planFile && !options.issue) {
-        console.error(
-          'Error: Either --plan-file <path> or --issue <number> is required',
-        )
-        console.error(
-          'Usage: git take-issue [--plan-file plan.md | --issue 42]',
-        )
-        process.exit(1)
-      }
-
-      if (options.planFile && options.issue) {
-        console.error(
-          'Error: Cannot use both --plan-file and --issue options. Choose one.',
-        )
-        console.error(
-          'Usage: git take-issue [--plan-file plan.md | --issue 42]',
-        )
-        process.exit(1)
-      }
+      validateOptions(options)
 
       if (options.issue) {
-        const issueNumber = parseInt(options.issue, 10)
-        if (isNaN(issueNumber)) {
-          console.error('Error: Issue number must be a valid number')
-          process.exit(1)
-        }
-
-        const issue = await fetchIssueDetails(issueNumber)
-        console.log(`\n🎯 Target Issue: #${issue.number} - ${issue.title}`)
-
-        await executeAICommand(createIssuePrompt(issue))
+        await handleIssueMode(options.issue)
       } else if (options.planFile) {
-        const planContent = await loadPlanFile(options.planFile)
-        console.log(`\n📋 Loaded plan from file: ${options.planFile}`)
-
-        // Execute using AI
-        await executeAICommand(createPlanPrompt(planContent))
+        await handlePlanFileMode(options.planFile)
       } else {
         throw new Error('No valid input provided')
       }
