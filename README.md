@@ -1,5 +1,8 @@
 # 🚀 Git PR AI
 
+[![npm version](https://img.shields.io/npm/v/git-pr-ai.svg)](https://www.npmjs.com/package/git-pr-ai)
+[![npm downloads](https://img.shields.io/npm/dt/git-pr-ai.svg)](https://www.npmjs.com/package/git-pr-ai)
+
 A CLI tool that empowers developers to create GitHub Pull Requests faster and more efficiently with the help of AI.
 
 ---
