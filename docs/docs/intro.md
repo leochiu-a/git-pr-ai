@@ -7,7 +7,6 @@ Git PR AI Tool is a powerful command-line tool that automates Pull Request creat
 - 🚀 **Multi-Platform Support**: Works with both GitHub and GitLab repositories
 - 🔍 **JIRA Integration**: Can integrate with JIRA to fetch ticket information
 - 🤖 **AI-Powered Intelligence**: Leverages Claude Code and Gemini for smart content generation and code analysis
-  ｀
 - 🎯 **Context-Aware Analysis**: Understands your repository without manual input
 
 ## Quick Start
