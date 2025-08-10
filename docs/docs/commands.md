@@ -278,6 +278,8 @@ git pr-ai config
 - **JIRA Configuration**: Set up JIRA integration
 - **Configuration File**: Creates `~/.git-pr-ai/.git-pr-ai.json`
 
+For detailed configuration options and advanced settings, see the [Configuration Guide](./configuration).
+
 ## Command Aliases
 
 After installation, these git aliases are automatically configured:
