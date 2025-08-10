@@ -37,11 +37,20 @@ jobs:
       - name: Copy README to cli package
         run: cp README.md packages/cli/README.md
 
-      - name: Release Pull Request or Publish to npm
-        id: changesets
-        uses: changesets/action@v1
-        with:
-          publish: pnpm run release
+      - name: Publish to npm
+        run: pnpm run release
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+
+          # Create GitHub release with auto-generated notes
+          gh release create "$VERSION" \
+            --title "Release v$VERSION" \
+            --generate-notes \
+            --latest \
+            --target ${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
