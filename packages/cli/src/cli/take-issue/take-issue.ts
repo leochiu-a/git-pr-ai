@@ -110,7 +110,7 @@ function validateOptions(options: TakeIssueOptions): void {
 
   if (options.planFile && options.issue) {
     console.error(
-      'Error: Cannot use both --plan-file and --issue options. Choose one.',
+      'Error: Cannot use both --plan-file and --issue options. Choose one',
     )
     console.error('Usage: git take-issue [--plan-file plan.md | --issue 42]')
     process.exit(1)
