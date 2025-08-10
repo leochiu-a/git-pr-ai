@@ -93,16 +93,8 @@ Generate practical, executable steps that implement the requested functionality.
   }
 }
 
-async function executePlan(
-  steps: PlanStep[],
-  issueNumber?: number,
-): Promise<void> {
-  const message =
-    issueNumber && issueNumber > 0
-      ? `\n🚀 Starting execution of ${steps.length} steps for issue #${issueNumber}`
-      : `\n🚀 Starting execution of ${steps.length} steps`
-
-  console.log(message)
+async function executePlan(steps: PlanStep[]): Promise<void> {
+  console.log(`\n🚀 Starting execution of ${steps.length} steps`)
 
   const results: ExecutionResult[] = []
   let successCount = 0
@@ -163,11 +155,9 @@ async function executePlan(
   console.log(`   📋 Total steps: ${steps.length}`)
 
   if (failureCount === 0) {
-    const successMessage =
-      issueNumber && issueNumber > 0
-        ? `\n🎉 All steps completed successfully! Issue #${issueNumber} implementation is ready.`
-        : `\n🎉 All steps completed successfully! Implementation is ready.`
-    console.log(successMessage)
+    console.log(
+      `\n🎉 All steps completed successfully! Implementation is ready.`,
+    )
   } else {
     console.log(
       `\n⚠️  Some steps failed. Please review the output and address any issues.`,
@@ -307,7 +297,7 @@ async function main() {
       }
 
       // Execute the plan
-      await executePlan(steps, issueNumber)
+      await executePlan(steps)
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
