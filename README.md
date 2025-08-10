@@ -39,30 +39,37 @@ Before you begin, please ensure you have completed the following setup:
     git pr-ai config
     ```
 
-2.  **Create a branch from a JIRA Ticket**:
+2.  **Configure JIRA integration** (required for git-pr-ai to fetch JIRA data):
 
     ```bash
-    # The system will automatically generate a branch name from the JIRA ticket ID (e.g., PROJ-123)
+    # Set up JIRA connection to fetch ticket information
+    git pr-ai config
+    ```
+
+3.  **Create a branch from a JIRA Ticket**:
+
+    ```bash
+    # Generates branch name following commitlint conventions from JIRA ticket ID (e.g., PROJ-123)
     git create-branch --jira PROJ-123
     ```
 
-3.  **Create a Pull Request**:
+4.  **Create a Pull Request**:
 
     ```bash
-    # Automatically detects the current branch and initiates the PR creation process
+    # Automatically fetches JIRA ID and title, then initiates the PR creation process
     git open-pr
     ```
 
-4.  **Update PR Description with AI**:
+5.  **Update PR Description with AI**:
 
     ```bash
-    # Let AI generate or update the PR description based on your code changes
+    # Directly updates the PR description using AI analysis of your code changes
     git update-pr-desc
     ```
 
-5.  **Review PR with AI**:
+6.  **Review PR with AI**:
     ```bash
-    # Let AI review your code and provide suggestions for improvement
+    # Uses AI to review code and provide feedback
     git pr-review
     ```
 

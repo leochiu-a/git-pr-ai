@@ -5,10 +5,9 @@ Git PR AI Tool is a powerful command-line tool that automates Pull Request creat
 ## Key Features
 
 - 🚀 **Multi-Platform Support**: Works with both GitHub and GitLab repositories
-- 🔍 **JIRA Integration**: Seamlessly integrates with JIRA for ticket management
-- 🤖 **AI-Powered Intelligence**: Leverages Claude Code for smart content generation and code analysis
-- ⚡ **Zero Configuration**: Works out of the box with minimal setup required
-- 🛠️ **Complete Workflow Coverage**: From branch creation to PR reviews in one tool
+- 🔍 **JIRA Integration**: Can integrate with JIRA to fetch ticket information
+- 🤖 **AI-Powered Intelligence**: Leverages Claude Code and Gemini for smart content generation and code analysis
+  ｀
 - 🎯 **Context-Aware Analysis**: Understands your repository without manual input
 
 ## Quick Start
@@ -19,27 +18,38 @@ Git PR AI Tool is a powerful command-line tool that automates Pull Request creat
    pnpm add -g git-pr-ai
    ```
 
-2. **Create a branch from JIRA ticket:**
+2. **Configure JIRA integration** (required for git-pr-ai to fetch JIRA data):
 
    ```bash
+   # Set up JIRA connection to fetch ticket information
+   git pr-ai config
+   ```
+
+3. **Create a branch from JIRA ticket:**
+
+   ```bash
+   # Generates branch name following commitlint conventions
    git create-branch --jira PROJ-123
    ```
 
-3. **Create a Pull Request:**
+4. **Create a Pull Request:**
 
    ```bash
+   # Automatically fetches JIRA ID and title for PR creation
    git open-pr
    ```
 
-4. **Update PR description with AI:**
+5. **Update PR description with AI:**
 
    ```bash
+   # Directly updates the PR description using AI analysis
    git update-pr-desc
    ```
 
-5. **PR review with AI:**
+6. **PR review with AI:**
 
    ```bash
+   # Uses AI to review code and provide feedback
    git pr-review
    ```
 
