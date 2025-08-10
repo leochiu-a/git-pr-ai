@@ -8,6 +8,7 @@ export default defineConfig({
     'git-pr-ai': 'src/cli/pr-ai.ts',
     'git-create-branch': 'src/cli/create-branch/create-branch.ts',
     'git-plan-issue': 'src/cli/plan-issue/plan-issue.ts',
+    'git-take-issue': 'src/cli/take-issue/take-issue.ts',
     postinstall: 'scripts/postinstall.ts',
   },
   format: ['esm'],
