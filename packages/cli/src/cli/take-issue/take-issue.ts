@@ -1,7 +1,7 @@
 import { Command } from 'commander'
 import ora from 'ora'
 import { existsSync, readFileSync } from 'fs'
-import { resolve } from 'path'
+import { resolve, extname } from 'path'
 
 import { executeAICommand } from '../../ai-executor'
 import { getCurrentProvider } from '../../providers/factory'
@@ -29,6 +29,13 @@ async function loadPlanFile(planFilePath: string): Promise<string> {
 
     if (!existsSync(resolvedPath)) {
       throw new Error(`Plan file not found: ${resolvedPath}`)
+    }
+
+    const fileExtension = extname(resolvedPath).toLowerCase()
+    if (fileExtension !== '.md') {
+      console.warn(
+        `Warning: Plan file should typically be a markdown file (.md), but got: ${fileExtension || 'no extension'}`,
+      )
     }
 
     const content = readFileSync(resolvedPath, 'utf8')
