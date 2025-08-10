@@ -53,40 +53,39 @@ function setupCommander() {
       `
 Examples:
   $ git take-issue --plan-file plan.md
-    Execute the steps defined in plan.md
+    Process and implement the plan defined in plan.md
 
   $ git take-issue --issue 123
-    Generate and execute a plan for issue #123
+    Analyze and implement the solution for issue #123
 
 Usage Modes:
-  1. Plan File Mode: Use --plan-file to execute a predefined plan
-     - Loads steps from a markdown file
-     - No issue context required
+  1. Plan File Mode: Use --plan-file to implement a predefined plan
+     - Loads content from a markdown file
+     - AI processes the entire plan holistically
      
-  2. Issue Mode: Use --issue to generate and execute a plan
+  2. Issue Mode: Use --issue to implement an issue solution
      - Analyzes the GitHub issue
-     - Generates an implementation plan using AI
-     - Executes the generated plan
+     - AI generates and implements the solution directly
 
 Workflow (Plan File Mode):
-  1. Create or obtain a markdown plan file with executable steps
+  1. Create or obtain a markdown plan file
   2. Run 'git take-issue --plan-file plan.md'
+  3. AI processes and implements the entire plan
 
 Workflow (Issue Mode):
   1. Run 'git take-issue --issue <issue-number>'
-  2. Review the generated plan and confirm execution
+  2. AI analyzes the issue and implements the solution
 
 Features:
   - Two execution modes: plan file or issue-based
-  - AI-powered plan generation from GitHub issues
-  - Parse markdown plan files with executable steps
-  - Execute steps with real-time progress feedback
-  - Handle failures gracefully with user confirmation
-  - Provide detailed execution summary
+  - AI-powered implementation from GitHub issues
+  - Process markdown plan files for implementation
+  - Direct AI-driven development execution
+  - Leverages AI's holistic understanding of requirements
 
 Prerequisites:
   - GitHub CLI (gh) or GitLab CLI (glab) must be installed and authenticated
-  - AI agent must be configured for issue mode (run 'git pr-ai config')
+  - AI agent must be configured (run 'git pr-ai config')
     `,
     )
 
