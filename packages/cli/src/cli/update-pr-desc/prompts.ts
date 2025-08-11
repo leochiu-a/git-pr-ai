@@ -21,7 +21,7 @@ export function buildUpdateDescriptionPrompt({
 
 Please follow these steps:
 - Analyze the code changes to understand the purpose of this PR
-- Generate a clear and informative PR description including:
+- Generate a clear and informative PR description (ALL section headers MUST be in English) including:
   - Description of the changes and their purpose
   - Type of changes (MUST be in English with this exact format):
     - [ ] Bug fix (non-breaking change which fixes an issue)
