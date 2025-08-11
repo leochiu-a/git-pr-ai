@@ -22,8 +22,11 @@ export function buildUpdateDescriptionPrompt({
 Please follow these steps:
 - Analyze the code changes to understand the purpose of this PR
 - Generate a clear and informative PR description including:
-  - Summary of changes and their purpose
-  - Type of changes (bug fix, feature, breaking change, etc.)
+  - Description of the changes and their purpose
+  - Type of changes (MUST be in English with this exact format):
+    - [ ] Bug fix (non-breaking change which fixes an issue)
+    - [ ] New feature (non-breaking change which adds functionality)
+    - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
   - Testing instructions (if applicable)
   - Breaking changes or migration notes (if any)
 - Use ${providerName} CLI command to update the PR description
