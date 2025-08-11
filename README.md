@@ -35,42 +35,35 @@ Before you begin, please ensure you have completed the following setup:
 
 ## 🚀 Quick Start
 
-1.  **Configure the tool** (optional):
+1.  **Configure the tool** (required for git-pr-ai to fetch JIRA data):
 
     ```bash
     # Set up your preferred AI provider (Claude or Gemini)
     git pr-ai config
     ```
 
-2.  **Configure JIRA integration** (required for git-pr-ai to fetch JIRA data):
-
-    ```bash
-    # Set up JIRA connection to fetch ticket information
-    git pr-ai config
-    ```
-
-3.  **Create a branch from a JIRA Ticket**:
+2.  **Create a branch from a JIRA Ticket**:
 
     ```bash
     # Generates branch name following commitlint conventions from JIRA ticket ID (e.g., PROJ-123)
     git create-branch --jira PROJ-123
     ```
 
-4.  **Create a Pull Request**:
+3.  **Create a Pull Request**:
 
     ```bash
     # Automatically fetches JIRA ID and title, then initiates the PR creation process
     git open-pr
     ```
 
-5.  **Update PR Description with AI**:
+4.  **Update PR Description with AI**:
 
     ```bash
     # Directly updates the PR description using AI analysis of your code changes
     git update-pr-desc
     ```
 
-6.  **Review PR with AI**:
+5.  **Review PR with AI**:
     ```bash
     # Uses AI to review code and provide feedback
     git pr-review
