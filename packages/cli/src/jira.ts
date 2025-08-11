@@ -2,7 +2,7 @@ import { loadConfig } from './config'
 import { JiraTicketDetails } from './cli/plan-issue/types'
 
 export function extractJiraTicket(branchName: string): string | null {
-  const jiraPattern = /([A-Z]+-\d+)/
+  const jiraPattern = /([A-Z0-9]+-\d+)/
   const match = branchName.match(jiraPattern)
 
   if (!match) {
