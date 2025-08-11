@@ -1,15 +1,14 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 permissions:
   contents: write
   pull-requests: write
+  id-token: write
 
 jobs:
   release:
@@ -27,30 +26,22 @@ jobs:
         with:
           node-version: 20
           cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: pnpm run build:cli
+        run: pnpm run build
 
       - name: Copy README to cli package
         run: cp README.md packages/cli/README.md
 
-      - name: Publish to npm
-        run: pnpm run release
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Create GitHub Release
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-
-          # Create GitHub release with auto-generated notes
-          gh release create "$VERSION" \
-            --title "Release v$VERSION" \
-            --generate-notes \
-            --latest \
-            --target ${{ github.ref_name }}
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: pnpm run release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
