@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.8.2
+
+### Patch Changes
+
+- 498d65f: improve PR description prompt
+
 ## 1.8.1
 
 ### Patch Changes
