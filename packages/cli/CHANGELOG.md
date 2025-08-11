@@ -1,5 +1,12 @@
 # git-pr-ai
 
+## 1.8.1
+
+### Patch Changes
+
+- ae5c152: fix: jira pattern support alphanumeric keys
+- 06ba77d: feat: improve Jira ticket ID resolution efficiency
+
 ## 1.8.0
 
 ### Minor Changes

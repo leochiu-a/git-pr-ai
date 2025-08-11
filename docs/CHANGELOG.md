@@ -1,5 +1,11 @@
 # @git-pr-ai/docs
 
+## 1.8.1
+
+### Patch Changes
+
+- 25ab71f: improve file guidance
+
 ## 1.8.0
 
 ### Minor Changes
