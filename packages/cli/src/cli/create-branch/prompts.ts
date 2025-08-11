@@ -74,7 +74,8 @@ export const createDiffBranchPrompt = (
 ${gitDiff}
 
 Please analyze the changes and provide:
-1. An appropriate branch type prefix following commitlint conventional types:
+1. First, check for any JIRA ticket IDs in the diff content (format: PROJECT-123, KB2CW-456, etc.)
+2. An appropriate branch type prefix following commitlint conventional types:
    - feat: new features
    - fix: bug fixes  
    - docs: documentation changes
@@ -85,17 +86,22 @@ Please analyze the changes and provide:
    - chore: maintenance tasks
    - ci: CI/CD changes
    - build: build system changes
-2. A descriptive branch name following the format: {prefix}/{description}
+3. A descriptive branch name following the format:
+   - If JIRA ticket found: {prefix}/{ticket-id}-{description}
+   - If no JIRA ticket: {prefix}/{description}
 
 Requirements:
+- Look for JIRA ticket IDs in commit messages, comments, or file paths
+- If found, include the EXACT ticket ID in the branch name (preserve case)
 - Use kebab-case for the description
-- Keep the description concise but meaningful (max 40 characters)
-- Use only lowercase letters, numbers, and hyphens
+- Keep the description concise but meaningful (max 30 characters if ticket included, 40 if not)
+- Use only lowercase letters, numbers, and hyphens for the description part
 - Choose the branch type based on the changes shown in the diff
 - Generate a description that captures the essence of the changes
 
 Please respond with exactly this format:
 BRANCH_NAME: {your_generated_branch_name}
 
-Example:
-BRANCH_NAME: feat/add-user-authentication`
+Examples:
+BRANCH_NAME: feat/KB2CW-123-add-user-auth
+BRANCH_NAME: fix/update-validation-logic`

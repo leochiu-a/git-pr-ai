@@ -80,6 +80,7 @@ async function generateComment(issue: IssueDetails): Promise<CommentSolution> {
 async function processJiraTicket(
   ticketKey: string,
 ): Promise<JiraGeneratedIssue> {
+  console.log(`JIRA Ticket: ${ticketKey}`)
   const spinner = ora('Fetching JIRA ticket details...').start()
 
   try {
@@ -87,7 +88,7 @@ async function processJiraTicket(
     if (!ticketDetails) {
       throw new Error('Could not fetch JIRA ticket details')
     }
-    spinner.succeed('JIRA ticket details fetched')
+    spinner.succeed(`JIRA Title: ${ticketDetails.summary}`)
 
     const convertSpinner = ora(
       'Converting JIRA ticket to GitHub issue...',
