@@ -10,7 +10,8 @@
     "git-pr-ai": "./dist/git-pr-ai.js",
     "git-create-branch": "./dist/git-create-branch.js",
     "git-plan-issue": "./dist/git-plan-issue.js",
-    "git-take-issue": "./dist/git-take-issue.js"
+    "git-take-issue": "./dist/git-take-issue.js",
+    "git-pr-stats": "./dist/git-pr-stats.js"
   },
   "files": [
     "dist",
