@@ -334,4 +334,23 @@ export class GitLabProvider implements GitProvider {
       )
     }
   }
+
+  async searchPRsByDateRange(startDate: string, endDate: string): Promise<PR[]> {
+    try {
+      // GitLab CLI search might be different, using basic approach
+      const result = await $`glab mr list --created-after=${startDate} --created-before=${endDate} --all --per-page=100 --json`
+      const mrs = JSON.parse(result.stdout)
+
+      return mrs.map((mr: any) => ({
+        number: mr.iid.toString(),
+        title: mr.title,
+        url: mr.web_url,
+        state: mr.state.toLowerCase(),
+        author: mr.author.username,
+      }))
+    } catch (error) {
+      console.warn(`⚠️ Could not search MRs for date range ${startDate}..${endDate}`)
+      return []
+    }
+  }
 }

@@ -349,4 +349,22 @@ export class GitHubProvider implements GitProvider {
       )
     }
   }
+
+  async searchPRsByDateRange(startDate: string, endDate: string): Promise<PR[]> {
+    try {
+      const result = await $`gh search prs --repo :owner/:repo --created ${startDate}..${endDate} --json number,title,url,state,author --limit 1000`
+      const prs = JSON.parse(result.stdout)
+
+      return prs.map((pr: any) => ({
+        number: pr.number.toString(),
+        title: pr.title,
+        url: pr.url,
+        state: pr.state.toLowerCase(),
+        author: pr.author.login,
+      }))
+    } catch (error) {
+      console.warn(`⚠️ Could not search PRs for date range ${startDate}..${endDate}`)
+      return []
+    }
+  }
 }

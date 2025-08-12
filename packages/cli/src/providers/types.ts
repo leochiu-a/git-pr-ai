@@ -56,6 +56,9 @@ export interface GitProvider {
 
   /** Create a new issue */
   createIssue(title: string, body: string, labels?: string[]): Promise<void>
+
+  /** Search for PRs/MRs within a specific date range */
+  searchPRsByDateRange(startDate: string, endDate: string): Promise<PR[]>
 }
 
 export interface IssueDetails {
