@@ -11,48 +11,66 @@ Git PR AI Tool is a powerful command-line tool that automates Pull Request creat
 
 ## Quick Start
 
-1. **Install the tool globally:**
+**Install the tool globally:**
 
-   ```bash
-   pnpm add -g git-pr-ai
-   ```
+```bash
+pnpm add -g git-pr-ai
+```
 
-2. **Configure JIRA integration** (required for git-pr-ai to fetch JIRA data):
+**Configure AI provider (and optional JIRA integration):**
 
-   ```bash
-   # Set up JIRA connection to fetch ticket information
-   git pr-ai config
-   ```
+```bash
+# Set up AI provider (defaults to Claude Code, or choose Gemini) and optionally JIRA authentication
+git pr-ai config
+```
 
-3. **Create a branch from JIRA ticket:**
+### Available Commands
 
-   ```bash
-   # Generates branch name following commitlint conventions
-   git create-branch --jira PROJ-123
-   ```
+Each command below can be used independently based on your needs:
 
-4. **Create a Pull Request:**
+**Plan issue implementation:**
 
-   ```bash
-   # Automatically fetches JIRA ID and title for PR creation
-   git open-pr
-   ```
+```bash
+# Generate implementation plan for JIRA ticket
+git plan-issue --jira PROJ-123
+```
 
-5. **Update PR description with AI:**
+**Take issue and implement plan:**
 
-   ```bash
-   # Directly updates the PR description using AI analysis
-   git update-pr-desc
-   ```
+```bash
+# Execute implementation plan
+git take-issue --plan-file plan.md
+```
 
-6. **PR review with AI:**
+**Create a branch from JIRA ticket:**
 
-   ```bash
-   # Uses AI to review code and provide feedback
-   git pr-review
-   ```
+```bash
+# Generates branch name following commitlint conventions
+git create-branch --jira PROJ-123
+```
 
-That's it! The tool handles the rest automatically.
+**Create a Pull Request:**
+
+```bash
+# Automatically fetches JIRA ID and title for PR creation
+git open-pr
+```
+
+**Update existing PR description with AI:**
+
+```bash
+# Enhances your PR description using AI analysis
+git update-pr-desc
+```
+
+**Get AI-powered PR review:**
+
+```bash
+# Provides intelligent code review feedback
+git pr-review
+```
+
+You can use any of these commands whenever you need them - they're designed to work independently and enhance your existing Git workflow.
 
 ## How It Works
 
