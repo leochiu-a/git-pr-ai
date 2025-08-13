@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.8.3
+
+### Patch Changes
+
+- 39a5980: feat: add commitlint branch conversion
+
 ## 1.8.2
 
 ### Patch Changes

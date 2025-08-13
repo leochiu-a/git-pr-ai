@@ -1,5 +1,11 @@
 # @git-pr-ai/docs
 
+## 1.8.2
+
+### Patch Changes
+
+- ac5ed0a: improve quick start structure
+
 ## 1.8.1
 
 ### Patch Changes
