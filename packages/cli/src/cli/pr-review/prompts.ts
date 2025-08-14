@@ -75,14 +75,65 @@ Please provide structured review in the following format:
 [Approve/Request Changes/Comment Only]
 
 Please follow these steps:
-- Analyze the code changes to understand the purpose and quality of this PR/MR.
-- Generate the review content according to the format above.
-- Use the ${providerName} CLI command to post the review content as a PR/MR comment.
+1. Analyze the code changes to understand the purpose and quality of this PR/MR
+2. Generate the review content according to the format above
+3. Post the review as a comment using the appropriate CLI command
+
+## CLI Commands by Provider:
+
+### For ${providerName}:
+${
+  providerName === 'GitLab'
+    ? `- View MR details: \`glab mr view -F json\`
+- Get MR diff: \`glab mr diff\`  
+- Post comment: \`glab mr note --message <message>\`
+- Example: \`glab mr note --message "This is a review comment"\``
+    : `- View PR details: \`gh pr view --json number,title,url,baseRefName,headRefName\`
+- Get PR diff: \`gh pr diff\`
+- Post comment: \`gh pr comment --body-file <file>\`
+- Example: Save review to temp_review.md, then run \`gh pr comment --body-file temp_review.md\``
+}
+
+## For Gemini CLI Users - Step by Step:
+1. **First, get the MR diff**:
+   \`\`\`bash
+   glab mr diff
+   \`\`\`
+
+2. **Create your review content and save to file**:
+   \`\`\`bash
+   cat > review_content.md << 'EOF'
+   ## 📋 Changes Summary
+   [Your analysis of the changes]
+
+   ## ✅ Strengths  
+   [Good practices you found]
+
+   ## ⚠️ Suggestions for Improvement
+   [Specific suggestions]
+
+   ## 🐛 Potential Issues
+   [Any issues found]
+
+   ## Overall Assessment
+   [Your final assessment]
+   EOF
+   \`\`\`
+
+3. **Post the review as comment**:
+   \`\`\`bash
+   glab mr note --message review_content.md
+   \`\`\`
+
+4. **Clean up**:
+   \`\`\`bash
+   rm review_content.md
+   \`\`\`
 
 IMPORTANT:
-- Select the appropriate ${providerName} CLI command to post the review content as a PR/MR comment.
-- For Gemini CLI, save the review content to a markdown file and then use that file as the comment content.
-- Use the comment command to post the review content as a PR/MR comment, and avoid using the approve command.
+- Use the comment posting commands above, avoid approve/unapprove commands  
+- For Gemini CLI: Follow the 4-step process exactly for reliable results
+- Always save review content to a file first, then post using --message-file
 `
 
   let finalPrompt = basePrompt + analysisInstructions + reviewStructure
