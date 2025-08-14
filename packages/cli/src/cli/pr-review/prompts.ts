@@ -75,11 +75,15 @@ Please provide structured review in the following format:
 [Approve/Request Changes/Comment Only]
 
 Please follow these steps:
-- Analyze the code changes
-- Generate review content according to the above format
-- Post the review content as PR/MR comment
+- Analyze the code changes to understand the purpose and quality of this PR/MR.
+- Generate the review content according to the format above.
+- Use the ${providerName} CLI command to post the review content as a PR/MR comment.
 
-Note: Use the appropriate ${providerName} CLI command to post the comment.`
+IMPORTANT:
+- Select the appropriate ${providerName} CLI command to post the review content as a PR/MR comment.
+- For Gemini CLI, save the review content to a markdown file and then use that file as the comment content.
+- Use the comment command to post the review content as a PR/MR comment, and avoid using the approve command.
+`
 
   let finalPrompt = basePrompt + analysisInstructions + reviewStructure
 

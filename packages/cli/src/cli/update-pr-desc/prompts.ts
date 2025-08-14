@@ -21,6 +21,7 @@ export function buildUpdateDescriptionPrompt({
 
 Please follow these steps:
 - Analyze the code changes to understand the purpose of this PR
+- Follow the repository's Pull Request/Merge Request template structure if available
 - Generate a clear and informative PR description (ALL section headers MUST be in English) including:
   - Description of the changes and their purpose
   - Type of changes (MUST be in English with this exact format):
