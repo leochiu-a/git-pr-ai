@@ -75,9 +75,9 @@ Please provide structured review in the following format:
 [Approve/Request Changes/Comment Only]
 
 Please follow these steps:
-- Analyze the code changes
+- Analyze the code changes to understand the purpose and quality of this PR/MR
 - Generate review content according to the above format
-- Post the review content as PR/MR comment
+- Use ${providerName} CLI command to post the review content as PR/MR comment
 
 Note: Use the appropriate ${providerName} CLI command to post the comment.`
 
