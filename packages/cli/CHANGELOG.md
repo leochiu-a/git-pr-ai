@@ -1,5 +1,12 @@
 # git-pr-ai
 
+## 1.8.4
+
+### Patch Changes
+
+- 289168a: refactor: improve pr prompts
+- fa91b9c: fix: gitlab command quotes
+
 ## 1.8.3
 
 ### Patch Changes
