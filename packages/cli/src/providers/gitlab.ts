@@ -68,7 +68,7 @@ export class GitLabProvider implements GitProvider {
     baseBranch: string,
   ): Promise<void> {
     const spinner = ora('Creating Merge Request...').start()
-    await $`glab mr create --title "${title}" --target-branch ${baseBranch} --source-branch ${branch} --web`
+    await $`glab mr create --title ${title} --target-branch ${baseBranch} --source-branch ${branch} --description "" --web`
     spinner.succeed('Merge Request created successfully!')
   }
 
@@ -100,7 +100,7 @@ export class GitLabProvider implements GitProvider {
       }
 
       if (options.comment) {
-        await $`glab mr note ${prNumber} --message "${options.comment}"`
+        await $`glab mr note ${prNumber} --message ${options.comment}`
       }
 
       if (
