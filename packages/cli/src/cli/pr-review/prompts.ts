@@ -1,7 +1,6 @@
 import { PRDetails } from '../../providers/types'
 
 export interface ReviewPromptOptions {
-  reviewType?: 'comprehensive' | 'focused' | 'security'
   additionalContext?: string
 }
 
@@ -16,127 +15,59 @@ export function buildReviewPrompt({
   options = {},
   providerName,
 }: BuildReviewPromptArgs): string {
-  const { additionalContext, reviewType = 'comprehensive' } = options
+  const { additionalContext } = options
 
-  const basePrompt = `Please analyze this Pull Request and provide code review:
+  const basePrompt = `You are an expert code reviewer. Think carefully and systematically about this Pull Request.
 
 ## PR Information
 - Repository: ${prDetails.owner}/${prDetails.repo}
 - PR #${prDetails.number}: ${prDetails.title}
 - URL: ${prDetails.url}
 - Target branch: ${prDetails.baseBranch}
-- Source branch: ${prDetails.headBranch}`
+- Source branch: ${prDetails.headBranch}
 
-  let analysisInstructions = ''
+## Review Process
 
-  switch (reviewType) {
-    case 'security':
-      analysisInstructions = `
-Focus on security analysis:
-- Potential security vulnerabilities
-- Input validation issues
-- Permission control checks
-- Sensitive data handling`
-      break
-    case 'focused':
-      analysisInstructions = `
-Provide focused summary review:
-- Main changes overview
-- Potential issues identification
-- Key recommendations`
-      break
-    default:
-      analysisInstructions = `
-Analyze the following aspects:
-- Code quality and best practices
-- Potential bugs or issues
-- Performance considerations
-- Code consistency and style
-- Test coverage`
-  }
+### Step 1: Analysis
+First, examine the code changes focusing on:
+- **Code Quality**: Adherence to best practices, readability, and maintainability
+- **Logic & Bugs**: Potential issues, edge cases, and correctness
+- **Performance**: Efficiency concerns and optimization opportunities
+- **Security**: Vulnerability assessment and safe coding practices
+- **Testing**: Coverage adequacy and test quality
 
-  const reviewStructure = `
-
-Please provide structured review in the following format:
+### Step 2: Generate Review
+Provide your review in this structured format:
 
 ## 📋 Changes Summary
-[Brief description of main changes]
+[Concise description of what changed and why]
 
 ## ✅ Strengths
-[Point out good practices and improvements]
+[Specific positive aspects and good practices]
 
-## ⚠️ Suggestions for Improvement
-[Specific improvement suggestions]
+## ⚠️ Suggestions
+[Actionable improvement recommendations with examples]
 
-## 🐛 Potential Issues
-[List any issues found]
+## 🐛 Issues Found
+[Critical bugs, security concerns, or problems]
 
 ## Overall Assessment
-[Approve/Request Changes/Comment Only]
+[Approve/Request Changes/Comment with reasoning]
 
-Please follow these steps:
-1. Analyze the code changes to understand the purpose and quality of this PR/MR
-2. Generate the review content according to the format above
-3. Post the review as a comment using the appropriate CLI command
-
-## CLI Commands by Provider:
-
-### For ${providerName}:
+### Step 3: Post Review
 ${
   providerName === 'GitLab'
-    ? `- View MR details: \`glab mr view -F json\`
-- Get MR diff: \`glab mr diff\`  
-- Post comment: \`glab mr note --message <message>\`
-- Example: \`glab mr note --message "This is a review comment"\``
-    : `- View PR details: \`gh pr view --json number,title,url,baseRefName,headRefName\`
-- Get PR diff: \`gh pr diff\`
-- Post comment: \`gh pr comment --body-file <file>\`
-- Example: Save review to temp_review.md, then run \`gh pr comment --body-file temp_review.md\``
+    ? 'Save your review to a file and use: `glab mr note --message-file <filename>`'
+    : 'Save your review to a file and use: `gh pr comment --body-file <filename>`'
 }
 
-## For Gemini CLI Users - Step by Step:
-1. **First, get the MR diff**:
-   \`\`\`bash
-   glab mr diff
-   \`\`\`
+## Key Guidelines
+- Be specific and actionable in feedback
+- Provide code examples when suggesting changes
+- Focus on maintainability and correctness
+- Consider the broader codebase context`
 
-2. **Create your review content and save to file**:
-   \`\`\`bash
-   cat > review_content.md << 'EOF'
-   ## 📋 Changes Summary
-   [Your analysis of the changes]
-
-   ## ✅ Strengths  
-   [Good practices you found]
-
-   ## ⚠️ Suggestions for Improvement
-   [Specific suggestions]
-
-   ## 🐛 Potential Issues
-   [Any issues found]
-
-   ## Overall Assessment
-   [Your final assessment]
-   EOF
-   \`\`\`
-
-3. **Post the review as comment**:
-   \`\`\`bash
-   glab mr note --message review_content.md
-   \`\`\`
-
-4. **Clean up**:
-   \`\`\`bash
-   rm review_content.md
-   \`\`\`
-
-IMPORTANT:
-- Use the comment posting commands above, avoid approve/unapprove commands  
-- For Gemini CLI: Follow the 4-step process exactly for reliable results
-- Always save review content to a file first, then post using --message-file
-`
-
-  let finalPrompt = basePrompt + analysisInstructions + reviewStructure
+  let finalPrompt = basePrompt
 
   if (additionalContext) {
     finalPrompt += `\n\n## Additional Context\n${additionalContext}\n\nPlease incorporate this context into your review.`
