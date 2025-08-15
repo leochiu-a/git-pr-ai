@@ -29,8 +29,8 @@ async function main() {
 
     // Use prompts function to construct the complete prompt
     const prompt = buildUpdateDescriptionPrompt({
-      prData: prDetails,
-      additionalContext: additionalPrompt,
+      prDetails: prDetails,
+      options: { additionalContext: additionalPrompt },
       providerName: provider.name,
     })
 
