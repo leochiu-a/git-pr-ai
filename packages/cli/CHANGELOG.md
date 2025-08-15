@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.8.5
+
+### Patch Changes
+
+- 851df85: refactor: import update-pr-desc and pr-review prompts
+
 ## 1.8.4
 
 ### Patch Changes
