@@ -65,7 +65,9 @@ ${
 - Be specific and actionable in feedback
 - Provide code examples when suggesting changes
 - Focus on maintainability and correctness
-- Consider the broader codebase context`
+- Consider the broader codebase context
+- MUST execute all CLI commands to complete the task - do not just provide instructions to the user
+`
 
   let finalPrompt = basePrompt
 
