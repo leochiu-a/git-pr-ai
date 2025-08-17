@@ -31,6 +31,7 @@ const sidebars: SidebarsConfig = {
         'commands/pr-review',
         'commands/plan-issue',
         'commands/take-issue',
+        'commands/weekly-summary',
         'commands/config',
       ],
     },
