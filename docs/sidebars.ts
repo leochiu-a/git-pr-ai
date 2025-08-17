@@ -17,6 +17,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Introduction',
+      collapsed: false,
       items: [
         'introduction/intro',
         'introduction/installation',
@@ -26,6 +27,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Commands',
+      collapsed: false,
       items: [
         'commands/commands',
         'commands/create-branch',
