@@ -1,4 +1,4 @@
-# Introduction
+# What is `git-pr-ai`?
 
 Git PR AI Tool is a powerful command-line tool that automates Pull Request creation for GitHub and GitLab with JIRA integration. It streamlines your development workflow by automatically extracting JIRA ticket numbers from branch names and creating well-structured PRs with AI assistance.
 
