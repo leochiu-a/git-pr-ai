@@ -10,7 +10,10 @@ export interface SummaryData {
 /**
  * Format output as plain text
  */
-export function formatAsText(data: SummaryData): string {
+export function formatAsText(
+  data: SummaryData,
+  showAllCommits = false,
+): string {
   const lines: string[] = []
 
   lines.push(`=== Weekly Summary (${data.dateRange}) ===`)
@@ -36,15 +39,18 @@ export function formatAsText(data: SummaryData): string {
     if (data.commits.length === 0) {
       lines.push('  No commits found in this period')
     } else {
-      data.commits.slice(0, 20).forEach((commit) => {
-        // Show first 20 commits
+      const commitsToShow = showAllCommits
+        ? data.commits
+        : data.commits.slice(0, 20)
+
+      commitsToShow.forEach((commit) => {
         const type = extractCommitType(commit.message)
         lines.push(
           `  • ${type ? `${type}: ` : ''}${commit.message} (${commit.hash}) - ${commit.author}`,
         )
       })
 
-      if (data.commits.length > 20) {
+      if (!showAllCommits && data.commits.length > 20) {
         lines.push(`  ... and ${data.commits.length - 20} more commits`)
       }
     }
@@ -87,8 +93,7 @@ export function formatAsMarkdown(data: SummaryData): string {
     if (data.commits.length === 0) {
       lines.push('*No commits found in this period*')
     } else {
-      data.commits.slice(0, 20).forEach((commit) => {
-        // Show first 20 commits
+      data.commits.forEach((commit) => {
         const type = extractCommitType(commit.message)
         const message = type
           ? commit.message.replace(`${type}:`, '').trim()
@@ -97,11 +102,6 @@ export function formatAsMarkdown(data: SummaryData): string {
           `- ${type ? `**${type}**:` : '•'} ${message} *(${commit.hash})* - ${commit.author}`,
         )
       })
-
-      if (data.commits.length > 20) {
-        lines.push('')
-        lines.push(`*... and ${data.commits.length - 20} more commits*`)
-      }
     }
     lines.push('')
   }
@@ -136,7 +136,7 @@ function extractCommitType(message: string): string | null {
 /**
  * Generate summary statistics
  */
-export function generateStats(data: SummaryData): string {
+export function generateStats(data: SummaryData, isMarkdown = false): string {
   const lines: string[] = []
 
   if (data.prs && data.prs.length > 0) {
@@ -148,10 +148,20 @@ export function generateStats(data: SummaryData): string {
       {} as Record<string, number>,
     )
 
-    lines.push('PR Statistics:')
-    Object.entries(prsByState).forEach(([state, count]) => {
-      lines.push(`  ${state}: ${count}`)
-    })
+    if (isMarkdown) {
+      lines.push('## 📊 Statistics')
+      lines.push('')
+      lines.push('### Pull Request Statistics')
+      lines.push('')
+      Object.entries(prsByState).forEach(([state, count]) => {
+        lines.push(`- **${state}**: ${count}`)
+      })
+    } else {
+      lines.push('PR Statistics:')
+      Object.entries(prsByState).forEach(([state, count]) => {
+        lines.push(`  ${state}: ${count}`)
+      })
+    }
   }
 
   if (data.commits && data.commits.length > 0) {
@@ -165,12 +175,23 @@ export function generateStats(data: SummaryData): string {
     )
 
     if (lines.length > 0) lines.push('')
-    lines.push('Commit Statistics:')
-    Object.entries(commitsByType)
-      .sort(([, a], [, b]) => b - a)
-      .forEach(([type, count]) => {
-        lines.push(`  ${type}: ${count}`)
-      })
+
+    if (isMarkdown) {
+      lines.push('### Commit Statistics')
+      lines.push('')
+      Object.entries(commitsByType)
+        .sort(([, a], [, b]) => b - a)
+        .forEach(([type, count]) => {
+          lines.push(`- **${type}**: ${count}`)
+        })
+    } else {
+      lines.push('Commit Statistics:')
+      Object.entries(commitsByType)
+        .sort(([, a], [, b]) => b - a)
+        .forEach(([type, count]) => {
+          lines.push(`  ${type}: ${count}`)
+        })
+    }
   }
 
   return lines.join('\n')

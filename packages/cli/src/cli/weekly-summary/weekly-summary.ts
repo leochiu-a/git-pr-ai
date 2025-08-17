@@ -28,8 +28,12 @@ interface WeeklySummaryOptions {
 async function weeklySummary(options: WeeklySummaryOptions) {
   try {
     // Determine what to include
-    const includePRs = options.pr || (!options.pr && !options.commit)
-    const includeCommits = options.commit || (!options.pr && !options.commit)
+    // For markdown output, always include everything
+    const isMarkdownOutput = !!options.md
+    const includePRs =
+      isMarkdownOutput || options.pr || (!options.pr && !options.commit)
+    const includeCommits =
+      isMarkdownOutput || options.commit || (!options.pr && !options.commit)
 
     // Determine date range
     let since: string
@@ -72,10 +76,13 @@ async function weeklySummary(options: WeeklySummaryOptions) {
       const isMarkdown = !!options.md
       const content = isMarkdown
         ? formatAsMarkdown(summaryData)
-        : formatAsText(summaryData)
+        : formatAsText(summaryData, isMarkdown)
 
-      // Generate statistics if requested
-      const statsContent = options.stats ? generateStats(summaryData) : ''
+      // Generate statistics if requested or if markdown output
+      const includeStats = options.stats || isMarkdown
+      const statsContent = includeStats
+        ? generateStats(summaryData, isMarkdown)
+        : ''
 
       // Handle output (console or file)
       handleOutput(content, statsContent, options, { since, until })
@@ -111,7 +118,7 @@ function setupCommander() {
     .option('--until <date>', 'end date (YYYY-MM-DD), defaults to today')
     .option(
       '--md [filename]',
-      'output in Markdown format, optionally specify filename (defaults to weekly-summary-YYYY-MM-DD-to-YYYY-MM-DD.md)',
+      'output in Markdown format with full summary (PRs, commits, and stats), optionally specify filename',
     )
     .option('--stats', 'show additional statistics')
     .addHelpText(
@@ -123,10 +130,11 @@ Examples:
   $ git-weekly-summary --pr              # Show only PRs for current week
   $ git-weekly-summary --commit          # Show only commits for current week
   $ git-weekly-summary --since 2025-08-10 --until 2025-08-16
-  $ git-weekly-summary --md              # Output to markdown file (auto-generated filename)
-  $ git-weekly-summary --md summary.md   # Output to specific markdown file
-  $ git-weekly-summary --pr --md --stats # PRs in Markdown with statistics
+  $ git-weekly-summary --md              # Full summary to markdown file (auto-generated filename)
+  $ git-weekly-summary --md summary.md   # Full summary to specific markdown file
+  $ git-weekly-summary --pr --stats      # PRs only with statistics to console
 
+Note: --md output always includes full summary (PRs, commits, and statistics)
 Date format: YYYY-MM-DD
 Default range: Monday of current week to today
 `,
