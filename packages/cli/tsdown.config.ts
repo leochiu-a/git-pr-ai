@@ -9,6 +9,7 @@ export default defineConfig({
     'git-create-branch': 'src/cli/create-branch/create-branch.ts',
     'git-plan-issue': 'src/cli/plan-issue/plan-issue.ts',
     'git-take-issue': 'src/cli/take-issue/take-issue.ts',
+    'git-weekly-summary': 'src/cli/weekly-summary/weekly-summary.ts',
     postinstall: 'scripts/postinstall.ts',
   },
   format: ['esm'],
