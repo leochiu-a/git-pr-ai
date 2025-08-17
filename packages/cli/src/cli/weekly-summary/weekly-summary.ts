@@ -14,13 +14,14 @@ import {
   generateStats,
   SummaryData,
 } from './formatters'
+import { handleOutput } from './output-handler'
 
 interface WeeklySummaryOptions {
   pr?: boolean
   commit?: boolean
   since?: string
   until?: string
-  md?: boolean
+  md?: string | boolean
   stats?: boolean
 }
 
@@ -67,17 +68,17 @@ async function weeklySummary(options: WeeklySummaryOptions) {
 
       spinner.succeed('Weekly summary generated!')
 
-      // Format and display output
-      const output = options.md
+      // Format output based on markdown option
+      const isMarkdown = !!options.md
+      const content = isMarkdown
         ? formatAsMarkdown(summaryData)
         : formatAsText(summaryData)
 
-      console.log(output)
+      // Generate statistics if requested
+      const statsContent = options.stats ? generateStats(summaryData) : ''
 
-      // Show statistics if requested
-      if (options.stats) {
-        console.log('\n' + generateStats(summaryData))
-      }
+      // Handle output (console or file)
+      handleOutput(content, statsContent, options, { since, until })
     } catch (error) {
       spinner.fail('Failed to generate weekly summary')
       console.error(
@@ -108,7 +109,10 @@ function setupCommander() {
       'start date (YYYY-MM-DD), defaults to Monday of current week',
     )
     .option('--until <date>', 'end date (YYYY-MM-DD), defaults to today')
-    .option('--md', 'output in Markdown format')
+    .option(
+      '--md [filename]',
+      'output in Markdown format, optionally specify filename (defaults to weekly-summary-YYYY-MM-DD-to-YYYY-MM-DD.md)',
+    )
     .option('--stats', 'show additional statistics')
     .addHelpText(
       'after',
@@ -119,7 +123,8 @@ Examples:
   $ git-weekly-summary --pr              # Show only PRs for current week
   $ git-weekly-summary --commit          # Show only commits for current week
   $ git-weekly-summary --since 2025-08-10 --until 2025-08-16
-  $ git-weekly-summary --md              # Output in Markdown format
+  $ git-weekly-summary --md              # Output to markdown file (auto-generated filename)
+  $ git-weekly-summary --md summary.md   # Output to specific markdown file
   $ git-weekly-summary --pr --md --stats # PRs in Markdown with statistics
 
 Date format: YYYY-MM-DD
