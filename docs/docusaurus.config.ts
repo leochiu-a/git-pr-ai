@@ -64,11 +64,6 @@ const config: Config = {
       disableSwitch: false,
       respectPrefersColorScheme: false,
     },
-    docs: {
-      sidebar: {
-        hideable: true,
-      },
-    },
     navbar: {
       title: 'Git PR AI',
       logo: {
