@@ -5,26 +5,12 @@ Update Pull Request description using AI assistance.
 ## Usage
 
 ```bash
-# Update PR description with AI
-git update-pr-desc
-
-# Focus on specific aspects (use quotes for multiple words)
-git update-pr-desc "Focus on performance improvements and test coverage"
-
-# Add technical details
-git update-pr-desc "Include breaking changes and migration steps"
-
-# Emphasize security considerations
-git update-pr-desc "Highlight security implications and authentication changes"
-
-# Request specific formatting
-git update-pr-desc "Add detailed examples and usage instructions"
-
-# Single words work without quotes
-git update-pr-desc performance
-git update-pr-desc documentation
-git update-pr-desc testing
+git update-pr-desc [additional context...]
 ```
+
+- **No arguments**: AI analyzes your changes and generates description
+- **With context**: Provide specific focus areas or requirements
+- **Quote handling**: Use quotes for multi-word context
 
 ## Features
 

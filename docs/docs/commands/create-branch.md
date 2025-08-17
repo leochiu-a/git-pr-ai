@@ -5,20 +5,14 @@ Create a new git branch using JIRA ticket information with AI-powered naming.
 ## Usage
 
 ```bash
-# Create branch from JIRA ticket
-git create-branch --jira PROJ-123
-
-# Create branch from git diff
-git create-branch --git-diff
-
-# Create branch from custom prompt
-git create-branch --prompt "Add user authentication system"
-
-# Rename current branch instead of creating new one
-git create-branch --jira PROJ-123 --move
-git create-branch --git-diff -m
-git create-branch --prompt "Fix memory leak" -m
+git create-branch [OPTIONS]
 ```
+
+Three main modes available:
+
+- `--jira <ticket>` - Use JIRA ticket information
+- `--git-diff` - Analyze current uncommitted changes
+- `--prompt <description>` - Use custom description
 
 ## Options
 
@@ -39,20 +33,38 @@ git create-branch --prompt "Fix memory leak" -m
 
 ## Examples
 
+### JIRA Ticket Mode
+
 ```bash
 # Create a feature branch for JIRA ticket
 git create-branch --jira PROJ-123
-# → Creates: feat/PROJ-123-add-user-login
+# → Fetches ticket details and creates: feat/PROJ-123-add-user-login
 
-# Create branch based on your changes
+# Rename current branch with JIRA info
+git create-branch --jira PROJ-456 --move
+# → Renames current branch to: fix/PROJ-456-resolve-memory-leak
+```
+
+### Git Diff Mode
+
+```bash
+# Analyze your uncommitted changes
 git create-branch --git-diff
-# → Analyzes your uncommitted changes and creates appropriate branch
+# → AI analyzes your staged/unstaged changes and suggests branch name
+# → Example output: feat/add-password-validation
 
+# Rename current branch based on changes
+git create-branch --git-diff --move
+```
+
+### Custom Prompt Mode
+
+```bash
 # Create branch from description
 git create-branch --prompt "Implement OAuth integration"
 # → Creates: feat/implement-oauth-integration
 
-# Rename current branch
-git create-branch --jira PROJ-456 --move
-# → Renames current branch to: fix/PROJ-456-resolve-memory-leak
+# More complex description
+git create-branch --prompt "Fix memory leak in user cache system"
+# → Creates: fix/memory-leak-user-cache-system
 ```

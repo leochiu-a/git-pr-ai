@@ -5,24 +5,13 @@ Generate a weekly summary of git activity and accomplishments.
 ## Usage
 
 ```bash
-# Generate weekly summary for current week (both PRs and commits)
-git weekly-summary
-
-# Show only Pull Requests for current week
-git weekly-summary --pr
-
-# Show only commits for current week
-git weekly-summary --commit
-
-# Generate summary for specific date range
-git weekly-summary --since 2024-01-01 --until 2024-01-07
-
-# Output to markdown file with full summary
-git weekly-summary --md
-
-# Output to specific markdown file
-git weekly-summary --md summary.md
+git weekly-summary [OPTIONS]
 ```
+
+- **Default**: Shows both PRs and commits for current week
+- **Content filters**: Use `--pr` or `--commit` to show specific content
+- **Date range**: Specify custom period with `--since` and `--until`
+- **Output format**: Use `--md` for markdown file export
 
 ## Options
 

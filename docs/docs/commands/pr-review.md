@@ -5,16 +5,12 @@ Get AI-powered code review for a Pull Request.
 ## Usage
 
 ```bash
-# Review current branch PR
-git pr-review
-
-# Review specific PR by URL
-git pr-review https://github.com/owner/repo/pull/123
-
-# Review with additional context
-git pr-review --context "Focus on security issues"
-git pr-review -c "Check for performance problems"
+git pr-review [URL] [-c, --context <context>]
 ```
+
+- **Default**: Reviews PR for current branch
+- **URL**: Review specific PR by GitHub/GitLab URL
+- **Context**: Provide specific focus areas for review
 
 ## Options
 
