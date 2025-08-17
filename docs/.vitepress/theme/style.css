@@ -13,6 +13,7 @@
   --vp-c-brand-3: #4dffbf;
   --vp-c-brand-soft: rgba(0, 255, 163, 0.14);
   --vp-c-brand-mute: rgba(0, 255, 163, 0.1);
+  --vp-button-brand-bg: #00ffa3;
 }
 
 .dark {
@@ -21,4 +22,5 @@
   --vp-c-brand-3: #4dffbf;
   --vp-c-brand-soft: rgba(0, 255, 163, 0.16);
   --vp-c-brand-mute: rgba(0, 255, 163, 0.08);
+  --vp-button-brand-bg: #00ffa3;
 }
