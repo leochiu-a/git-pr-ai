@@ -6,7 +6,7 @@ hero:
   text: 'Automate Pull Request Creation with AI'
   tagline: A powerful command-line tool that automates Pull Request creation for GitHub and GitLab with JIRA integration
   image:
-    src: /logo.svg
+    src: /git-pr-ai/logo.svg
     alt: Git PR AI Logo
   actions:
     - theme: brand
