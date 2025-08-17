@@ -3,10 +3,10 @@ layout: home
 
 hero:
   name: 'Git PR AI'
-  text: 'Automate Pull Request Creation with AI'
-  tagline: A powerful command-line tool that automates Pull Request creation for GitHub and GitLab with JIRA integration
+  text: 'Complete AI-Powered Git Workflow Automation'
+  tagline: Execute AI-powered git commands in a single line - no need to switch between tools or write prompts manually
   image:
-    src: /git-pr-ai/logo.svg
+    src: /logo.svg
     alt: Git PR AI Logo
   actions:
     - theme: brand
@@ -17,16 +17,22 @@ hero:
       link: https://github.com/leochiu-a/git-pr-ai
 
 features:
-  - icon: 🚀
-    title: Multi-Platform Support
-    details: Works with both GitHub and GitLab repositories seamlessly
-  - icon: 🔍
-    title: JIRA Integration
-    details: Automatically extracts JIRA ticket numbers from branch names
-  - icon: 🤖
-    title: AI-Powered Intelligence
-    details: Leverages Claude and Gemini for smart content generation and code analysis
   - icon: 🎯
-    title: Context-Aware Analysis
-    details: Understands your repository without manual input
+    title: Multi-Platform Support
+    details: Works with GitHub, GitLab, and supports Claude Code & Gemini AI providers
+  - icon: 🌿
+    title: One-Command Branch Creation
+    details: Create branches with AI-powered naming using JIRA ticket information in a single command
+  - icon: 🚀
+    title: Instant PR Creation
+    details: Automatically create Pull Requests with JIRA integration and AI-generated descriptions
+  - icon: 🔍
+    title: AI Code Review in One Line
+    details: Get comprehensive code review and suggestions without writing prompts manually
+  - icon: 📊
+    title: Automated Weekly Reports
+    details: Generate comprehensive activity summaries without manual data collection
+  - icon: 🔗
+    title: Seamless JIRA Integration
+    details: Configure once, then all commands automatically leverage JIRA ticket information
 ---
