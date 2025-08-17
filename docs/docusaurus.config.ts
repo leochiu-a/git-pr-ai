@@ -66,7 +66,7 @@ const config: Config = {
       logo: {
         alt: 'Git PR AI Logo',
         src: '/logo.svg',
-        href: '/intro',
+        href: '/introduction/intro',
       },
       items: [
         {

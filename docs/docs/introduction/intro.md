@@ -85,5 +85,5 @@ The Git PR AI Tool integrates seamlessly with your existing Git workflow:
 ## Next Steps
 
 - [Installation Guide](./installation) - Detailed installation and setup instructions
-- [Commands Reference](./commands) - Complete list of available commands
-- [Configuration](./configuration) - Customize the tool for your needs
+- [Commands Reference](../commands) - Complete list of available commands
+- [Configuration](../configuration) - Customize the tool for your needs

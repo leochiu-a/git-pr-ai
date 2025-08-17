@@ -106,6 +106,6 @@ This command will:
 
 Once installed, you can:
 
-- [Learn about available commands](./commands)
-- [Configure JIRA integration](./configuration)
+- [Learn about available commands](../commands)
+- [Configure JIRA integration](../configuration)
 - [Start creating branches and PRs](./usage)

@@ -6,19 +6,23 @@ Git PR AI Tool provides several commands to streamline your development workflow
 
 ### Branch and PR Management
 
-- **[git create-branch](./commands/create-branch)** - Create a new git branch using JIRA ticket information with AI-powered naming
-- **[git open-pr](./commands/open-pr)** - Create or open a Pull Request for the current branch (works with both GitHub and GitLab)
-- **[git update-pr-desc](./commands/update-pr-desc)** - Update Pull Request description using AI assistance
-- **[git pr-review](./commands/pr-review)** - Get AI-powered code review for a Pull Request
+- **[git create-branch](./create-branch)** - Create a new git branch using JIRA ticket information with AI-powered naming
+- **[git open-pr](./open-pr)** - Create or open a Pull Request for the current branch (works with both GitHub and GitLab)
+- **[git update-pr-desc](./update-pr-desc)** - Update Pull Request description using AI assistance
+- **[git pr-review](./pr-review)** - Get AI-powered code review for a Pull Request
 
 ### Issue Planning and Implementation
 
-- **[git plan-issue](./commands/plan-issue)** - Smart Issue Planning — analyze GitHub issues and create implementation plans, or convert JIRA tickets to Git platform issues
-- **[git take-issue](./commands/take-issue)** - Execute a development plan for a specific issue using AI assistance
+- **[git plan-issue](./plan-issue)** - Smart Issue Planning — analyze GitHub issues and create implementation plans, or convert JIRA tickets to Git platform issues
+- **[git take-issue](./take-issue)** - Execute a development plan for a specific issue using AI assistance
+
+### Reporting
+
+- **[git weekly-summary](./weekly-summary)** - Generate a weekly summary of git activity and accomplishments
 
 ### Configuration
 
-- **[git pr-ai config](./commands/config)** - Configure Git PR AI Tool settings
+- **[git pr-ai config](./config)** - Configure Git PR AI Tool settings
 
 ## Quick Start
 

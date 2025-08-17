@@ -17,16 +17,17 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Introduction',
-      items: ['intro', 'installation', 'usage'],
+      items: [
+        'introduction/intro',
+        'introduction/installation',
+        'introduction/usage',
+      ],
     },
     {
       type: 'category',
       label: 'Commands',
-      link: {
-        type: 'doc',
-        id: 'commands',
-      },
       items: [
+        'commands/commands',
         'commands/create-branch',
         'commands/open-pr',
         'commands/update-pr-desc',
