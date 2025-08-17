@@ -1,0 +1,24 @@
+/**
+ * Customize default theme styling by overriding CSS variables:
+ * https://github.com/vuejs/vitepress/blob/main/src/client/theme-default/styles/vars.css
+ */
+
+/**
+ * Colors
+ * -------------------------------------------------------------------------- */
+
+:root {
+  --vp-c-brand-1: #00FFA3;
+  --vp-c-brand-2: #1AFFAB;
+  --vp-c-brand-3: #4DFFBF;
+  --vp-c-brand-soft: rgba(0, 255, 163, 0.14);
+  --vp-c-brand-mute: rgba(0, 255, 163, 0.1);
+}
+
+.dark {
+  --vp-c-brand-1: #00FFA3;
+  --vp-c-brand-2: #1AFFAB;
+  --vp-c-brand-3: #4DFFBF;
+  --vp-c-brand-soft: rgba(0, 255, 163, 0.16);
+  --vp-c-brand-mute: rgba(0, 255, 163, 0.08);
+}
