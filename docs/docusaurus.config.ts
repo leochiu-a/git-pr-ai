@@ -51,6 +51,9 @@ const config: Config = {
             'https://github.com/leochiu-a/git-pr-ai/tree/main/packages/docs/',
         },
         blog: false, // Disable the blog plugin
+        theme: {
+          customCss: './src/css/custom.css',
+        },
       } satisfies Preset.Options,
     ],
   ],
@@ -60,6 +63,11 @@ const config: Config = {
       defaultMode: 'dark',
       disableSwitch: false,
       respectPrefersColorScheme: false,
+    },
+    docs: {
+      sidebar: {
+        hideable: true,
+      },
     },
     navbar: {
       title: 'Git PR AI',
