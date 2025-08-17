@@ -1,5 +1,11 @@
 # @git-pr-ai/docs
 
+## 1.8.3
+
+### Patch Changes
+
+- 2d7d578: docs: update doc
+
 ## 1.8.2
 
 ### Patch Changes

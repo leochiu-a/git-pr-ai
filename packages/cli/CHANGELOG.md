@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.9.0
+
+### Minor Changes
+
+- b34c89e: feat: add git weekly-summary cli
+
 ## 1.8.5
 
 ### Patch Changes
