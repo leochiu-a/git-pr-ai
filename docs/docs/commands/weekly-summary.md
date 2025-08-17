@@ -5,43 +5,63 @@ Generate a weekly summary of git activity and accomplishments.
 ## Usage
 
 ```bash
-# Generate weekly summary for current week
+# Generate weekly summary for current week (both PRs and commits)
 git weekly-summary
 
-# Generate summary for specific date range
-git weekly-summary --from 2024-01-01 --to 2024-01-07
+# Show only Pull Requests for current week
+git weekly-summary --pr
 
-# Generate summary with enhanced formatting
-git weekly-summary --format detailed
+# Show only commits for current week
+git weekly-summary --commit
+
+# Generate summary for specific date range
+git weekly-summary --since 2024-01-01 --until 2024-01-07
+
+# Output to markdown file with full summary
+git weekly-summary --md
+
+# Output to specific markdown file
+git weekly-summary --md summary.md
 ```
 
 ## Options
 
-- `--from <date>`: Start date for summary (YYYY-MM-DD format)
-- `--to <date>`: End date for summary (YYYY-MM-DD format)
-- `--format <type>`: Output format (simple, detailed, markdown)
-- `--author <name>`: Filter commits by specific author
+| Option            | Description                                                 |
+| ----------------- | ----------------------------------------------------------- |
+| `--pr`            | Include Pull Requests in summary                            |
+| `--commit`        | Include commits in summary                                  |
+| `--since <date>`  | Start date (YYYY-MM-DD), defaults to Monday of current week |
+| `--until <date>`  | End date (YYYY-MM-DD), defaults to today                    |
+| `--md [filename]` | Output in Markdown format, optionally specify filename      |
+| `--stats`         | Show additional statistics                                  |
 
 ## Features
 
+- **Pull Request Analysis**: Shows PRs created, merged, and reviewed
 - **Commit Analysis**: Summarizes commits with message categorization
-- **File Changes**: Shows files modified, added, and deleted
-- **Activity Metrics**: Provides statistics on development activity
-- **Multiple Formats**: Supports various output formats for different use cases
+- **Flexible Output**: Console display or markdown file export
+- **Statistics**: Optional detailed statistics about activity
 - **Date Range Flexibility**: Can generate summaries for any time period
+- **Selective Content**: Choose to include PRs only, commits only, or both
 
 ## Examples
 
 ```bash
-# Current week summary
+# Show both PRs and commits for current week
 git weekly-summary
-# → Generates summary from Monday to current date
 
-# Specific week with detailed format
-git weekly-summary --from 2024-01-01 --to 2024-01-07 --format detailed
-# → Creates comprehensive weekly report
+# Show only PRs for current week
+git weekly-summary --pr
 
-# Markdown output for documentation
-git weekly-summary --format markdown
-# → Outputs summary in markdown format for easy sharing
+# Show only commits for current week
+git weekly-summary --commit
+
+# Custom date range with statistics
+git weekly-summary --since 2024-08-10 --until 2024-08-16 --stats
+
+# Full markdown report (includes everything)
+git weekly-summary --md weekly-report.md
+
+# PRs only with statistics to console
+git weekly-summary --pr --stats
 ```

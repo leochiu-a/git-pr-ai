@@ -14,7 +14,9 @@ git open-pr --jira PROJ-123
 
 ## Options
 
-- `--jira <ticket>`: Manually specify JIRA ticket ID
+| Option            | Description                     |
+| ----------------- | ------------------------------- |
+| `--jira <ticket>` | Manually specify JIRA ticket ID |
 
 ## Features
 

@@ -22,10 +22,12 @@ git create-branch --prompt "Fix memory leak" -m
 
 ## Options
 
-- `--jira <ticket>`: Specify JIRA ticket ID (e.g., PROJ-123)
-- `--git-diff`: Generate branch name based on current git diff
-- `--prompt <prompt>`: Generate branch name based on custom prompt
-- `--move`, `-m`: Rename current branch instead of creating a new one
+| Option              | Description                                         |
+| ------------------- | --------------------------------------------------- |
+| `--jira <ticket>`   | Specify JIRA ticket ID (e.g., PROJ-123)             |
+| `--git-diff`        | Generate branch name based on current git diff      |
+| `--prompt <prompt>` | Generate branch name based on custom prompt         |
+| `--move`, `-m`      | Rename current branch instead of creating a new one |
 
 ## Features
 

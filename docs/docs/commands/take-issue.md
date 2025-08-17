@@ -14,8 +14,10 @@ git take-issue --plan-file plan.md
 
 ## Options
 
-- `--issue <number>`: GitHub issue number to implement
-- `--plan-file <path>`: Path to the markdown plan file
+| Option               | Description                      |
+| -------------------- | -------------------------------- |
+| `--issue <number>`   | GitHub issue number to implement |
+| `--plan-file <path>` | Path to the markdown plan file   |
 
 Note: Provide either `--issue` or `--plan-file` (not both).
 
