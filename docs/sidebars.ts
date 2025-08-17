@@ -14,10 +14,32 @@ import type { SidebarsConfig } from '@docusaurus/plugin-content-docs'
  */
 const sidebars: SidebarsConfig = {
   tutorialSidebar: [
-    'intro',
-    'installation',
-    'usage',
-    'commands',
+    {
+      type: 'category',
+      label: 'Introduction',
+      collapsed: false,
+      items: [
+        'introduction/intro',
+        'introduction/installation',
+        'introduction/usage',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Commands',
+      collapsed: false,
+      items: [
+        'commands/commands',
+        'commands/create-branch',
+        'commands/open-pr',
+        'commands/update-pr-desc',
+        'commands/pr-review',
+        'commands/plan-issue',
+        'commands/take-issue',
+        'commands/weekly-summary',
+        'commands/config',
+      ],
+    },
     'configuration',
   ],
 }

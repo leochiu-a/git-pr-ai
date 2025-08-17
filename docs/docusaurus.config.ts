@@ -51,6 +51,9 @@ const config: Config = {
             'https://github.com/leochiu-a/git-pr-ai/tree/main/packages/docs/',
         },
         blog: false, // Disable the blog plugin
+        theme: {
+          customCss: './src/css/custom.css',
+        },
       } satisfies Preset.Options,
     ],
   ],
@@ -66,7 +69,7 @@ const config: Config = {
       logo: {
         alt: 'Git PR AI Logo',
         src: '/logo.svg',
-        href: '/intro',
+        href: '/introduction/intro',
       },
       items: [
         {
