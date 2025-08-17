@@ -17,7 +17,23 @@ const sidebars: SidebarsConfig = {
     'intro',
     'installation',
     'usage',
-    'commands',
+    {
+      type: 'category',
+      label: 'Commands',
+      link: {
+        type: 'doc',
+        id: 'commands',
+      },
+      items: [
+        'commands/create-branch',
+        'commands/open-pr',
+        'commands/update-pr-desc',
+        'commands/pr-review',
+        'commands/plan-issue',
+        'commands/take-issue',
+        'commands/config',
+      ],
+    },
     'configuration',
   ],
 }
