@@ -19,8 +19,12 @@ export async function getCommitsInRange(
     const sinceTime = toGitLogFormat(since)
     const untilTime = toGitLogFormat(until) + 'T23:59:59'
 
+    // Get current git user
+    const userResult = await $`git config user.name`
+    const currentUser = userResult.stdout.trim()
+
     const result =
-      await $`git log --since=${sinceTime} --until=${untilTime} --pretty=format:"%H|%s|%an|%ai" --no-merges`
+      await $`git log --since=${sinceTime} --until=${untilTime} --author=${currentUser} --pretty=format:"%H|%s|%an|%ai" --no-merges`
 
     if (!result.stdout.trim()) {
       return []

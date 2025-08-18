@@ -18,9 +18,13 @@ export async function getPRsInRange(
   until: string,
 ): Promise<PRInfo[]> {
   try {
-    // Use GitHub CLI to get PRs with date information
+    // Get current user's GitHub username
+    const currentUserResult = await $`gh api user --jq .login`
+    const currentUser = currentUserResult.stdout.trim()
+
+    // Use GitHub CLI to get PRs with date information, filtered by current user
     const result =
-      await $`gh pr list --state all --json number,title,url,state,author,createdAt,updatedAt --limit 100`
+      await $`gh pr list --state all --author ${currentUser} --json number,title,url,state,author,createdAt,updatedAt --limit 100`
     const allPRs = JSON.parse(result.stdout) as unknown[]
 
     const sinceDate = dayjs(since)
