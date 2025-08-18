@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.9.1
+
+### Patch Changes
+
+- 820e6ab: fix(weekly-summary): filter by current user
+
 ## 1.9.0
 
 ### Minor Changes

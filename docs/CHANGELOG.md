@@ -1,5 +1,15 @@
 # @git-pr-ai/docs
 
+## 1.9.0
+
+### Minor Changes
+
+- 4472267: docs: migrate doc to vitepress
+
+### Patch Changes
+
+- 35197c9:
+
 ## 1.8.3
 
 ### Patch Changes
