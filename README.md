@@ -7,7 +7,7 @@ A CLI tool that empowers developers to create GitHub Pull Requests faster and mo
 
 ---
 
-**[Read the Docs](https://leochiu-a.github.io/git-pr-ai/intro)**
+**[Read the Docs](https://leochiu-a.github.io/git-pr-ai)**
 
 `git-pr-ai` is a command-line tool designed to streamline the process of creating GitHub Pull Requests from JIRA tickets. By leveraging the power of AI, it can automatically generate branch names, PR descriptions, and even assist with code reviews, allowing you to focus on what truly matters: writing high-quality code.
 
