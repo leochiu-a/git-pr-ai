@@ -1,8 +1,8 @@
-## 📝 Description
+## Summary
 
 [Clear explanation of what changed and why]
 
-## 🔄 Type of Change
+## Type of Change
 
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
@@ -10,15 +10,15 @@
 - [ ] Documentation update
 - [ ] Refactoring (no functional changes)
 
-## 🧪 Testing
+## Test Plan
 
 [Instructions for testing these changes]
 
-## 💥 Breaking Changes
+## Breaking Changes
 
 [List any breaking changes and migration notes, if applicable]
 
-## 📋 Checklist
+## Checklist
 
 - [ ] Code follows the style guidelines
 - [ ] Self-review has been performed
