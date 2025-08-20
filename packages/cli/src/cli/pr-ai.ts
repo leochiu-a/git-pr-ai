@@ -112,6 +112,9 @@ async function displayExistingConfig(config: GitPrAiConfig) {
     console.log('JIRA: Not configured')
   }
   console.log('')
+
+  // Ensure all output is flushed before returning
+  await new Promise((resolve) => process.stdout.write('', resolve))
 }
 
 async function confirmUpdate(force: boolean): Promise<boolean> {
@@ -254,7 +257,7 @@ async function initConfig(options: {
 
   if (hasExistingConfig) {
     const existingConfig = await loadConfig()
-    displayExistingConfig(existingConfig)
+    await displayExistingConfig(existingConfig)
 
     const shouldProceed = await confirmUpdate(options.force || false)
     if (!shouldProceed) {
