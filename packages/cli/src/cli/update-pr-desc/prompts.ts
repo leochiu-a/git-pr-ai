@@ -75,13 +75,14 @@ Fill in this template with relevant information based on the code changes. Make 
 - Replace any placeholder text or empty sections with actual content
 - Keep the template's original structure and formatting
 - Fill in all required fields and checkboxes as appropriate
-- IMPORTANT: If the template has section headings, keep them in English (e.g., "## Summary", "## Test Plan") regardless of the content language`
+- IMPORTANT: Keep section headings in English (e.g., "## Summary", "## Test Plan") but write the content in the configured language`
     : `### Step 2: Generate Description
 Create a comprehensive PR description following this structure:
 
 ${readDefaultTemplate()}
 
-IMPORTANT: Keep all section headings in English (e.g., "## Summary", "## Test Plan", "## Breaking Changes") regardless of the content language.`
+IMPORTANT: Keep all section headings in English (e.g., "## Summary", "## Test Plan", "## Breaking Changes") 
+but write the content in the configured language include all required fields and checkboxes as appropriate.`
 
   return templateSection
 }
@@ -105,7 +106,7 @@ IMPORTANT: You must complete all 3 steps above. Do not stop after generating the
 - Use proper markdown formatting
 - Include all relevant technical details
 - Consider both technical and non-technical readers
-- IMPORTANT: Always use English section headings (e.g., "## Summary", "## Test Plan") regardless of the content language
+- IMPORTANT: Always use English section headings (e.g., "## Summary", "## Test Plan") but write content in the configured language
 - MUST execute all CLI commands to complete the task - do not just provide instructions to the user`
 }
 
