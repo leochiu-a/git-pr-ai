@@ -17,4 +17,5 @@ export default defineConfig({
     js: '#!/usr/bin/env node',
   },
   clean: true,
+  copy: ['src/cli/update-pr-desc/default-template.md'],
 })

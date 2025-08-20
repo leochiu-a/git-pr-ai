@@ -18,20 +18,12 @@ async function main() {
 
     // Use provider to get detailed PR info
     const prDetails = await provider.getPRDetails()
-    const template = await provider.findPRTemplate()
-
-    // Show template info to user
-    if (template.exists) {
-      console.log(`📋 Using PR template from: ${template.path}`)
-    } else {
-      console.log('📝 No PR template found, using default template')
-    }
 
     // Use prompts function to construct the complete prompt
-    const prompt = buildUpdateDescriptionPrompt({
+    const prompt = await buildUpdateDescriptionPrompt({
       prDetails: prDetails,
       options: { additionalContext: additionalPrompt },
-      providerName: provider.name,
+      provider,
     })
 
     console.log('🤖 Launching AI assistant...')
@@ -40,7 +32,8 @@ async function main() {
 
     // Show success message
     console.log('✅ PR description updated successfully!')
-  } catch {
+  } catch (error) {
+    console.error(error)
     console.error('❌ Failed to update PR description')
     process.exit(1)
   }
