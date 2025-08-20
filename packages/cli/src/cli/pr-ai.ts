@@ -158,9 +158,6 @@ async function askWhatToUpdate(): Promise<string> {
       { name: 'AI Agent only', value: 'agent' },
       { name: 'Language only', value: 'language' },
       { name: 'JIRA integration only', value: 'jira' },
-      { name: 'AI Agent and Language', value: 'agent,language' },
-      { name: 'AI Agent and JIRA integration', value: 'agent,jira' },
-      { name: 'Language and JIRA integration', value: 'language,jira' },
       { name: 'All (Agent, Language, and JIRA)', value: 'agent,language,jira' },
     ],
   })
