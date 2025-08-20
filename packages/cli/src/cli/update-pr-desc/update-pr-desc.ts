@@ -32,7 +32,8 @@ async function main() {
 
     // Show success message
     console.log('✅ PR description updated successfully!')
-  } catch {
+  } catch (error) {
+    console.error(error)
     console.error('❌ Failed to update PR description')
     process.exit(1)
   }

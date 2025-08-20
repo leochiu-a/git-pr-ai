@@ -1,5 +1,9 @@
 import { readFileSync, existsSync } from 'fs'
-import { join } from 'path'
+import { join, dirname } from 'path'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 import { GitProvider, PRDetails } from '../../providers/types'
 
@@ -16,15 +20,21 @@ export interface BuildUpdateDescriptionPromptArgs {
 function readDefaultTemplate(): string {
   const defaultTemplatePath = join(__dirname, 'default-template.md')
 
-  if (existsSync(defaultTemplatePath)) {
-    try {
-      return readFileSync(defaultTemplatePath, 'utf-8')
-    } catch {
-      console.warn('Failed to read default template file')
-    }
+  if (!existsSync(defaultTemplatePath)) {
+    throw new Error(
+      `Default template file not found at: ${defaultTemplatePath}`,
+    )
   }
 
-  return ''
+  try {
+    const content = readFileSync(defaultTemplatePath, 'utf-8')
+    if (!content.trim()) {
+      throw new Error('Default template file is empty')
+    }
+    return content
+  } catch (error) {
+    throw new Error(`Failed to read default template file: ${error}`)
+  }
 }
 
 function buildStep1Prompt(): string {
