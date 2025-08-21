@@ -9,6 +9,12 @@ import {
   getConfigDir,
   loadConfig,
 } from '../config'
+import {
+  getLanguage,
+  setLanguage,
+  SupportedLanguage,
+  SUPPORTED_LANGUAGES,
+} from '../git-helpers'
 
 async function openConfig() {
   const configPath = getConfigPath()
@@ -92,16 +98,23 @@ async function ensureConfigDir(): Promise<void> {
   }
 }
 
-function displayExistingConfig(config: GitPrAiConfig) {
+async function displayExistingConfig(config: GitPrAiConfig) {
+  const currentLanguage = await getLanguage()
   console.log('Found existing configuration:')
   console.log('')
   console.log(`Agent: ${config.agent}`)
+  console.log(
+    `Language: ${SUPPORTED_LANGUAGES[currentLanguage]} (${currentLanguage})`,
+  )
   if (config.jira) {
     console.log(`JIRA: ${config.jira.baseUrl}`)
   } else {
     console.log('JIRA: Not configured')
   }
   console.log('')
+
+  // Ensure all output is flushed before returning
+  await new Promise((resolve) => process.stdout.write('', resolve))
 }
 
 async function confirmUpdate(force: boolean): Promise<boolean> {
@@ -118,17 +131,24 @@ async function confirmUpdate(force: boolean): Promise<boolean> {
 function determineWhatToUpdate(options: {
   agent?: boolean
   jira?: boolean
+  language?: boolean
 }): string {
-  if (options.agent && options.jira) {
-    return 'both'
-  } else if (options.agent) {
-    return 'agent'
-  } else if (options.jira) {
-    return 'jira'
+  const selections = []
+  if (options.agent) selections.push('agent')
+  if (options.jira) selections.push('jira')
+  if (options.language) selections.push('language')
+
+  if (selections.length === 0) {
+    // Will ask user interactively
+    return 'ask'
   }
 
-  // Will ask user interactively
-  return 'ask'
+  if (selections.length === 1) {
+    return selections[0]
+  }
+
+  // Multiple selections
+  return selections.join(',')
 }
 
 async function askWhatToUpdate(): Promise<string> {
@@ -136,8 +156,9 @@ async function askWhatToUpdate(): Promise<string> {
     message: 'What would you like to configure?',
     choices: [
       { name: 'AI Agent only', value: 'agent' },
+      { name: 'Language only', value: 'language' },
       { name: 'JIRA integration only', value: 'jira' },
-      { name: 'Both AI Agent and JIRA integration', value: 'both' },
+      { name: 'All (Agent, Language, and JIRA)', value: 'agent,language,jira' },
     ],
   })
 }
@@ -159,6 +180,21 @@ async function updateAgentConfig(
     ],
   })
   return { ...config, agent: selectedAgent }
+}
+
+async function updateLanguageConfig(): Promise<void> {
+  const currentLanguage = await getLanguage()
+
+  const selectedLanguage = await select({
+    message: 'Which language would you like to use?',
+    choices: Object.entries(SUPPORTED_LANGUAGES).map(([code, name]) => ({
+      name: `${name} (${code})`,
+      value: code as SupportedLanguage,
+    })),
+    default: currentLanguage,
+  })
+
+  await setLanguage(selectedLanguage)
 }
 
 async function updateJiraConfig(config: GitPrAiConfig): Promise<GitPrAiConfig> {
@@ -187,9 +223,13 @@ async function saveConfig(config: GitPrAiConfig): Promise<void> {
 
   try {
     writeFileSync(configPath, JSON.stringify(config, null, 2))
+    const currentLanguage = await getLanguage()
     spinner.succeed('Configuration updated successfully!')
     console.log(`Config path: ${configPath}`)
     console.log(`AI agent: ${config.agent}`)
+    console.log(
+      `Language: ${SUPPORTED_LANGUAGES[currentLanguage]} (${currentLanguage})`,
+    )
     if (config.jira) {
       console.log(`JIRA integration: ${config.jira.baseUrl}`)
     }
@@ -204,6 +244,7 @@ async function initConfig(options: {
   force?: boolean
   agent?: boolean
   jira?: boolean
+  language?: boolean
 }) {
   await ensureConfigDir()
 
@@ -213,7 +254,7 @@ async function initConfig(options: {
 
   if (hasExistingConfig) {
     const existingConfig = await loadConfig()
-    displayExistingConfig(existingConfig)
+    await displayExistingConfig(existingConfig)
 
     const shouldProceed = await confirmUpdate(options.force || false)
     if (!shouldProceed) {
@@ -232,12 +273,15 @@ async function initConfig(options: {
       : determineWhatToUpdate(options)
 
   // Update configurations based on selection
-  if (whatToUpdate === 'agent') {
+  const updateOptions = whatToUpdate.split(',')
+
+  if (updateOptions.includes('agent')) {
     config = await updateAgentConfig(config)
-  } else if (whatToUpdate === 'jira') {
-    config = await updateJiraConfig(config)
-  } else if (whatToUpdate === 'both') {
-    config = await updateAgentConfig(config)
+  }
+  if (updateOptions.includes('language')) {
+    await updateLanguageConfig()
+  }
+  if (updateOptions.includes('jira')) {
     config = await updateJiraConfig(config)
   }
 
@@ -255,6 +299,7 @@ program
   .option('-f, --force', 'force overwrite existing configuration')
   .option('-o, --open', 'open existing configuration file')
   .option('-a, --agent', 'configure AI agent only')
+  .option('-l, --language', 'configure language only')
   .option('-j, --jira', 'configure JIRA integration only')
   .action(async (options) => {
     try {
