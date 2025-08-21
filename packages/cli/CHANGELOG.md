@@ -1,5 +1,12 @@
 # git-pr-ai
 
+## 1.9.2
+
+### Patch Changes
+
+- 84435bb: feat: add language config support
+- 926c7c9: refactor: improve template reading
+
 ## 1.9.1
 
 ### Patch Changes
