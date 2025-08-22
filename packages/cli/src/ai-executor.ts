@@ -5,8 +5,9 @@ import { createLanguagePrompt } from './language-prompts'
 
 export async function executeAICommand(
   prompt: string,
-  useLanguage: boolean = true,
+  options: { useLanguage?: boolean; yolo?: boolean } = {},
 ): Promise<void> {
+  const { useLanguage = true, yolo = false } = options
   const config = await loadConfig()
   const language = useLanguage ? await getLanguage() : 'en'
   const finalPrompt = useLanguage
@@ -16,11 +17,21 @@ export async function executeAICommand(
   switch (config.agent) {
     case 'claude':
       await checkClaudeCLI()
-      await $({ stdio: 'inherit' })`claude ${finalPrompt}`
+      if (yolo) {
+        await $({
+          stdio: 'inherit',
+        })`claude --dangerously-skip-permissions ${finalPrompt}`
+      } else {
+        await $({ stdio: 'inherit' })`claude ${finalPrompt}`
+      }
       break
     case 'gemini':
       await checkGeminiCLI()
-      await $({ stdio: 'inherit' })`gemini -i ${finalPrompt}`
+      if (yolo) {
+        await $({ stdio: 'inherit' })`gemini -i --yolo ${finalPrompt}`
+      } else {
+        await $({ stdio: 'inherit' })`gemini -i ${finalPrompt}`
+      }
       break
     default:
       throw new Error(`Unsupported AI agent: ${config.agent}`)
@@ -29,8 +40,9 @@ export async function executeAICommand(
 
 export async function executeAIWithOutput(
   prompt: string,
-  useLanguage: boolean = true,
+  options: { useLanguage?: boolean; yolo?: boolean } = {},
 ): Promise<string> {
+  const { useLanguage = true, yolo = false } = options
   const config = await loadConfig()
   const language = useLanguage ? await getLanguage() : 'en'
   const finalPrompt = useLanguage
@@ -40,11 +52,15 @@ export async function executeAIWithOutput(
   switch (config.agent) {
     case 'claude':
       await checkClaudeCLI()
-      const result = await $`echo ${finalPrompt} | claude`.quiet()
+      const result = yolo
+        ? await $`echo ${finalPrompt} | claude --dangerously-skip-permissions`.quiet()
+        : await $`echo ${finalPrompt} | claude`.quiet()
       return result.stdout.trim()
     case 'gemini':
       await checkGeminiCLI()
-      const geminiResult = await $`echo ${finalPrompt} | gemini`.quiet()
+      const geminiResult = yolo
+        ? await $`echo ${finalPrompt} | gemini --yolo`.quiet()
+        : await $`echo ${finalPrompt} | gemini`.quiet()
       return geminiResult.stdout.trim()
     default:
       throw new Error(`Unsupported AI agent: ${config.agent}`)
@@ -53,8 +69,9 @@ export async function executeAIWithOutput(
 
 export async function executeAIWithJsonOutput(
   prompt: string,
-  useLanguage: boolean = false,
+  options: { useLanguage?: boolean; yolo?: boolean } = {},
 ): Promise<string> {
+  const { useLanguage = false, yolo = false } = options
   const config = await loadConfig()
   const language = useLanguage ? await getLanguage() : 'en'
   const finalPrompt = useLanguage
@@ -64,11 +81,15 @@ export async function executeAIWithJsonOutput(
   switch (config.agent) {
     case 'claude':
       await checkClaudeCLI()
-      const result = await $`echo ${finalPrompt} | claude`.quiet()
+      const result = yolo
+        ? await $`echo ${finalPrompt} | claude --dangerously-skip-permissions`.quiet()
+        : await $`echo ${finalPrompt} | claude`.quiet()
       return extractJsonFromOutput(result.stdout.trim())
     case 'gemini':
       await checkGeminiCLI()
-      const geminiResult = await $`echo ${finalPrompt} | gemini`.quiet()
+      const geminiResult = yolo
+        ? await $`echo ${finalPrompt} | gemini --yolo`.quiet()
+        : await $`echo ${finalPrompt} | gemini`.quiet()
       return extractJsonFromOutput(geminiResult.stdout.trim())
     default:
       throw new Error(`Unsupported AI agent: ${config.agent}`)
