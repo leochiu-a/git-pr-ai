@@ -55,6 +55,7 @@ function setupCommander() {
     .description('Execute a development plan for a specific issue')
     .option('-i, --issue <number>', 'GitHub issue number to implement')
     .option('-p, --plan-file <path>', 'Path to the markdown plan file')
+    .option('--yolo', 'skip prompts and proceed with defaults')
     .addHelpText(
       'after',
       `
@@ -104,6 +105,8 @@ interface TakeIssueOptions {
   issue?: string
   /** Path to the markdown plan file */
   planFile?: string
+  /** Skip prompts and proceed with defaults */
+  yolo?: boolean
 }
 
 function validateOptions(options: TakeIssueOptions): void {
@@ -124,7 +127,10 @@ function validateOptions(options: TakeIssueOptions): void {
   }
 }
 
-async function handleIssueMode(issueNumberStr: string): Promise<void> {
+async function handleIssueMode(
+  issueNumberStr: string,
+  options: TakeIssueOptions,
+): Promise<void> {
   const issueNumber = parseInt(issueNumberStr, 10)
   if (isNaN(issueNumber)) {
     console.error('Error: Issue number must be a valid number')
@@ -134,14 +140,23 @@ async function handleIssueMode(issueNumberStr: string): Promise<void> {
   const issue = await fetchIssueDetails(issueNumber)
   console.log(`\n🎯 Target Issue: #${issue.number} - ${issue.title}`)
 
-  await executeAICommand(createIssuePrompt(issue))
+  await executeAICommand(createIssuePrompt(issue), {
+    useLanguage: true,
+    yolo: options.yolo,
+  })
 }
 
-async function handlePlanFileMode(planFilePath: string): Promise<void> {
+async function handlePlanFileMode(
+  planFilePath: string,
+  options: TakeIssueOptions,
+): Promise<void> {
   const planContent = await loadPlanFile(planFilePath)
   console.log(`\n📋 Loaded plan from file: ${planFilePath}`)
 
-  await executeAICommand(createPlanPrompt(planContent))
+  await executeAICommand(createPlanPrompt(planContent), {
+    useLanguage: true,
+    yolo: options.yolo,
+  })
 }
 
 async function main() {
@@ -155,9 +170,9 @@ async function main() {
       validateOptions(options)
 
       if (options.issue) {
-        await handleIssueMode(options.issue)
+        await handleIssueMode(options.issue, options)
       } else if (options.planFile) {
-        await handlePlanFileMode(options.planFile)
+        await handlePlanFileMode(options.planFile, options)
       } else {
         throw new Error('No valid input provided')
       }
