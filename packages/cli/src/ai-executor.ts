@@ -28,7 +28,7 @@ export async function executeAICommand(
     case 'gemini':
       await checkGeminiCLI()
       if (yolo) {
-        await $({ stdio: 'inherit' })`gemini -i --yolo ${finalPrompt}`
+        await $({ stdio: 'inherit' })`gemini --yolo --i ${finalPrompt}`
       } else {
         await $({ stdio: 'inherit' })`gemini -i ${finalPrompt}`
       }
