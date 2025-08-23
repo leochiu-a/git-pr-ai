@@ -2,7 +2,7 @@ import { Command } from 'commander'
 
 import { checkGitCLI } from '../../git-helpers'
 import { loadConfig } from '../../config'
-import { executeAICommand } from '../../ai-executor'
+import { executeAICommand } from '../../ai/executor'
 import { getCurrentProvider } from '../../providers/factory'
 import { PRDetails } from '../../providers/types'
 import { buildReviewPrompt } from './prompts'
