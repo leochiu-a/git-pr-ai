@@ -1,12 +1,10 @@
 import { PRDetails } from '../../providers/types'
 
-export interface ReviewPromptOptions {
-  additionalContext?: string
-}
-
 export interface BuildReviewPromptArgs {
   prDetails: PRDetails
-  options?: ReviewPromptOptions
+  options?: {
+    additionalContext?: string
+  }
   providerName: string
 }
 

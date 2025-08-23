@@ -1,42 +1,76 @@
+import { Command } from 'commander'
 import { checkGitCLI } from '../../git-helpers'
 import { loadConfig } from '../../config'
 import { executeAICommand } from '../../ai-executor'
 import { getCurrentProvider } from '../../providers/factory'
 import { buildUpdateDescriptionPrompt } from './prompts'
 
+function setupCommander() {
+  const program = new Command()
+
+  program
+    .name('git-update-pr-desc')
+    .description('Update PR description using AI')
+    .argument('[prompt...]', 'additional context for the update')
+    .option('--yolo', 'skip prompts and proceed with defaults')
+    .addHelpText(
+      'after',
+      `
+Examples:
+  $ git update-pr-desc
+    Update PR description with AI
+
+  $ git update-pr-desc "focus on security improvements"
+    Update with additional context
+
+  $ git update-pr-desc --yolo
+    Update without confirmation prompts
+`,
+    )
+
+  return program
+}
+
 async function main() {
-  await checkGitCLI()
+  const program = setupCommander()
 
-  // Get additional prompt from command line arguments
-  const additionalPrompt = process.argv.slice(2).join(' ')
+  program.action(async (promptArgs: string[], options: { yolo?: boolean }) => {
+    try {
+      await checkGitCLI()
 
-  const config = await loadConfig()
-  const provider = await getCurrentProvider()
+      // Get additional prompt from arguments
+      const additionalPrompt = promptArgs.join(' ')
 
-  try {
-    console.log(`Using ${config.agent.toUpperCase()} for AI assistance`)
+      const config = await loadConfig()
+      const provider = await getCurrentProvider()
 
-    // Use provider to get detailed PR info
-    const prDetails = await provider.getPRDetails()
+      console.log(`Using ${config.agent.toUpperCase()} for AI assistance`)
 
-    // Use prompts function to construct the complete prompt
-    const prompt = await buildUpdateDescriptionPrompt({
-      prDetails: prDetails,
-      options: { additionalContext: additionalPrompt },
-      provider,
-    })
+      // Use provider to get detailed PR info
+      const prDetails = await provider.getPRDetails()
 
-    console.log('🤖 Launching AI assistant...')
+      // Use prompts function to construct the complete prompt
+      const prompt = await buildUpdateDescriptionPrompt({
+        prDetails: prDetails,
+        options: { additionalContext: additionalPrompt },
+        provider,
+      })
 
-    await executeAICommand(prompt)
+      console.log('🤖 Launching AI assistant...')
 
-    // Show success message
-    console.log('✅ PR description updated successfully!')
-  } catch (error) {
-    console.error(error)
-    console.error('❌ Failed to update PR description')
-    process.exit(1)
-  }
+      await executeAICommand(prompt, { useLanguage: true, yolo: options.yolo })
+
+      // Show success message
+      console.log('✅ PR description updated successfully!')
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+      console.error('Error:', errorMessage)
+      process.exit(1)
+    }
+  })
+
+  program.parse()
 }
 
 main()

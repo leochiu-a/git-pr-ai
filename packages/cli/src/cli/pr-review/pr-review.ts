@@ -5,11 +5,11 @@ import { loadConfig } from '../../config'
 import { executeAICommand } from '../../ai-executor'
 import { getCurrentProvider } from '../../providers/factory'
 import { PRDetails } from '../../providers/types'
-import { buildReviewPrompt, ReviewPromptOptions } from './prompts'
+import { buildReviewPrompt } from './prompts'
 
 async function reviewPR(
   prDetails: PRDetails,
-  options: ReviewPromptOptions = {},
+  options: { additionalContext?: string; yolo?: boolean } = {},
 ) {
   const config = await loadConfig()
   const provider = await getCurrentProvider()
@@ -30,7 +30,7 @@ async function reviewPR(
       providerName: provider.name,
     })
 
-    await executeAICommand(prompt)
+    await executeAICommand(prompt, { useLanguage: true, yolo: options.yolo })
     console.log('✅ PR/MR review completed and comment posted!')
   } catch (error) {
     console.error('❌ Failed to complete PR/MR review')
@@ -45,6 +45,7 @@ function setupCommander() {
     .name('git-pr-review')
     .description('AI-powered Pull Request/Merge Request Review Tool')
     .option('-c, --context <context>', 'Additional context for the review')
+    .option('--yolo', 'skip prompts and proceed with defaults')
     .addHelpText(
       'after',
       `
@@ -82,14 +83,17 @@ Prerequisites:
 async function main() {
   const program = setupCommander()
 
-  program.action(async (options: { context?: string }) => {
+  program.action(async (options: { context?: string; yolo?: boolean }) => {
     try {
       await checkGitCLI()
 
       const provider = await getCurrentProvider()
       const prDetails = await provider.getPRDetails()
 
-      await reviewPR(prDetails, { additionalContext: options.context })
+      await reviewPR(prDetails, {
+        additionalContext: options.context,
+        yolo: options.yolo,
+      })
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
