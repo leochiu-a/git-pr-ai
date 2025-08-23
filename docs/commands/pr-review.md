@@ -14,9 +14,10 @@ git pr-review [URL] [-c, --context <context>]
 
 ## Options
 
-| Option                    | Description                       |
-| ------------------------- | --------------------------------- |
-| `-c, --context <context>` | Additional context for the review |
+| Option                    | Description                                          |
+| ------------------------- | ---------------------------------------------------- |
+| `-c, --context <context>` | Additional context for the review                    |
+| `--yolo`                  | Skip confirmation prompts and apply changes directly |
 
 ## Features
 
@@ -46,6 +47,10 @@ git pr-review --context "Focus on security and error handling"
 # Review GitLab MR
 git pr-review https://gitlab.com/owner/repo/-/merge_requests/123
 # → Reviews the specified GitLab MR
+
+# Skip confirmation prompts (YOLO mode)
+git pr-review --yolo --context "Focus on security"
+# → Reviews PR and applies feedback directly without confirmation
 ```
 
 ## Example Output

@@ -5,12 +5,18 @@ Update Pull Request description using AI assistance.
 ## Usage
 
 ```bash
-git update-pr-desc [additional context...]
+git update-pr-desc [options] [additional context...]
 ```
 
 - **No arguments**: AI analyzes your changes and generates description
 - **With context**: Provide specific focus areas or requirements
 - **Quote handling**: Use quotes for multi-word context
+
+## Options
+
+| Option   | Description                                          |
+| -------- | ---------------------------------------------------- |
+| `--yolo` | Skip confirmation prompts and apply changes directly |
 
 ## Features
 
@@ -37,6 +43,9 @@ git update-pr-desc "Detail the issue symptoms and fix approach"
 
 # For documentation updates
 git update-pr-desc "Highlight new examples and improved clarity"
+
+# Skip confirmation prompts (YOLO mode)
+git update-pr-desc --yolo "Update description automatically"
 ```
 
 ## Example Output
