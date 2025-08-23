@@ -107,8 +107,8 @@ async function generateBranchNameWithAI(
       spinner.fail('Could not parse AI output')
       process.exit(1)
     }
-  } catch {
-    spinner.fail('AI generation failed')
+  } catch (error) {
+    spinner.fail(`AI generation failed: ${error}`)
     process.exit(1)
   }
 }
