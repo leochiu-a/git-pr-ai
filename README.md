@@ -73,4 +73,4 @@ Before you begin, please ensure you have completed the following setup:
 
 Want to learn more about detailed configurations and features?
 
-Please refer to our **[full documentation](https://leochiu-a.github.io/git-pr-ai/intro)**.
+Please refer to our **[full documentation](https://leochiu-a.github.io/git-pr-ai)**.
