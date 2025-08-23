@@ -1,5 +1,12 @@
 # git-pr-ai
 
+## 1.9.3
+
+### Patch Changes
+
+- 238ed30: refactor: ai executor
+- a2078a0: feat: add yolo mode support
+
 ## 1.9.2
 
 ### Patch Changes

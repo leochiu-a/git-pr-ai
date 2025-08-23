@@ -1,5 +1,11 @@
 # @git-pr-ai/docs
 
+## 1.9.1
+
+### Patch Changes
+
+- 2aa10be: doc: add yolo option
+
 ## 1.9.0
 
 ### Minor Changes
