@@ -65,13 +65,15 @@ async function runAICommand(
         stdio: 'inherit',
       })`claude --dangerously-skip-permissions ${prompt}`
     } else {
-      await $({ stdio: 'inherit' })`gemini --yolo -p ${prompt}`
+      await $({
+        stdio: 'inherit',
+      })`gemini --yolo --prompt-interactive ${prompt}`
     }
   } else {
     if (agent === 'claude') {
       await $({ stdio: 'inherit' })`claude ${prompt}`
     } else {
-      await $({ stdio: 'inherit' })`gemini -p ${prompt}`
+      await $({ stdio: 'inherit' })`gemini --prompt-interactive ${prompt}`
     }
   }
 }
