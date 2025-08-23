@@ -3,7 +3,7 @@ import ora from 'ora'
 import { existsSync, readFileSync } from 'fs'
 import { resolve, extname } from 'path'
 
-import { executeAICommand } from '../../ai-executor'
+import { executeAICommand } from '../../ai/executor'
 import { getCurrentProvider } from '../../providers/factory'
 import { createIssuePrompt, createPlanPrompt } from './prompts'
 

@@ -9,7 +9,7 @@ import {
 } from '../../git-helpers'
 import { getJiraTicketTitle } from '../../jira'
 import { loadConfig } from '../../config'
-import { executeAIWithOutput } from '../../ai-executor'
+import { executeAIWithOutput } from '../../ai/executor'
 import {
   createJiraBranchPrompt,
   createCustomBranchPrompt,

@@ -4,7 +4,7 @@ import ora from 'ora'
 import { writeFileSync } from 'fs'
 import { join } from 'path'
 
-import { executeAIWithJsonOutput } from '../../ai-executor'
+import { executeAIWithJsonOutput } from '../../ai/executor'
 import { getJiraTicketDetails } from '../../jira'
 import { getCurrentProvider } from '../../providers/factory'
 import {
