@@ -8,6 +8,10 @@ dayjs.extend(isBetween)
 export interface PRInfo extends PR {
   createdAt: string
   updatedAt: string
+  repository?: {
+    name: string
+    nameWithOwner: string
+  }
 }
 
 /**
@@ -22,9 +26,9 @@ export async function getPRsInRange(
     const currentUserResult = await $`gh api user --jq .login`
     const currentUser = currentUserResult.stdout.trim()
 
-    // Use GitHub CLI to get PRs with date information, filtered by current user
+    // Use GitHub CLI to search for PRs across all repositories by current user
     const result =
-      await $`gh pr list --state all --author ${currentUser} --json number,title,url,state,author,createdAt,updatedAt --limit 100`
+      await $`gh search prs --author=${currentUser} --json number,title,url,state,author,createdAt,updatedAt,repository --limit 200`
     const allPRs = JSON.parse(result.stdout) as unknown[]
 
     const sinceDate = dayjs(since)
@@ -55,6 +59,10 @@ export async function getPRsInRange(
         author: { login: string }
         createdAt: string
         updatedAt: string
+        repository: {
+          name: string
+          nameWithOwner: string
+        }
       }
       return {
         number: pr.number.toString(),
@@ -64,6 +72,7 @@ export async function getPRsInRange(
         author: pr.author.login,
         createdAt: pr.createdAt,
         updatedAt: pr.updatedAt,
+        repository: pr.repository,
       }
     })
   } catch (error) {
@@ -72,56 +81,69 @@ export async function getPRsInRange(
   }
 }
 
-/**
- * Group PRs by state
- */
-export function groupPRsByState(prs: PRInfo[]): Record<string, PRInfo[]> {
-  const groups: Record<string, PRInfo[]> = {
-    open: [],
-    merged: [],
-    closed: [],
+export interface ReviewedPRInfo {
+  number: string
+  title: string
+  url: string
+  repository: {
+    name: string
+    nameWithOwner: string
   }
-
-  prs.forEach((pr) => {
-    if (groups[pr.state]) {
-      groups[pr.state].push(pr)
-    }
-  })
-
-  return groups
+  reviewedAt: string
 }
 
 /**
- * Get PR statistics
+ * Get PRs reviewed by the current user within the specified date range
  */
-export function getPRStats(prs: PRInfo[]): {
-  total: number
-  byState: Record<string, number>
-  byAuthor: Record<string, number>
-} {
-  const byState: Record<string, number> = {}
-  const byAuthor: Record<string, number> = {}
+export async function getReviewedPRsInRange(
+  since: string,
+  until: string,
+): Promise<ReviewedPRInfo[]> {
+  try {
+    // Get current user's GitHub username
+    const currentUserResult = await $`gh api user --jq .login`
+    const currentUser = currentUserResult.stdout.trim()
 
-  prs.forEach((pr) => {
-    // Count by state
-    byState[pr.state] = (byState[pr.state] || 0) + 1
+    // Use GitHub CLI to search for PRs reviewed by the current user
+    const result =
+      await $`gh search prs --reviewed-by=${currentUser} --json number,title,url,repository,updatedAt --limit 200`
+    const allPRs = JSON.parse(result.stdout) as unknown[]
 
-    // Count by author
-    byAuthor[pr.author] = (byAuthor[pr.author] || 0) + 1
-  })
+    const sinceDate = dayjs(since)
+    const untilDate = dayjs(until).endOf('day')
 
-  return {
-    total: prs.length,
-    byState,
-    byAuthor,
+    // Filter PRs by date range (using updatedAt as a proxy for review activity)
+    const filteredPRs = allPRs.filter((prData: unknown) => {
+      const pr = prData as {
+        updatedAt: string
+      }
+      const updatedAt = dayjs(pr.updatedAt)
+
+      // Include PR if it was updated in the date range (indication of review activity)
+      return updatedAt.isBetween(sinceDate, untilDate, null, '[]')
+    })
+
+    return filteredPRs.map((prData: unknown) => {
+      const pr = prData as {
+        number: number
+        title: string
+        url: string
+        repository: {
+          name: string
+          nameWithOwner: string
+        }
+        updatedAt: string
+      }
+      return {
+        number: pr.number.toString(),
+        title: pr.title,
+        url: pr.url,
+        repository: pr.repository,
+        reviewedAt: pr.updatedAt,
+      }
+    })
+  } catch (error) {
+    console.error('Error fetching reviewed PRs:', error)
+    return []
   }
-}
-
-/**
- * Sort PRs by update date (newest first)
- */
-export function sortPRsByDate(prs: PRInfo[]): PRInfo[] {
-  return prs.sort((a, b) => {
-    return dayjs(b.updatedAt).valueOf() - dayjs(a.updatedAt).valueOf()
-  })
 }
