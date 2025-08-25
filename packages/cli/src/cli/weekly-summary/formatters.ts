@@ -1,10 +1,11 @@
 import { CommitInfo } from './commit-summary'
-import { PRInfo } from './pr-summary'
+import { PRInfo, ReviewedPRInfo } from './pr-summary'
 
 export interface SummaryData {
   dateRange: string
   prs?: PRInfo[]
   commits?: CommitInfo[]
+  reviewedPRs?: ReviewedPRInfo[]
 }
 
 /**
@@ -28,6 +29,20 @@ export function formatAsText(
         const stateIcon = getStateIcon(pr.state)
         lines.push(
           `  ${stateIcon} #${pr.number}: ${pr.title} (${pr.state}) - ${pr.author}`,
+        )
+      })
+    }
+    lines.push('')
+  }
+
+  if (data.reviewedPRs) {
+    lines.push(`👀 Reviewed PRs (${data.reviewedPRs.length}):`)
+    if (data.reviewedPRs.length === 0) {
+      lines.push('  No PR reviews found in this period')
+    } else {
+      data.reviewedPRs.forEach((pr) => {
+        lines.push(
+          `  • #${pr.number}: ${pr.title} - ${pr.repository.nameWithOwner}`,
         )
       })
     }
@@ -80,6 +95,22 @@ export function formatAsMarkdown(data: SummaryData): string {
         const stateIcon = getStateIcon(pr.state)
         lines.push(
           `- ${stateIcon} **#${pr.number}**: ${pr.title} *(${pr.state})* - ${pr.author}`,
+        )
+      })
+    }
+    lines.push('')
+  }
+
+  if (data.reviewedPRs) {
+    lines.push(`## 👀 Reviewed PRs (${data.reviewedPRs.length})`)
+    lines.push('')
+
+    if (data.reviewedPRs.length === 0) {
+      lines.push('*No PR reviews found in this period*')
+    } else {
+      data.reviewedPRs.forEach((pr) => {
+        lines.push(
+          `- **[#${pr.number}](${pr.url})**: ${pr.title} - *${pr.repository.nameWithOwner}*`,
         )
       })
     }
@@ -161,6 +192,36 @@ export function generateStats(data: SummaryData, isMarkdown = false): string {
       Object.entries(prsByState).forEach(([state, count]) => {
         lines.push(`  ${state}: ${count}`)
       })
+    }
+  }
+
+  if (data.reviewedPRs && data.reviewedPRs.length > 0) {
+    const reviewedPRsByRepo = data.reviewedPRs.reduce(
+      (acc, pr) => {
+        acc[pr.repository.nameWithOwner] =
+          (acc[pr.repository.nameWithOwner] || 0) + 1
+        return acc
+      },
+      {} as Record<string, number>,
+    )
+
+    if (lines.length > 0) lines.push('')
+
+    if (isMarkdown) {
+      lines.push('### PR Review Statistics')
+      lines.push('')
+      Object.entries(reviewedPRsByRepo)
+        .sort(([, a], [, b]) => b - a)
+        .forEach(([repo, count]) => {
+          lines.push(`- **${repo}**: ${count}`)
+        })
+    } else {
+      lines.push('PR Review Statistics:')
+      Object.entries(reviewedPRsByRepo)
+        .sort(([, a], [, b]) => b - a)
+        .forEach(([repo, count]) => {
+          lines.push(`  ${repo}: ${count}`)
+        })
     }
   }
 

@@ -125,3 +125,90 @@ export function sortPRsByDate(prs: PRInfo[]): PRInfo[] {
     return dayjs(b.updatedAt).valueOf() - dayjs(a.updatedAt).valueOf()
   })
 }
+
+export interface ReviewedPRInfo {
+  number: string
+  title: string
+  url: string
+  repository: {
+    name: string
+    nameWithOwner: string
+  }
+  reviewedAt: string
+}
+
+/**
+ * Get PRs reviewed by the current user within the specified date range
+ */
+export async function getReviewedPRsInRange(
+  since: string,
+  until: string,
+): Promise<ReviewedPRInfo[]> {
+  try {
+    // Get current user's GitHub username
+    const currentUserResult = await $`gh api user --jq .login`
+    const currentUser = currentUserResult.stdout.trim()
+
+    // Use GitHub CLI to search for PRs reviewed by the current user
+    const result =
+      await $`gh search prs --reviewed-by=${currentUser} --json number,title,url,repository,updatedAt --limit 200`
+    const allPRs = JSON.parse(result.stdout) as unknown[]
+
+    const sinceDate = dayjs(since)
+    const untilDate = dayjs(until).endOf('day')
+
+    // Filter PRs by date range (using updatedAt as a proxy for review activity)
+    const filteredPRs = allPRs.filter((prData: unknown) => {
+      const pr = prData as {
+        updatedAt: string
+      }
+      const updatedAt = dayjs(pr.updatedAt)
+
+      // Include PR if it was updated in the date range (indication of review activity)
+      return updatedAt.isBetween(sinceDate, untilDate, null, '[]')
+    })
+
+    return filteredPRs.map((prData: unknown) => {
+      const pr = prData as {
+        number: number
+        title: string
+        url: string
+        repository: {
+          name: string
+          nameWithOwner: string
+        }
+        updatedAt: string
+      }
+      return {
+        number: pr.number.toString(),
+        title: pr.title,
+        url: pr.url,
+        repository: pr.repository,
+        reviewedAt: pr.updatedAt,
+      }
+    })
+  } catch (error) {
+    console.error('Error fetching reviewed PRs:', error)
+    return []
+  }
+}
+
+/**
+ * Get reviewed PR statistics
+ */
+export function getReviewedPRStats(reviewedPRs: ReviewedPRInfo[]): {
+  total: number
+  byRepository: Record<string, number>
+} {
+  const byRepository: Record<string, number> = {}
+
+  reviewedPRs.forEach((pr) => {
+    const repo = pr.repository.nameWithOwner
+    byRepository[repo] = (byRepository[repo] || 0) + 1
+  })
+
+  return {
+    total: reviewedPRs.length,
+    byRepository,
+  }
+}

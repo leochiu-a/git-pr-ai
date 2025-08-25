@@ -7,7 +7,7 @@ import {
   formatDateRange,
 } from './date-utils'
 import { getCommitsInRange } from './commit-summary'
-import { getPRsInRange } from './pr-summary'
+import { getPRsInRange, getReviewedPRsInRange } from './pr-summary'
 import {
   formatAsText,
   formatAsMarkdown,
@@ -19,6 +19,7 @@ import { handleOutput } from './output-handler'
 interface WeeklySummaryOptions {
   pr?: boolean
   commit?: boolean
+  review?: boolean
   since?: string
   until?: string
   md?: string | boolean
@@ -31,9 +32,17 @@ async function weeklySummary(options: WeeklySummaryOptions) {
     // For markdown output, always include everything
     const isMarkdownOutput = !!options.md
     const includePRs =
-      isMarkdownOutput || options.pr || (!options.pr && !options.commit)
+      isMarkdownOutput ||
+      options.pr ||
+      (!options.pr && !options.commit && !options.review)
     const includeCommits =
-      isMarkdownOutput || options.commit || (!options.pr && !options.commit)
+      isMarkdownOutput ||
+      options.commit ||
+      (!options.pr && !options.commit && !options.review)
+    const includeReviewedPRs =
+      isMarkdownOutput ||
+      options.review ||
+      (!options.pr && !options.commit && !options.review)
 
     // Determine date range
     let since: string
@@ -62,6 +71,12 @@ async function weeklySummary(options: WeeklySummaryOptions) {
       if (includePRs) {
         spinner.text = 'Fetching Pull Requests...'
         summaryData.prs = await getPRsInRange(since, until)
+      }
+
+      // Fetch reviewed PRs if requested
+      if (includeReviewedPRs) {
+        spinner.text = 'Fetching PR reviews...'
+        summaryData.reviewedPRs = await getReviewedPRsInRange(since, until)
       }
 
       // Fetch commits if requested
@@ -108,9 +123,12 @@ function setupCommander() {
 
   program
     .name('git-weekly-summary')
-    .description('Generate a summary of weekly Git activity (PRs and commits)')
+    .description(
+      'Generate a summary of weekly Git activity (PRs, commits, and reviews)',
+    )
     .option('--pr', 'include Pull Requests in summary')
     .option('--commit', 'include commits in summary')
+    .option('--review', 'include PR reviews in summary')
     .option(
       '--since <date>',
       'start date (YYYY-MM-DD), defaults to Monday of current week',
@@ -126,15 +144,17 @@ function setupCommander() {
       `
 
 Examples:
-  $ git-weekly-summary                    # Show both PRs and commits for current week
+  $ git-weekly-summary                    # Show PRs, commits, and reviews for current week
   $ git-weekly-summary --pr              # Show only PRs for current week
   $ git-weekly-summary --commit          # Show only commits for current week
+  $ git-weekly-summary --review          # Show only PR reviews for current week
   $ git-weekly-summary --since 2025-08-10 --until 2025-08-16
   $ git-weekly-summary --md              # Full summary to markdown file (auto-generated filename)
   $ git-weekly-summary --md summary.md   # Full summary to specific markdown file
   $ git-weekly-summary --pr --stats      # PRs only with statistics to console
+  $ git-weekly-summary --review --stats  # PR reviews only with statistics to console
 
-Note: --md output always includes full summary (PRs, commits, and statistics)
+Note: --md output always includes full summary (PRs, commits, reviews, and statistics)
 Date format: YYYY-MM-DD
 Default range: Monday of current week to today
 `,
