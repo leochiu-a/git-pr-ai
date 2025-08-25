@@ -18,11 +18,6 @@ interface WeeklySummaryOptions {
 
 async function weeklySummary(options: WeeklySummaryOptions) {
   try {
-    // Always include PRs and reviews
-    const includePRs = true
-    const includeReviewedPRs = true
-
-    // Determine date range
     let since: string
     let until: string
 
@@ -45,17 +40,12 @@ async function weeklySummary(options: WeeklySummaryOptions) {
         dateRange: formatDateRange(since, until),
       }
 
-      // Fetch PRs if requested
-      if (includePRs) {
-        spinner.text = 'Fetching Pull Requests...'
-        summaryData.prs = await getPRsInRange(since, until)
-      }
+      spinner.text = 'Fetching Pull Requests...'
+      summaryData.prs = await getPRsInRange(since, until)
 
       // Fetch reviewed PRs
-      if (includeReviewedPRs) {
-        spinner.text = 'Fetching PR reviews...'
-        summaryData.reviewedPRs = await getReviewedPRsInRange(since, until)
-      }
+      spinner.text = 'Fetching PR reviews...'
+      summaryData.reviewedPRs = await getReviewedPRsInRange(since, until)
 
       spinner.succeed('Weekly summary generated!')
 
@@ -63,7 +53,7 @@ async function weeklySummary(options: WeeklySummaryOptions) {
       const isMarkdown = !!options.md
       const content = isMarkdown
         ? formatAsMarkdown(summaryData)
-        : formatAsText(summaryData, isMarkdown)
+        : formatAsText(summaryData)
 
       // Handle output (console or file)
       handleOutput(content, options, { since, until })
