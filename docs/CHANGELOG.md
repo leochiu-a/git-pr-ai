@@ -1,5 +1,11 @@
 # @git-pr-ai/docs
 
+## 1.9.2
+
+### Patch Changes
+
+- 770217f: feat: include reviewed prs in summary
+
 ## 1.9.1
 
 ### Patch Changes
