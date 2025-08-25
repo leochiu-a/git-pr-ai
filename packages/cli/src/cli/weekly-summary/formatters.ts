@@ -40,11 +40,28 @@ export function formatAsText(
     if (data.reviewedPRs.length === 0) {
       lines.push('  No PR reviews found in this period')
     } else {
-      data.reviewedPRs.forEach((pr) => {
-        lines.push(
-          `  • #${pr.number}: ${pr.title} - ${pr.repository.nameWithOwner}`,
-        )
-      })
+      // Group by repository
+      const prsByRepo = data.reviewedPRs.reduce(
+        (acc, pr) => {
+          const repo = pr.repository.nameWithOwner
+          if (!acc[repo]) {
+            acc[repo] = []
+          }
+          acc[repo].push(pr)
+          return acc
+        },
+        {} as Record<string, typeof data.reviewedPRs>,
+      )
+
+      // Sort repositories and display
+      Object.keys(prsByRepo)
+        .sort()
+        .forEach((repo) => {
+          lines.push(`  ${repo} (${prsByRepo[repo].length}):`)
+          prsByRepo[repo].forEach((pr) => {
+            lines.push(`    • #${pr.number}: ${pr.title}`)
+          })
+        })
     }
     lines.push('')
   }
@@ -108,13 +125,31 @@ export function formatAsMarkdown(data: SummaryData): string {
     if (data.reviewedPRs.length === 0) {
       lines.push('*No PR reviews found in this period*')
     } else {
-      data.reviewedPRs.forEach((pr) => {
-        lines.push(
-          `- **[#${pr.number}](${pr.url})**: ${pr.title} - *${pr.repository.nameWithOwner}*`,
-        )
-      })
+      // Group by repository
+      const prsByRepo = data.reviewedPRs.reduce(
+        (acc, pr) => {
+          const repo = pr.repository.nameWithOwner
+          if (!acc[repo]) {
+            acc[repo] = []
+          }
+          acc[repo].push(pr)
+          return acc
+        },
+        {} as Record<string, typeof data.reviewedPRs>,
+      )
+
+      // Sort repositories and display
+      Object.keys(prsByRepo)
+        .sort()
+        .forEach((repo) => {
+          lines.push(`### ${repo} (${prsByRepo[repo].length})`)
+          lines.push('')
+          prsByRepo[repo].forEach((pr) => {
+            lines.push(`- **[#${pr.number}](${pr.url})**: ${pr.title}`)
+          })
+          lines.push('')
+        })
     }
-    lines.push('')
   }
 
   if (data.commits) {
