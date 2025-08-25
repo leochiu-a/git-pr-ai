@@ -87,14 +87,14 @@ function setupCommander() {
     .option('--until <date>', 'end date (YYYY-MM-DD), defaults to today')
     .option(
       '--md [filename]',
-      'output in Markdown format with full summary (PRs, commits, and stats), optionally specify filename',
+      'output in Markdown format with full summary (PRs and reviews), optionally specify filename',
     )
     .addHelpText(
       'after',
       `
 
 Examples:
-  $ git-weekly-summary                    # Show PRs and reviews with statistics for current week
+  $ git-weekly-summary                    # Show PRs and reviews for current week
   $ git-weekly-summary --since 2025-08-10 --until 2025-08-16
   $ git-weekly-summary --md              # Full summary to markdown file (auto-generated filename)
   $ git-weekly-summary --md summary.md   # Full summary to specific markdown file

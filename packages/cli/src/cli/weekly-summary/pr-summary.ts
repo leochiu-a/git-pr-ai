@@ -81,60 +81,6 @@ export async function getPRsInRange(
   }
 }
 
-/**
- * Group PRs by state
- */
-export function groupPRsByState(prs: PRInfo[]): Record<string, PRInfo[]> {
-  const groups: Record<string, PRInfo[]> = {
-    open: [],
-    merged: [],
-    closed: [],
-  }
-
-  prs.forEach((pr) => {
-    if (groups[pr.state]) {
-      groups[pr.state].push(pr)
-    }
-  })
-
-  return groups
-}
-
-/**
- * Get PR statistics
- */
-export function getPRStats(prs: PRInfo[]): {
-  total: number
-  byState: Record<string, number>
-  byAuthor: Record<string, number>
-} {
-  const byState: Record<string, number> = {}
-  const byAuthor: Record<string, number> = {}
-
-  prs.forEach((pr) => {
-    // Count by state
-    byState[pr.state] = (byState[pr.state] || 0) + 1
-
-    // Count by author
-    byAuthor[pr.author] = (byAuthor[pr.author] || 0) + 1
-  })
-
-  return {
-    total: prs.length,
-    byState,
-    byAuthor,
-  }
-}
-
-/**
- * Sort PRs by update date (newest first)
- */
-export function sortPRsByDate(prs: PRInfo[]): PRInfo[] {
-  return prs.sort((a, b) => {
-    return dayjs(b.updatedAt).valueOf() - dayjs(a.updatedAt).valueOf()
-  })
-}
-
 export interface ReviewedPRInfo {
   number: string
   title: string
@@ -199,25 +145,5 @@ export async function getReviewedPRsInRange(
   } catch (error) {
     console.error('Error fetching reviewed PRs:', error)
     return []
-  }
-}
-
-/**
- * Get reviewed PR statistics
- */
-export function getReviewedPRStats(reviewedPRs: ReviewedPRInfo[]): {
-  total: number
-  byRepository: Record<string, number>
-} {
-  const byRepository: Record<string, number> = {}
-
-  reviewedPRs.forEach((pr) => {
-    const repo = pr.repository.nameWithOwner
-    byRepository[repo] = (byRepository[repo] || 0) + 1
-  })
-
-  return {
-    total: reviewedPRs.length,
-    byRepository,
   }
 }
