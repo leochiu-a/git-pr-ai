@@ -8,8 +8,7 @@ Generate a weekly summary of git activity and accomplishments.
 git weekly-summary [OPTIONS]
 ```
 
-- **Default**: Shows both PRs and commits for current week
-- **Content filters**: Use `--pr` or `--commit` to show specific content
+- **Default**: Shows PRs, commits, and reviews with statistics for current week
 - **Date range**: Specify custom period with `--since` and `--until`
 - **Output format**: Use `--md` for markdown file export
 
@@ -17,40 +16,29 @@ git weekly-summary [OPTIONS]
 
 | Option            | Description                                                 |
 | ----------------- | ----------------------------------------------------------- |
-| `--pr`            | Include Pull Requests in summary                            |
-| `--commit`        | Include commits in summary                                  |
 | `--since <date>`  | Start date (YYYY-MM-DD), defaults to Monday of current week |
 | `--until <date>`  | End date (YYYY-MM-DD), defaults to today                    |
 | `--md [filename]` | Output in Markdown format, optionally specify filename      |
-| `--stats`         | Show additional statistics                                  |
 
 ## Features
 
 - **Pull Request Analysis**: Shows PRs created, merged, and reviewed
+- **PR Review Analysis**: Shows PRs reviewed by the current user
 - **Commit Analysis**: Summarizes commits with message categorization
 - **Flexible Output**: Console display or markdown file export
-- **Statistics**: Optional detailed statistics about activity
+- **Statistics**: Always includes detailed statistics about activity
 - **Date Range Flexibility**: Can generate summaries for any time period
-- **Selective Content**: Choose to include PRs only, commits only, or both
+- **Complete Coverage**: Always includes PRs, commits, and reviews
 
 ## Examples
 
 ```bash
-# Show both PRs and commits for current week
+# Show PRs, commits, and reviews with statistics for current week
 git weekly-summary
 
-# Show only PRs for current week
-git weekly-summary --pr
+# Custom date range
+git weekly-summary --since 2024-08-10 --until 2024-08-16
 
-# Show only commits for current week
-git weekly-summary --commit
-
-# Custom date range with statistics
-git weekly-summary --since 2024-08-10 --until 2024-08-16 --stats
-
-# Full markdown report (includes everything)
+# Full markdown report
 git weekly-summary --md weekly-report.md
-
-# PRs only with statistics to console
-git weekly-summary --pr --stats
 ```

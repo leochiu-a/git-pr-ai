@@ -3,7 +3,6 @@ import { resolve } from 'path'
 
 export interface OutputOptions {
   md?: string | boolean
-  stats?: boolean
 }
 
 /**
@@ -11,16 +10,10 @@ export interface OutputOptions {
  */
 export function handleOutput(
   content: string,
-  statsContent: string,
   options: OutputOptions,
   dateRange: { since: string; until: string },
 ): void {
-  let finalOutput = content
-
-  // Add statistics if requested
-  if (options.stats && statsContent) {
-    finalOutput += '\n\n' + statsContent
-  }
+  const finalOutput = content
 
   // Handle markdown file output
   if (typeof options.md === 'string') {
