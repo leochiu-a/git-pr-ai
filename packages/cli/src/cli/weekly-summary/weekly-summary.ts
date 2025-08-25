@@ -6,7 +6,6 @@ import {
   validateDateRange,
   formatDateRange,
 } from './date-utils'
-import { getCommitsInRange } from './commit-summary'
 import { getPRsInRange, getReviewedPRsInRange } from './pr-summary'
 import { formatAsText, formatAsMarkdown, SummaryData } from './formatters'
 import { handleOutput } from './output-handler'
@@ -19,9 +18,8 @@ interface WeeklySummaryOptions {
 
 async function weeklySummary(options: WeeklySummaryOptions) {
   try {
-    // Always include all types of data
+    // Always include PRs and reviews
     const includePRs = true
-    const includeCommits = true
     const includeReviewedPRs = true
 
     // Determine date range
@@ -53,16 +51,10 @@ async function weeklySummary(options: WeeklySummaryOptions) {
         summaryData.prs = await getPRsInRange(since, until)
       }
 
-      // Fetch reviewed PRs if requested
+      // Fetch reviewed PRs
       if (includeReviewedPRs) {
         spinner.text = 'Fetching PR reviews...'
         summaryData.reviewedPRs = await getReviewedPRsInRange(since, until)
-      }
-
-      // Fetch commits if requested
-      if (includeCommits) {
-        spinner.text = 'Fetching commits...'
-        summaryData.commits = await getCommitsInRange(since, until)
       }
 
       spinner.succeed('Weekly summary generated!')
@@ -97,9 +89,7 @@ function setupCommander() {
 
   program
     .name('git-weekly-summary')
-    .description(
-      'Generate a summary of weekly Git activity (PRs, commits, and reviews)',
-    )
+    .description('Generate a summary of weekly Git activity (PRs and reviews)')
     .option(
       '--since <date>',
       'start date (YYYY-MM-DD), defaults to Monday of current week',
@@ -114,7 +104,7 @@ function setupCommander() {
       `
 
 Examples:
-  $ git-weekly-summary                    # Show PRs, commits, and reviews with statistics for current week
+  $ git-weekly-summary                    # Show PRs and reviews with statistics for current week
   $ git-weekly-summary --since 2025-08-10 --until 2025-08-16
   $ git-weekly-summary --md              # Full summary to markdown file (auto-generated filename)
   $ git-weekly-summary --md summary.md   # Full summary to specific markdown file

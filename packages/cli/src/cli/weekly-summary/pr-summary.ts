@@ -8,6 +8,10 @@ dayjs.extend(isBetween)
 export interface PRInfo extends PR {
   createdAt: string
   updatedAt: string
+  repository?: {
+    name: string
+    nameWithOwner: string
+  }
 }
 
 /**
@@ -22,9 +26,9 @@ export async function getPRsInRange(
     const currentUserResult = await $`gh api user --jq .login`
     const currentUser = currentUserResult.stdout.trim()
 
-    // Use GitHub CLI to get PRs with date information, filtered by current user
+    // Use GitHub CLI to search for PRs across all repositories by current user
     const result =
-      await $`gh pr list --state all --author ${currentUser} --json number,title,url,state,author,createdAt,updatedAt --limit 100`
+      await $`gh search prs --author=${currentUser} --json number,title,url,state,author,createdAt,updatedAt,repository --limit 200`
     const allPRs = JSON.parse(result.stdout) as unknown[]
 
     const sinceDate = dayjs(since)
@@ -55,6 +59,10 @@ export async function getPRsInRange(
         author: { login: string }
         createdAt: string
         updatedAt: string
+        repository: {
+          name: string
+          nameWithOwner: string
+        }
       }
       return {
         number: pr.number.toString(),
@@ -64,6 +72,7 @@ export async function getPRsInRange(
         author: pr.author.login,
         createdAt: pr.createdAt,
         updatedAt: pr.updatedAt,
+        repository: pr.repository,
       }
     })
   } catch (error) {
