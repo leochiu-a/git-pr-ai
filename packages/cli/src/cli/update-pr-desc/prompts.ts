@@ -94,7 +94,7 @@ Save your description to a file and update the PR:
 ${
   providerName === 'GitLab'
     ? `1. Save the description to description.md file
-2. Update the MR: \`glab mr update --description <description.md>\``
+2. Update the MR: \`glab mr update --description "$(cat description.md)"\``
     : `1. Save the description to description.md file  
 2. Update the PR: \`gh pr edit --body-file description.md\``
 }
