@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.9.5
+
+### Patch Changes
+
+- 77977b3: fix: gitlab mr update command syntax
+
 ## 1.9.4
 
 ### Patch Changes
