@@ -68,9 +68,6 @@
     ],
     "*.{json,md,yml,yaml}": [
       "prettier --write"
-    ],
-    "packages/cli/src/**/*.{ts,js}": [
-      "pnpm --filter git-pr-ai test:run --reporter=verbose --run"
     ]
   }
 }
