@@ -1,5 +1,11 @@
 # @git-pr-ai/docs
 
+## 1.9.3
+
+### Patch Changes
+
+- e01dc6a: docs: enhance feature descriptions add weekly summary
+
 ## 1.9.2
 
 ### Patch Changes

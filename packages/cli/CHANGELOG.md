@@ -1,5 +1,12 @@
 # git-pr-ai
 
+## 1.9.6
+
+### Patch Changes
+
+- acea9fb: fix: check existing pr open only
+- e787dd7: refactor: restructure open pr module
+
 ## 1.9.5
 
 ### Patch Changes
