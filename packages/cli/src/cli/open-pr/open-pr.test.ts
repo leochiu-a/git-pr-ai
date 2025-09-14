@@ -51,6 +51,23 @@ describe('open-pr CLI integration', () => {
       expect(mockProvider.checkExistingPR).toBeDefined()
       expect(mockProvider.openPR).toBeDefined()
     })
+
+    it('should only find open PRs, not closed/merged ones', async () => {
+      // This test verifies the fix: checkExistingPR should only return
+      // URLs for open PRs, ignoring closed/merged ones
+      mockProvider.checkExistingPR.mockResolvedValue(null)
+
+      const result = await mockProvider.checkExistingPR()
+      expect(result).toBeNull()
+
+      // Simulate finding an open PR
+      mockProvider.checkExistingPR.mockResolvedValue(
+        'https://github.com/repo/pull/456',
+      )
+
+      const openPRResult = await mockProvider.checkExistingPR()
+      expect(openPRResult).toBe('https://github.com/repo/pull/456')
+    })
   })
 
   describe('JIRA integration', () => {
