@@ -2,7 +2,7 @@ import { defineConfig } from 'tsdown'
 
 export default defineConfig({
   entry: {
-    'git-open-pr': 'src/cli/open-pr.ts',
+    'git-open-pr': 'src/cli/open-pr/open-pr.ts',
     'git-update-pr-desc': 'src/cli/update-pr-desc/update-pr-desc.ts',
     'git-pr-review': 'src/cli/pr-review/pr-review.ts',
     'git-pr-ai': 'src/cli/pr-ai.ts',
