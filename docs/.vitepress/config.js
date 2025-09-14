@@ -5,7 +5,7 @@ export default defineConfig({
   description:
     'A powerful command-line tool that automates Pull Request creation for GitHub and GitLab with JIRA integration',
   base: '/git-pr-ai/',
-  head: [['link', { rel: 'icon', href: '/logo.svg' }]],
+  head: [['link', { rel: 'icon', href: '/favicon.ico' }]],
 
   themeConfig: {
     logo: '/logo.svg',

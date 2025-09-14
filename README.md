@@ -13,10 +13,10 @@ A CLI tool that empowers developers to create GitHub Pull Requests faster and mo
 
 ## ✨ Key Features
 
-- **🤖 AI-Powered Assistance**: Utilizes powerful AI models (Claude Code or Gemini) to automatically generate PR descriptions and review code.
-- **🎫 JIRA Integration**: Directly create git branches with standardized names from JIRA tickets.
-- **⚙️ Simplified Workflow**: Consolidates multiple git commands into single, easy-to-remember commands.
-- **🚀 Quick Start**: Get up and running with just a few simple installation and setup steps.
+- **🤖 AI-Powered Intelligence**: Harness Claude Code or Gemini AI to transform mundane git tasks into intelligent, context-aware workflows that understand your code and intentions.
+- **🎫 Smart JIRA Integration**: Seamlessly bridge your project management and development workflow with automated branch creation and context extraction from tickets.
+- **⚙️ Workflow Revolution**: Replace dozens of repetitive clicks and commands with intuitive, single-command workflows that just work.
+- **🚀 Zero-Friction Setup**: From installation to first PR in under 5 minutes - because your time is better spent coding, not configuring tools.
 
 ## 📦 Installation
 
@@ -42,32 +42,50 @@ Before you begin, please ensure you have completed the following setup:
     git pr-ai config
     ```
 
-2.  **Create a branch from a JIRA Ticket**:
+2.  **Create a branch from a JIRA Ticket** 🌿:
 
     ```bash
-    # Generates branch name following commitlint conventions from JIRA ticket ID (e.g., PROJ-123)
+    # Automatically generates semantic branch names from JIRA tickets
     git create-branch --jira PROJ-123
     ```
 
-3.  **Create a Pull Request**:
+    _No more inconsistent branch names or forgetting ticket details. Just paste your JIRA ID and get perfectly formatted branches every time._
+
+3.  **Create a Pull Request** ⚡:
 
     ```bash
-    # Automatically fetches JIRA ID and title, then initiates the PR creation process
+    # One-command PR creation with intelligent title formatting
     git open-pr
     ```
 
-4.  **Update PR Description with AI**:
+    _Transform your workflow from "commit → switch to browser → fill forms → copy URLs" to just "commit → one command → done!"_
+
+4.  **Update PR Description with AI** 🧠:
 
     ```bash
-    # Directly updates the PR description using AI analysis of your code changes
+    # AI-powered PR descriptions that explain what changed and why
     git update-pr-desc
     ```
 
-5.  **Review PR with AI**:
+    _Never write another boring "fix bug" description. Get detailed, context-aware PR descriptions that help reviewers understand your changes instantly._
+
+5.  **Review PR with AI** 🔍:
+
     ```bash
-    # Uses AI to review code and provide feedback
+    # Instant AI code review with improvement suggestions
     git pr-review
     ```
+
+    _Think of it as having a senior developer review your code 24/7. Catch bugs early, improve code quality, and learn best practices automatically._
+
+6.  **Generate Weekly Summary** 📊:
+
+    ```bash
+    # AI-generated weekly summaries for standups and reviews
+    git weekly-summary
+    ```
+
+    _Stop scrambling to remember what you worked on this week. Get AI-generated summaries that highlight your impact and achievements automatically._
 
 ## 📚 Documentation
 
