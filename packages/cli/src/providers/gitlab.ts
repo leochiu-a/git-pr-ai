@@ -46,9 +46,32 @@ export class GitLabProvider implements GitProvider {
 
   async checkExistingPR(): Promise<string | null> {
     try {
-      const result = await $`glab mr view -F json`
-      const json = JSON.parse(result.stdout)
-      return json.web_url
+      const currentBranch = await $`git rev-parse --abbrev-ref HEAD`
+      const branchName = currentBranch.stdout.trim()
+
+      const result =
+        await $`glab mr list -s opened --source-branch ${branchName} -F json | head -1`
+      const output = result.stdout.trim()
+
+      if (!output || output === '[]') {
+        return null
+      }
+
+      // Handle both single object and array formats
+      let mrs
+      try {
+        mrs = JSON.parse(output)
+      } catch {
+        return null
+      }
+
+      // If it's an array, take the first element
+      const mr = Array.isArray(mrs) ? mrs[0] : mrs
+
+      if (mr && mr.web_url) {
+        return mr.web_url
+      }
+      return null
     } catch {
       return null
     }

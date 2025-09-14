@@ -56,9 +56,17 @@ export class GitHubProvider implements GitProvider {
 
   async checkExistingPR(): Promise<string | null> {
     try {
-      const result = await $`gh pr view --json url`
-      const { url } = JSON.parse(result.stdout)
-      return url
+      const currentBranch = await $`git rev-parse --abbrev-ref HEAD`
+      const branchName = currentBranch.stdout.trim()
+
+      const result =
+        await $`gh pr list --state open --head ${branchName} --json url --limit 1`
+      const prs = JSON.parse(result.stdout)
+
+      if (prs.length > 0) {
+        return prs[0].url
+      }
+      return null
     } catch {
       return null
     }
