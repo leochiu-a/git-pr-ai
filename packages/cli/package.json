@@ -21,6 +21,10 @@
   "scripts": {
     "build": "tsdown",
     "postinstall": "test -f dist/postinstall.js && node dist/postinstall.js || echo 'Skipping git alias setup during build'",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "prettier --write .",
@@ -58,9 +62,11 @@
   },
   "devDependencies": {
     "@types/node": "^24.1.0",
+    "@vitest/ui": "^2.1.8",
     "oxlint": "^1.9.0",
     "prettier": "^3.6.2",
     "tsdown": "^0.13.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "vitest": "^2.1.8"
   }
 }
