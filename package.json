@@ -23,7 +23,7 @@
     "changeset": "changeset",
     "version": "changeset version",
     "release": "pnpm build && changeset publish",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "pnpm --filter git-pr-ai test",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "prettier --write .",
