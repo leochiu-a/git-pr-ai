@@ -16,12 +16,12 @@ Three main modes available:
 
 ## Options
 
-| Option              | Description                                         |
-| ------------------- | --------------------------------------------------- |
-| `--jira <ticket>`   | Specify JIRA ticket ID (e.g., PROJ-123)             |
-| `--git-diff`        | Generate branch name based on current git diff      |
-| `--prompt <prompt>` | Generate branch name based on custom prompt         |
-| `--move`, `-m`      | Rename current branch instead of creating a new one |
+| Option              | Description                                                |
+| ------------------- | ---------------------------------------------------------- |
+| `--jira <ticket>`   | Specify JIRA ticket ID or URL (e.g., PROJ-123 or full URL) |
+| `--git-diff`        | Generate branch name based on current git diff             |
+| `--prompt <prompt>` | Generate branch name based on custom prompt                |
+| `--move`, `-m`      | Rename current branch instead of creating a new one        |
 
 ## Features
 
@@ -36,9 +36,13 @@ Three main modes available:
 ### JIRA Ticket Mode
 
 ```bash
-# Create a feature branch for JIRA ticket
+# Create a feature branch for JIRA ticket (using ticket ID)
 git create-branch --jira PROJ-123
 # → Fetches ticket details and creates: feat/PROJ-123-add-user-login
+
+# Create a feature branch using full JIRA URL
+git create-branch --jira https://xxxx.atlassian.net/browse/KB2CW-2684
+# → Extracts ticket ID and creates: feat/KB2CW-2684-description-from-ticket
 
 # Rename current branch with JIRA info
 git create-branch --jira PROJ-456 --move
