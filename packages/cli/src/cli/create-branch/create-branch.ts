@@ -181,7 +181,7 @@ function setupCommander() {
     .description(
       'Create a new git branch based on JIRA ticket information, git diff, or custom prompt',
     )
-    .option('-j, --jira <ticket>', 'specify JIRA ticket ID')
+    .option('-j, --jira <ticket>', 'specify JIRA ticket ID or URL')
     .option('-g, --git-diff', 'generate branch name based on current git diff')
     .option(
       '-p, --prompt <prompt>',
@@ -194,6 +194,10 @@ function setupCommander() {
 Examples:
   $ git create-branch --jira PROJ-123
     Create a branch named: feat/PROJ-123-add-login-page
+
+  $ git create-branch --jira https://xxxx.atlassian.net/browse/KB2CW-2684
+    Create a branch named: feat/KB2CW-2684-description-from-ticket
+    (Also accepts full JIRA URL)
 
   $ git create-branch --git-diff
     Create a branch named: fix/update-user-validation
@@ -290,7 +294,12 @@ async function main() {
         branchName = await generateBranchNameFromPrompt(options.prompt)
       } else if (options.jira) {
         // Generate branch name from JIRA ticket
-        const jiraTicket = options.jira
+        // Extract ticket ID from URL if provided, otherwise use as-is
+        let jiraTicket = options.jira
+        const urlMatch = jiraTicket.match(/\/browse\/([A-Z]+-\d+)/i)
+        if (urlMatch) {
+          jiraTicket = urlMatch[1]
+        }
         console.log(`JIRA Ticket: ${jiraTicket}`)
 
         // Fetch JIRA ticket title
