@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.9.7
+
+### Patch Changes
+
+- 0a047e0: allow jira url as input
+
 ## 1.9.6
 
 ### Patch Changes
