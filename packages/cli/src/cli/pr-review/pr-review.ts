@@ -6,6 +6,7 @@ import { executeAICommand } from '../../ai/executor'
 import { getCurrentProvider } from '../../providers/factory'
 import { PRDetails } from '../../providers/types'
 import { buildReviewPrompt } from './prompts'
+import { checkAndUpgrade } from '../../utils/version-checker'
 
 async function reviewPR(
   prDetails: PRDetails,
@@ -85,6 +86,9 @@ async function main() {
 
   program.action(async (options: { context?: string; yolo?: boolean }) => {
     try {
+      // 檢查版本更新
+      await checkAndUpgrade()
+
       await checkGitCLI()
 
       const provider = await getCurrentProvider()

@@ -8,6 +8,7 @@ import {
 import { getCurrentProvider } from '../../providers/factory'
 import { extractJiraTicket, getJiraTicketTitle } from '../../jira'
 import { convertBranchNameToPRTitle } from './branch-utils'
+import { checkAndUpgrade } from '../../utils/version-checker'
 
 function setupCommander() {
   const program = new Command()
@@ -50,6 +51,9 @@ async function main() {
 
   program.action(async (options: { jira?: string }) => {
     try {
+      // 檢查版本更新
+      await checkAndUpgrade()
+
       await checkGitCLI()
       const provider = await getCurrentProvider()
 

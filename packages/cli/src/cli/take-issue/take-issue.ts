@@ -6,6 +6,7 @@ import { resolve, extname } from 'path'
 import { executeAICommand } from '../../ai/executor'
 import { getCurrentProvider } from '../../providers/factory'
 import { createIssuePrompt, createPlanPrompt } from './prompts'
+import { checkAndUpgrade } from '../../utils/version-checker'
 
 async function fetchIssueDetails(issueNumber: number) {
   const provider = await getCurrentProvider()
@@ -164,6 +165,9 @@ async function main() {
 
   program.action(async (options: TakeIssueOptions) => {
     try {
+      // Check for version updates
+      await checkAndUpgrade()
+
       const provider = await getCurrentProvider()
       await provider.checkCLI()
 

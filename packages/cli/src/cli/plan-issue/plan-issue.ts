@@ -26,6 +26,7 @@ import {
   formatCommentIssueComment,
   formatJiraGeneratedIssue,
 } from './templates'
+import { checkAndUpgrade } from '../../utils/version-checker'
 
 async function fetchIssueDetails(issueNumber: number): Promise<IssueDetails> {
   const provider = await getCurrentProvider()
@@ -204,6 +205,9 @@ async function main() {
 
   program.action(async (options: { issue?: string; jira?: string }) => {
     try {
+      // Check for version updates
+      await checkAndUpgrade()
+
       const provider = await getCurrentProvider()
       await provider.checkCLI()
 

@@ -15,6 +15,7 @@ import {
   createCustomBranchPrompt,
   createDiffBranchPrompt,
 } from './prompts'
+import { checkAndUpgrade } from '../../utils/version-checker'
 
 async function createBranch(branchName: string, baseBranch: string) {
   console.log(`Creating branch: ${branchName}`)
@@ -249,6 +250,9 @@ async function main() {
 
   program.action(async (options: CreateBranchOptions) => {
     try {
+      // Check for version updates
+      await checkAndUpgrade()
+
       await checkGitCLI()
 
       // Check if user provided one of the required options
