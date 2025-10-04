@@ -37,7 +37,7 @@ async function main() {
 
   program.action(async (promptArgs: string[], options: { yolo?: boolean }) => {
     try {
-      // 檢查版本更新
+      // Check for version updates
       await checkAndUpgrade()
 
       await checkGitCLI()

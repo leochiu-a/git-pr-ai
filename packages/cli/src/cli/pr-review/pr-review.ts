@@ -86,7 +86,7 @@ async function main() {
 
   program.action(async (options: { context?: string; yolo?: boolean }) => {
     try {
-      // 檢查版本更新
+      // Check for version updates
       await checkAndUpgrade()
 
       await checkGitCLI()
