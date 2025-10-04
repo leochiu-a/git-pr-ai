@@ -33,6 +33,15 @@ Before you begin, please ensure you have completed the following setup:
   - GitLab: [Install GitLab CLI](https://gitlab.com/gitlab-org/cli) and run `glab auth login`
 - **AI Provider**: Depending on your preference, set up access for either [Claude Code](https://console.anthropic.com/dashboard) or [Gemini CLI](https://ai.google.dev/tutorials/gemini_cli_quickstart).
 
+### 🔌 Platform & AI Provider Support
+
+| Platform | Claude Code | Gemini CLI |
+| -------- | :---------: | :--------: |
+| GitHub   |     ✅      |     ✅     |
+| GitLab   |     ✅      |     ✅     |
+
+All combinations of platforms and AI providers are fully supported!
+
 ## 🚀 Quick Start
 
 1.  **Configure the tool** (required for git-pr-ai to fetch JIRA data):
