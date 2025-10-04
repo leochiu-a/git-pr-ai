@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.9.8
+
+### Patch Changes
+
+- 4c642d2: feat: add version upgrade checker
+
 ## 1.9.7
 
 ### Patch Changes
