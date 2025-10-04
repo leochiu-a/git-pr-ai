@@ -4,6 +4,7 @@ import { loadConfig } from '../../config'
 import { executeAICommand } from '../../ai/executor'
 import { getCurrentProvider } from '../../providers/factory'
 import { buildUpdateDescriptionPrompt } from './prompts'
+import { checkAndUpgrade } from '../../utils/version-checker'
 
 function setupCommander() {
   const program = new Command()
@@ -36,6 +37,9 @@ async function main() {
 
   program.action(async (promptArgs: string[], options: { yolo?: boolean }) => {
     try {
+      // Check for version updates
+      await checkAndUpgrade()
+
       await checkGitCLI()
 
       // Get additional prompt from arguments

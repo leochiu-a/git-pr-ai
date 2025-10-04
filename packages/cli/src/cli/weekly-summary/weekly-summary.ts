@@ -9,6 +9,7 @@ import {
 import { getPRsInRange, getReviewedPRsInRange } from './pr-summary'
 import { formatAsText, formatAsMarkdown, SummaryData } from './formatters'
 import { handleOutput } from './output-handler'
+import { checkAndUpgrade } from '../../utils/version-checker'
 
 interface WeeklySummaryOptions {
   since?: string
@@ -18,6 +19,9 @@ interface WeeklySummaryOptions {
 
 async function weeklySummary(options: WeeklySummaryOptions) {
   try {
+    // Check for version updates
+    await checkAndUpgrade()
+
     let since: string
     let until: string
 
