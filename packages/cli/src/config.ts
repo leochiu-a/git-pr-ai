@@ -3,7 +3,7 @@ import { join } from 'path'
 import { homedir } from 'os'
 
 export interface GitPrAiConfig {
-  agent: 'claude' | 'gemini'
+  agent: 'claude' | 'gemini' | 'cursor-agent'
   jira?: {
     baseUrl: string
     email: string
