@@ -77,7 +77,7 @@ async function runAICommand(
     } else if (agent === 'cursor-agent') {
       await $({
         stdio: 'inherit',
-      })`cursor-agent --print --force ${prompt}`
+      })`cursor-agent --force ${prompt}`
     }
   } else {
     if (agent === 'claude') {
@@ -85,7 +85,7 @@ async function runAICommand(
     } else if (agent === 'gemini') {
       await $({ stdio: 'inherit' })`gemini --prompt-interactive ${prompt}`
     } else if (agent === 'cursor-agent') {
-      await $({ stdio: 'inherit' })`cursor-agent --print ${prompt}`
+      await $({ stdio: 'inherit' })`cursor-agent ${prompt}`
     }
   }
 }
