@@ -85,8 +85,10 @@ async function generateBranchNameWithAI(
     // Execute AI command and get output
     const aiOutput = await executeAIWithOutput(prompt)
 
-    // Parse AI output
-    const branchMatch = aiOutput.match(/BRANCH_NAME:\s*(.+)/i)
+    // Parse AI output - handle cases where AI wraps branch name in backticks or markdown
+    const branchMatch = aiOutput.match(
+      /BRANCH_NAME:\s*[*`]*(.+?)[*`]*(?:\s|$)/i,
+    )
 
     if (branchMatch) {
       const aiBranchName = branchMatch[1].trim()
