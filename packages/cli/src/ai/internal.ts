@@ -2,6 +2,7 @@ import { $ } from 'zx'
 import { loadConfig } from '../config'
 import { getLanguage } from '../git-helpers'
 import { createLanguagePrompt } from '../language-prompts'
+import { SUPPORTED_AGENTS, type AIAgent } from '../constants/agents'
 
 export async function executeAIInternal(
   prompt: string,
@@ -34,6 +35,10 @@ export async function executeAIInternal(
     ? createLanguagePrompt(prompt, language)
     : prompt
 
+  if (!SUPPORTED_AGENTS.includes(config.agent as AIAgent)) {
+    throw new Error(`Unsupported AI agent: ${config.agent}`)
+  }
+
   switch (config.agent) {
     case 'claude':
       await checkClaudeCLI()
@@ -41,8 +46,9 @@ export async function executeAIInternal(
     case 'gemini':
       await checkGeminiCLI()
       break
-    default:
-      throw new Error(`Unsupported AI agent: ${config.agent}`)
+    case 'cursor-agent':
+      await checkCursorAgentCLI()
+      break
   }
 
   if (outputType === 'inherit') {
@@ -55,7 +61,7 @@ export async function executeAIInternal(
 }
 
 async function runAICommand(
-  agent: string,
+  agent: AIAgent,
   prompt: string,
   yolo: boolean,
 ): Promise<void> {
@@ -64,22 +70,28 @@ async function runAICommand(
       await $({
         stdio: 'inherit',
       })`claude --dangerously-skip-permissions ${prompt}`
-    } else {
+    } else if (agent === 'gemini') {
       await $({
         stdio: 'inherit',
       })`gemini --yolo --prompt-interactive ${prompt}`
+    } else if (agent === 'cursor-agent') {
+      await $({
+        stdio: 'inherit',
+      })`cursor-agent --force ${prompt}`
     }
   } else {
     if (agent === 'claude') {
       await $({ stdio: 'inherit' })`claude ${prompt}`
-    } else {
+    } else if (agent === 'gemini') {
       await $({ stdio: 'inherit' })`gemini --prompt-interactive ${prompt}`
+    } else if (agent === 'cursor-agent') {
+      await $({ stdio: 'inherit' })`cursor-agent ${prompt}`
     }
   }
 }
 
 async function runAICommandWithOutput(
-  agent: string,
+  agent: AIAgent,
   prompt: string,
   yolo: boolean,
 ): Promise<string> {
@@ -90,18 +102,22 @@ async function runAICommandWithOutput(
       result = await $({
         input: prompt,
       })`claude --dangerously-skip-permissions`.quiet()
-    } else {
+    } else if (agent === 'gemini') {
       result = await $({ input: prompt })`gemini --yolo -p`.quiet()
+    } else if (agent === 'cursor-agent') {
+      result = await $({ input: prompt })`cursor-agent --print --force`.quiet()
     }
   } else {
     if (agent === 'claude') {
       result = await $({ input: prompt })`claude`.quiet()
-    } else {
+    } else if (agent === 'gemini') {
       result = await $({ input: prompt })`gemini -p`.quiet()
+    } else if (agent === 'cursor-agent') {
+      result = await $({ input: prompt })`cursor-agent --print`.quiet()
     }
   }
 
-  return result.stdout.trim()
+  return result?.stdout.trim() || ''
 }
 
 function extractJsonFromOutput(output: string): string {
@@ -131,6 +147,24 @@ async function checkGeminiCLI(): Promise<void> {
   } catch {
     console.error('🤖 Gemini CLI not found')
     console.error('Please install Gemini CLI')
+    process.exit(1)
+  }
+}
+
+async function checkCursorAgentCLI(): Promise<void> {
+  try {
+    await $`cursor-agent --version`.quiet()
+  } catch {
+    console.error('🤖 Cursor Agent not found')
+    console.error('Please install Cursor Agent: https://docs.cursor.com/agent')
+    process.exit(1)
+  }
+
+  try {
+    await $`cursor-agent status`.quiet()
+  } catch {
+    console.error('❌ Please authenticate with Cursor Agent first')
+    console.error('Run: cursor-agent login')
     process.exit(1)
   }
 }

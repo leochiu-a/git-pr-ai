@@ -15,6 +15,7 @@ import {
   SupportedLanguage,
   SUPPORTED_LANGUAGES,
 } from '../git-helpers'
+import { AI_AGENT_CHOICES } from '../constants/agents'
 
 async function openConfig() {
   const configPath = getConfigPath()
@@ -168,16 +169,7 @@ async function updateAgentConfig(
 ): Promise<GitPrAiConfig> {
   const selectedAgent = await select({
     message: 'Which AI agent would you like to use?',
-    choices: [
-      {
-        name: 'Claude (Anthropic)',
-        value: 'claude' as const,
-      },
-      {
-        name: 'Gemini (Google)',
-        value: 'gemini' as const,
-      },
-    ],
+    choices: AI_AGENT_CHOICES,
   })
   return { ...config, agent: selectedAgent }
 }
