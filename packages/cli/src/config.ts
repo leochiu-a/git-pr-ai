@@ -1,9 +1,10 @@
 import { existsSync, readFileSync } from 'fs'
 import { join } from 'path'
 import { homedir } from 'os'
+import { type AIAgent } from './constants/agents'
 
 export interface GitPrAiConfig {
-  agent: 'claude' | 'gemini' | 'cursor-agent'
+  agent: AIAgent
   jira?: {
     baseUrl: string
     email: string
