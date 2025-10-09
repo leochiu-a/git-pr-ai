@@ -177,6 +177,10 @@ async function updateAgentConfig(
         name: 'Gemini (Google)',
         value: 'gemini' as const,
       },
+      {
+        name: 'Cursor Agent',
+        value: 'cursor-agent' as const,
+      },
     ],
   })
   return { ...config, agent: selectedAgent }
