@@ -22,15 +22,9 @@ export function createLanguagePrompt(
 ): string {
   const languagePrompt = LANGUAGE_PROMPTS[language]
 
-  return `${languagePrompt.systemInstruction}
+  return `IMPORTANT: ${languagePrompt.systemInstruction}
 
 ${basePrompt}
 
 ${languagePrompt.responseFormat}`
-}
-
-export function createLanguageSystemPrompt(
-  language: SupportedLanguage,
-): string {
-  return LANGUAGE_PROMPTS[language].systemInstruction
 }
