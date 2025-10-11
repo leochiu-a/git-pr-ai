@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.9.9
+
+### Patch Changes
+
+- 0c6c23f: refactor: remove unused createLanguageSystemPrompt function
+
 ## 1.9.8
 
 ### Patch Changes
