@@ -106,6 +106,7 @@ async function generateBranchNameWithAI(
       }
     } else {
       spinner.fail('Could not parse AI output')
+      console.error('AI output:', aiOutput)
       process.exit(1)
     }
   } catch (error) {
