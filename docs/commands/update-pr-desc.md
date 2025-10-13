@@ -2,6 +2,8 @@
 
 Update Pull Request description using AI assistance.
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/dtJisR4v5wI?si=Bu3qNU5flvO3L4es" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 ## Usage
 
 ```bash
