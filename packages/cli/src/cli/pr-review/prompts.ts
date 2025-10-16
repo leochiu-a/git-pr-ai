@@ -22,6 +22,8 @@ export function buildReviewPrompt({
 
   const basePrompt = `# Task: Review PR #${prDetails.number} and Submit via ${providerName} API
 
+**IMPORTANT: Write your review comments in the user's language (follow the language instruction at the start of this prompt). Only the JSON structure and bash commands should be in English.**
+
 **PR Info:**
 - Repo: ${prDetails.owner}/${prDetails.repo}
 - PR: #${prDetails.number} - ${prDetails.title}
@@ -98,12 +100,14 @@ Step 4b - Create payload file \`review.json\`:
 }
 \`\`\`
 
-**JSON escaping rules:**
-- Newlines: Use \\n
-- Double quotes: Use \\"
-- Backticks (for code blocks): Use \\\`\\\`\\\`
-- Single quotes: Use directly ' (NO backslash!)
-- Backslashes: Use \\\\
+**JSON escaping (CRITICAL):**
+1. Newlines → \\n
+2. Code blocks → \\\`\\\`\\\`
+3. Single quotes → ' (direct, NO escape!)
+4. Double quotes → \\"
+
+Example of correct escaping:
+\`"body": "Issue:\\n\\\`\\\`\\\`ts\\nif (x === 'hello') return true\\n\\\`\\\`\\\`"\`
 
 Step 4c - Submit:
 \`\`\`bash
@@ -119,13 +123,10 @@ gh api --method POST \\
 - \`APPROVE\` - No blocking issues
 - \`REQUEST_CHANGES\` - Critical bugs/security issues
 
-**Important JSON notes:**
-- Replace \`PUT_COMMIT_SHA_HERE\` with actual SHA from step 4a
-- Use \\\`\\\`\\\` (escaped backticks) for code blocks in JSON strings
-- Use \\n for newlines in JSON strings
-- Use \\" to escape double quotes in JSON strings
-- DO NOT escape single quotes - use them directly: t('foo') NOT t(\\'foo\\')
-- The \`path\` must match the file path in the diff exactly`
+**Before submitting:**
+- Replace \`PUT_COMMIT_SHA_HERE\` with actual SHA
+- Verify single quotes are NOT escaped (no backslash before ')
+- Check \`path\` matches the diff exactly`
     : `**GitLab API submission:**
 
 1. Get MR details:
