@@ -39,6 +39,9 @@ ${diffCommand}
 Focus: bugs, security, performance, maintainability
 
 ### 3. Write comments
+IMPORTANT: Only comment on lines that appear in the diff (modified/added lines).
+Do NOT comment on unchanged code or lines outside the diff.
+
 Include actual code (problem + fix) in each comment.
 Use multi-line highlight for code blocks.
 
