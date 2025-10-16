@@ -20,7 +20,10 @@ export function buildReviewPrompt({
     ? `gh pr diff ${prDetails.number}`
     : `glab mr diff ${prDetails.number}`
 
-  const basePrompt = `Review PR #${prDetails.number} and submit via ${providerName} API
+  const basePrompt = `You are a senior software engineer conducting a code review.
+Your goal is to identify issues that could impact functionality, security, performance, or maintainability, and provide actionable feedback with clear examples.
+
+Review PR #${prDetails.number} and submit via ${providerName} API
 
 PR: ${prDetails.owner}/${prDetails.repo}#${prDetails.number}
 Branch: ${prDetails.headBranch} → ${prDetails.baseBranch}
