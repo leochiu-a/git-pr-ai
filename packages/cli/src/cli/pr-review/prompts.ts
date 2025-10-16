@@ -20,96 +20,54 @@ export function buildReviewPrompt({
     ? `gh pr diff ${prDetails.number}`
     : `glab mr diff ${prDetails.number}`
 
-  const basePrompt = `# Task: Review PR #${prDetails.number} and Submit via ${providerName} API
+  const basePrompt = `Review PR #${prDetails.number} and submit via ${providerName} API
 
-**IMPORTANT: Write your review comments in the user's language (follow the language instruction at the start of this prompt). Only the JSON structure and bash commands should be in English.**
+PR: ${prDetails.owner}/${prDetails.repo}#${prDetails.number}
+Branch: ${prDetails.headBranch} → ${prDetails.baseBranch}
 
-**PR Info:**
-- Repo: ${prDetails.owner}/${prDetails.repo}
-- PR: #${prDetails.number} - ${prDetails.title}
-- URL: ${prDetails.url}
-- Branch: ${prDetails.headBranch} → ${prDetails.baseBranch}
+## Steps
 
-## Step-by-Step Instructions
-
-### 1. Get the code diff
+### 1. Get diff
 \`\`\`bash
 ${diffCommand}
 \`\`\`
 
-### 2. Analyze the changes
-Look for:
-- 🐛 Bugs, edge cases, logic errors
-- 🔒 Security issues (SQL injection, XSS, auth bypass)
-- ⚡ Performance problems (O(n²), memory leaks)
-- 📖 Maintainability (naming, complexity, documentation)
+### 2. Find issues
+Focus: bugs, security, performance, maintainability
 
-### 3. Write your inline comments
+### 3. Write comments
+Include actual code (problem + fix) in each comment.
+Use multi-line highlight for code blocks.
 
-**CRITICAL: Show actual code, not just line numbers**
-
-✅ Good example:
-\`\`\`
-**Missing null check**
-
-Current code:
-\`\`\`ts
-const user = await getUser(id)
-return user.email  // will crash if user is null
-\`\`\`
-
-Fix:
-\`\`\`ts
-const user = await getUser(id)
-if (!user) throw new Error('User not found')
-return user.email
-\`\`\`
-\`\`\`
-
-❌ Bad example:
-\`\`\`
-Line 42 needs a null check
-\`\`\`
-
-### 4. Submit the review
+### 4. Submit review
 
 ${
   isGitHub
-    ? `**GitHub API submission:**
-
-Step 4a - Get commit SHA:
+    ? `
+**Step A - Get SHA:**
 \`\`\`bash
-COMMIT_SHA=$(gh pr view ${prDetails.number} --json headRefOid -q '.headRefOid')
-echo $COMMIT_SHA
+SHA=$(gh pr view ${prDetails.number} --json headRefOid -q '.headRefOid')
 \`\`\`
 
-Step 4b - Create payload file \`review.json\`:
+**Step B - Create review.json:**
 \`\`\`json
 {
-  "commit_id": "PUT_COMMIT_SHA_HERE",
-  "body": "## Review Summary\\n\\n[Your overall assessment]\\n\\n### Key Points\\n- Point 1\\n- Point 2",
+  "commit_id": "REPLACE_WITH_SHA_FROM_STEP_A",
+  "body": "Overall review\\n\\nKey points:\\n- Point 1\\n- Point 2",
   "event": "COMMENT",
   "comments": [
     {
-      "path": "path/to/file.ts",
-      "line": 42,
-      "body": "**Missing null check**\\n\\nCurrent:\\n\\\`\\\`\\\`ts\\nconst user = data.find(u => u.id === id)\\nreturn user.name\\n\\\`\\\`\\\`\\n\\nFix:\\n\\\`\\\`\\\`ts\\nconst user = data.find(u => u.id === id)\\nif (!user) throw new Error('Not found')\\nreturn user.name\\n\\\`\\\`\\\`",
+      "path": "src/file.ts",
+      "start_line": 10,
+      "line": 15,
+      "body": "**Issue**\\n\\nCurrent:\\n\\\`\\\`\\\`ts\\ncode here\\n\\\`\\\`\\\`\\n\\nFix:\\n\\\`\\\`\\\`ts\\nfixed code\\n\\\`\\\`\\\`",
       "side": "RIGHT"
     }
   ]
 }
 \`\`\`
 
-**JSON escaping (CRITICAL):**
-1. Newlines → \\n
-2. Code blocks → \\\`\\\`\\\`
-3. Single quotes → ' (direct, NO escape!)
-4. Double quotes → \\"
-
-Example of correct escaping:
-\`"body": "Issue:\\n\\\`\\\`\\\`ts\\nif (x === 'hello') return true\\n\\\`\\\`\\\`"\`
-
-Step 4c - Submit:
+**Step C - Submit:**
 \`\`\`bash
 gh api --method POST \\
   -H "Accept: application/vnd.github+json" \\
@@ -118,43 +76,22 @@ gh api --method POST \\
   --input review.json
 \`\`\`
 
-**Event types:**
-- \`COMMENT\` - General feedback
-- \`APPROVE\` - No blocking issues
-- \`REQUEST_CHANGES\` - Critical bugs/security issues
+**JSON rules:**
+- Newlines: \\n
+- Code blocks: \\\`\\\`\\\`
+- Single quotes: ' (NO backslash!)
+- start_line < line (first line to last line)
 
-**Before submitting:**
-- Replace \`PUT_COMMIT_SHA_HERE\` with actual SHA
-- Verify single quotes are NOT escaped (no backslash before ')
-- Check \`path\` matches the diff exactly`
-    : `**GitLab API submission:**
-
-1. Get MR details:
-\`\`\`bash
-glab mr view ${prDetails.number} --json
-\`\`\`
-
-2. Post inline comments and overall review using GitLab API
-3. Use glab CLI or direct API calls`
+**Events:**
+- COMMENT = feedback
+- APPROVE = no issues
+- REQUEST_CHANGES = critical problems
+`
+    : `Use glab API for GitLab MR`
 }
 
-## Quick Guidelines
-
-**DO:**
-✅ Show code snippets in every inline comment (problem + solution)
-✅ Explain WHY (security risk, will crash, performance issue, etc.)
-✅ Use \`APPROVE\` if code is good (empty comments array is fine!)
-✅ Be helpful and constructive
-
-**DON'T:**
-❌ Say "line X needs fixing" without showing code
-❌ Include HTML comments like \`<!-- comment -->\` (they break rendering)
-❌ Generate long explanations - be concise and actionable
-
-${additionalContext ? `\n## Additional Context\n${additionalContext}\n` : ''}
----
-
-**Execute now:** Get diff → Review → Submit via API!`
+${additionalContext ? `\n**User request:** ${additionalContext}\n` : ''}
+Execute now!`
 
   return basePrompt
 }
