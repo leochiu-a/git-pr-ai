@@ -91,12 +91,19 @@ Step 4b - Create payload file \`review.json\`:
     {
       "path": "path/to/file.ts",
       "line": 42,
-      "body": "**Issue title**\\n\\nCurrent:\\n\\\`\\\`\\\`ts\\ncode here\\n\\\`\\\`\\\`\\n\\nSuggestion:\\n\\\`\\\`\\\`ts\\nfixed code\\n\\\`\\\`\\\`",
+      "body": "**Missing null check**\\n\\nCurrent:\\n\\\`\\\`\\\`ts\\nconst user = data.find(u => u.id === id)\\nreturn user.name\\n\\\`\\\`\\\`\\n\\nFix:\\n\\\`\\\`\\\`ts\\nconst user = data.find(u => u.id === id)\\nif (!user) throw new Error('Not found')\\nreturn user.name\\n\\\`\\\`\\\`",
       "side": "RIGHT"
     }
   ]
 }
 \`\`\`
+
+**JSON escaping rules:**
+- Newlines: Use \\n
+- Double quotes: Use \\"
+- Backticks (for code blocks): Use \\\`\\\`\\\`
+- Single quotes: Use directly ' (NO backslash!)
+- Backslashes: Use \\\\
 
 Step 4c - Submit:
 \`\`\`bash
@@ -114,8 +121,10 @@ gh api --method POST \\
 
 **Important JSON notes:**
 - Replace \`PUT_COMMIT_SHA_HERE\` with actual SHA from step 4a
-- Use \\\`\\\`\\\` (escaped backticks) in the JSON body field
-- Use \\n for newlines in the JSON body field
+- Use \\\`\\\`\\\` (escaped backticks) for code blocks in JSON strings
+- Use \\n for newlines in JSON strings
+- Use \\" to escape double quotes in JSON strings
+- DO NOT escape single quotes - use them directly: t('foo') NOT t(\\'foo\\')
 - The \`path\` must match the file path in the diff exactly`
     : `**GitLab API submission:**
 
