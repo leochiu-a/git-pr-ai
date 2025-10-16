@@ -10,6 +10,7 @@ import {
 import { getJiraTicketTitle } from '../../jira'
 import { loadConfig } from '../../config'
 import { executeAIWithOutput } from '../../ai/executor'
+import { parseBranchNameFromAI } from './ai-response-parser'
 import {
   createJiraBranchPrompt,
   createCustomBranchPrompt,
@@ -85,11 +86,10 @@ async function generateBranchNameWithAI(
     // Execute AI command and get output
     const aiOutput = await executeAIWithOutput(prompt)
 
-    // Parse AI output
-    const branchMatch = aiOutput.match(/BRANCH_NAME:\s*(.+)/i)
+    // Parse AI output using the dedicated parser
+    const aiBranchName = parseBranchNameFromAI(aiOutput)
 
-    if (branchMatch) {
-      const aiBranchName = branchMatch[1].trim()
+    if (aiBranchName) {
       spinner.succeed('Branch name generated successfully!')
 
       // Confirm the AI suggestion
