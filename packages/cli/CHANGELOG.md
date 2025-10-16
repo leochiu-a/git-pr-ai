@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.9.10
+
+### Patch Changes
+
+- 19090f3: feat: structured pr reviews with comments
+
 ## 1.9.9
 
 ### Patch Changes
