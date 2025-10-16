@@ -66,7 +66,7 @@ SHA=$(gh pr view ${prDetails.number} --json headRefOid -q '.headRefOid')
       "path": "src/file.ts",
       "start_line": 10,
       "line": 15,
-      "body": "**Issue**\\n\\nCurrent:\\n\\\`\\\`\\\`ts\\ncode here\\n\\\`\\\`\\\`\\n\\nFix:\\n\\\`\\\`\\\`ts\\nfixed code\\n\\\`\\\`\\\`",
+      "body": "**Issue**\\n\\nCurrent:\\n\\\`\\\`\\\`ts\\nconst x = \\"value\\"\\n\\\`\\\`\\\`\\n\\nFix:\\n\\\`\\\`\\\`ts\\nconst x = 'value'\\n\\\`\\\`\\\`",
       "side": "RIGHT"
     }
   ]
@@ -85,8 +85,10 @@ gh api --method POST \\
 **JSON rules:**
 - Newlines: \\n
 - Code blocks: \\\`\\\`\\\`
+- Double quotes in code: \\" (MUST escape!)
 - Single quotes: ' (NO backslash!)
 - start_line < line (first line to last line)
+- CRITICAL: Verify all line numbers exist in diff before submitting
 
 **Events:**
 - COMMENT = feedback
