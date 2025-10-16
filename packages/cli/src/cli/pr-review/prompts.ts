@@ -95,7 +95,66 @@ gh api --method POST \\
 - APPROVE = no issues
 - REQUEST_CHANGES = critical problems
 `
-    : `Use glab API for GitLab MR`
+    : `
+**Step A - Get project ID and SHAs:**
+\`\`\`bash
+MR_JSON=$(glab mr view ${prDetails.number} -F json)
+PROJECT_ID=$(glab repo view -F json | jq -r '.id')
+BASE_SHA=$(echo "$MR_JSON" | jq -r '.diff_refs.base_sha')
+HEAD_SHA=$(echo "$MR_JSON" | jq -r '.diff_refs.head_sha')
+START_SHA=$(echo "$MR_JSON" | jq -r '.diff_refs.start_sha')
+\`\`\`
+
+**Step B - Add overall review note (optional):**
+\`\`\`bash
+glab mr note ${prDetails.number} --message "Overall review summary\\n\\nKey points:\\n- Point 1\\n- Point 2"
+\`\`\`
+
+**Step C - Create discussion.json for each code comment:**
+\`\`\`json
+{
+  "body": "**Issue**\\n\\nCurrent:\\n\\\`\\\`\\\`ts\\nconst x = \\"value\\"\\n\\\`\\\`\\\`\\n\\nFix:\\n\\\`\\\`\\\`ts\\nconst x = 'value'\\n\\\`\\\`\\\`",
+  "position": {
+    "position_type": "text",
+    "base_sha": "REPLACE_WITH_BASE_SHA_FROM_STEP_A",
+    "head_sha": "REPLACE_WITH_HEAD_SHA_FROM_STEP_A",
+    "start_sha": "REPLACE_WITH_START_SHA_FROM_STEP_A",
+    "new_path": "src/file.ts",
+    "old_path": "src/file.ts",
+    "new_line": 15
+  }
+}
+\`\`\`
+
+**Step D - Submit each comment:**
+\`\`\`bash
+glab api --method POST \\
+  -H "Content-Type: application/json" \\
+  /projects/$PROJECT_ID/merge_requests/${prDetails.number}/discussions \\
+  --input discussion.json
+\`\`\`
+
+**JSON rules:**
+- Newlines: \\n
+- Code blocks: \\\`\\\`\\\`
+- Double quotes in code: \\" (MUST escape!)
+- Single quotes: ' (NO backslash!)
+- new_line: for added/modified lines (after change)
+- old_line: for deleted lines (before change)
+- CRITICAL: Verify all line numbers exist in diff before submitting
+
+**Multi-line comments:**
+Add line_range to position for multi-line highlighting:
+\`\`\`json
+"position": {
+  ...,
+  "line_range": {
+    "start": { "line_code": "...", "type": "new" },
+    "end": { "line_code": "...", "type": "new" }
+  }
+}
+\`\`\`
+`
 }
 
 ${additionalContext ? `\n**User request:** ${additionalContext}\n` : ''}
