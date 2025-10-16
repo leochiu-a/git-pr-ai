@@ -8,19 +8,17 @@ export interface BuildReviewPromptArgs {
   providerName: string
 }
 
-export function buildReviewPrompt({
-  prDetails,
-  options = {},
-  providerName,
-}: BuildReviewPromptArgs): string {
-  const { additionalContext } = options
+interface BasePromptArgs {
+  prDetails: PRDetails
+  additionalContext?: string
+}
 
-  const isGitHub = providerName === 'GitHub'
-  const diffCommand = isGitHub
-    ? `gh pr diff ${prDetails.number}`
-    : `glab mr diff ${prDetails.number}`
-
-  const basePrompt = `You are a senior software engineer conducting a code review.
+function buildBasePrompt(
+  prDetails: PRDetails,
+  providerName: string,
+  diffCommand: string,
+): string {
+  return `You are a senior software engineer conducting a code review.
 Your goal is to identify issues that could impact functionality, security, performance, or maintainability, and provide actionable feedback with clear examples.
 
 Review PR #${prDetails.number} and submit via ${providerName} API
@@ -45,11 +43,17 @@ Do NOT comment on unchanged code or lines outside the diff.
 Include actual code (problem + fix) in each comment.
 Use multi-line highlight for code blocks.
 
-### 4. Submit review
+### 4. Submit review`
+}
 
-${
-  isGitHub
-    ? `
+export function buildGitHubReviewPrompt({
+  prDetails,
+  additionalContext,
+}: BasePromptArgs): string {
+  const diffCommand = `gh pr diff ${prDetails.number}`
+  const basePrompt = buildBasePrompt(prDetails, 'GitHub', diffCommand)
+
+  const submitInstructions = `
 **Step A - Get SHA:**
 \`\`\`bash
 SHA=$(gh pr view ${prDetails.number} --json headRefOid -q '.headRefOid')
@@ -95,7 +99,22 @@ gh api --method POST \\
 - APPROVE = no issues
 - REQUEST_CHANGES = critical problems
 `
-    : `
+
+  return `${basePrompt}
+
+${submitInstructions}
+${additionalContext ? `\n**User request:** ${additionalContext}\n` : ''}
+Execute now!`
+}
+
+export function buildGitLabReviewPrompt({
+  prDetails,
+  additionalContext,
+}: BasePromptArgs): string {
+  const diffCommand = `glab mr diff ${prDetails.number}`
+  const basePrompt = buildBasePrompt(prDetails, 'GitLab', diffCommand)
+
+  const submitInstructions = `
 **Step A - Get project ID and SHAs:**
 \`\`\`bash
 MR_JSON=$(glab mr view ${prDetails.number} -F json)
@@ -155,10 +174,26 @@ Add line_range to position for multi-line highlighting:
 }
 \`\`\`
 `
-}
 
+  return `${basePrompt}
+
+${submitInstructions}
 ${additionalContext ? `\n**User request:** ${additionalContext}\n` : ''}
 Execute now!`
+}
 
-  return basePrompt
+export function buildReviewPrompt({
+  prDetails,
+  options = {},
+  providerName,
+}: BuildReviewPromptArgs): string {
+  const { additionalContext } = options
+
+  const isGitHub = providerName === 'GitHub'
+
+  if (isGitHub) {
+    return buildGitHubReviewPrompt({ prDetails, additionalContext })
+  } else {
+    return buildGitLabReviewPrompt({ prDetails, additionalContext })
+  }
 }
