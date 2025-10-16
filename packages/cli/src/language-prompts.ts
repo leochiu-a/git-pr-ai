@@ -26,5 +26,5 @@ export function createLanguagePrompt(
 
 ${basePrompt}
 
-${languagePrompt.responseFormat}`
+IMPORTANT:${languagePrompt.responseFormat}`
 }
