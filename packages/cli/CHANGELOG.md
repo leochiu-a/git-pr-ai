@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.9.11
+
+### Patch Changes
+
+- 259fc83: refactor: use npm check updates for versions
+
 ## 1.9.10
 
 ### Patch Changes
