@@ -49,6 +49,9 @@ importers:
       dayjs:
         specifier: ^1.11.13
         version: 1.11.13
+      npm-check-updates:
+        specifier: ^19.1.1
+        version: 19.1.1
       ora:
         specifier: ^8.2.0
         version: 8.2.0
@@ -2627,6 +2630,14 @@ packages:
     engines: { node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1 }
     hasBin: true
 
+  npm-check-updates@19.1.1:
+    resolution:
+      {
+        integrity: sha512-vy/uNbaK6Xfj/QzM8OXeALZak67E0uHjUlbdT1YGy4bdj0xlBU6AVd+8bscY8vlDpyzL6Y7mxcrX8kzEDeEpNg==,
+      }
+    engines: { node: '>=20.0.0', npm: '>=8.12.1' }
+    hasBin: true
+
   nprogress@0.2.0:
     resolution:
       {
@@ -4993,6 +5004,8 @@ snapshots:
   nano-spawn@1.0.2: {}
 
   nanoid@3.3.11: {}
+
+  npm-check-updates@19.1.1: {}
 
   nprogress@0.2.0:
     optional: true

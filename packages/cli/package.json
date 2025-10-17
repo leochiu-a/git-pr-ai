@@ -57,6 +57,7 @@
     "@inquirer/prompts": "^7.8.0",
     "commander": "^14.0.0",
     "dayjs": "^1.11.13",
+    "npm-check-updates": "^19.1.1",
     "ora": "^8.2.0",
     "zx": "^8.7.2"
   },

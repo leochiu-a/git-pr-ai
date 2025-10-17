@@ -3,6 +3,7 @@ import dayjs from 'dayjs'
 import fs from 'node:fs'
 import path from 'node:path'
 import ora from 'ora'
+import { run as ncu } from 'npm-check-updates'
 import { $ } from 'zx'
 import { getConfigDir } from '../config'
 
@@ -17,29 +18,49 @@ interface LastCheckData {
 }
 
 /**
- * Check current package's latest version
+ * Detect which package manager has the package installed globally
+ */
+async function detectPackageManager(
+  packageName: string,
+): Promise<'pnpm' | 'npm'> {
+  // Try pnpm first
+  try {
+    await $`pnpm list -g ${packageName}`.quiet()
+    return 'pnpm'
+  } catch {
+    // Fall back to npm
+    return 'npm'
+  }
+}
+
+/**
+ * Check current package's latest version using npm-check-updates
  */
 export async function checkLatestVersion(
   packageName: string,
-): Promise<VersionCheckResult> {
+): Promise<VersionCheckResult & { packageManager: 'pnpm' | 'npm' }> {
   try {
-    // Get current version
-    const currentVersionResult =
-      await $`npm list ${packageName} --global --depth=0 --json`.quiet()
-    const currentData = JSON.parse(currentVersionResult.stdout)
-    const current =
-      currentData.dependencies?.[packageName]?.version || 'unknown'
+    // Detect which package manager was used to install the package
+    const packageManager = await detectPackageManager(packageName)
 
-    // Get latest version
-    const latestVersionResult = await $`npm view ${packageName} version`.quiet()
-    const latest = latestVersionResult.stdout.trim()
+    // Use npm-check-updates to check for global package updates
+    // Must specify packageManager to check the correct global directory
+    // Returns { "package-name": "1.9.10" } if update available, {} if not
+    const upgraded = (await ncu({
+      global: true,
+      filter: packageName,
+      packageManager,
+      silent: true,
+    })) as Record<string, string> | undefined
 
-    const hasUpdate = current !== latest && current !== 'unknown'
+    const latest = upgraded?.[packageName]
+    const hasUpdate = !!latest
 
     return {
-      current: current === 'unknown' ? 'not installed' : current,
-      latest,
+      current: hasUpdate ? 'installed' : 'up-to-date',
+      latest: latest || 'up-to-date',
       hasUpdate,
+      packageManager,
     }
   } catch (error) {
     console.error('Failed to check latest version: ', error)
@@ -50,19 +71,21 @@ export async function checkLatestVersion(
 /**
  * Check version and prompt for upgrade
  */
-export async function promptForUpdate(packageName: string): Promise<boolean> {
+export async function promptForUpdate(
+  packageName: string,
+): Promise<{ shouldUpdate: boolean; packageManager: 'pnpm' | 'npm' }> {
   try {
     const versionInfo = await checkLatestVersion(packageName)
 
     if (versionInfo.hasUpdate) {
       const shouldUpdate = await confirm({
-        message: `New ${packageName} version available (${versionInfo.current} → ${versionInfo.latest}). Upgrade now?`,
+        message: `New ${packageName} version ${versionInfo.latest} available. Upgrade now?`,
         default: true,
       })
 
-      return shouldUpdate
+      return { shouldUpdate, packageManager: versionInfo.packageManager }
     } else {
-      return false
+      return { shouldUpdate: false, packageManager: versionInfo.packageManager }
     }
   } catch (error) {
     console.error('Failed to prompt for update: ', error)
@@ -71,13 +94,20 @@ export async function promptForUpdate(packageName: string): Promise<boolean> {
 }
 
 /**
- * Execute package upgrade
+ * Execute package upgrade using the detected package manager
  */
-export async function upgradePackage(packageName: string): Promise<boolean> {
+export async function upgradePackage(
+  packageName: string,
+  packageManager: 'pnpm' | 'npm',
+): Promise<boolean> {
   const spinner = ora(`Installing ${packageName}@latest...`).start()
 
   try {
-    await $`npm install -g ${packageName}@latest`
+    if (packageManager === 'pnpm') {
+      await $`pnpm add -g ${packageName}@latest`
+    } else {
+      await $`npm install -g ${packageName}@latest`
+    }
     spinner.succeed(`Successfully upgraded ${packageName}!`)
     return true
   } catch (error) {
@@ -143,12 +173,12 @@ export async function checkAndUpgrade(
     return
   }
 
-  const shouldUpdate = await promptForUpdate(packageName)
+  const { shouldUpdate, packageManager } = await promptForUpdate(packageName)
 
   updateLastCheckTimestamp()
 
   if (shouldUpdate) {
-    const success = await upgradePackage(packageName)
+    const success = await upgradePackage(packageName, packageManager)
     if (success) {
       process.exit(0)
     }
