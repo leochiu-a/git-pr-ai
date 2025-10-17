@@ -51,5 +51,9 @@ export default defineConfig({
       message: 'Built with VitePress',
       copyright: `Copyright © ${new Date().getFullYear()} Git PR AI`,
     },
+
+    search: {
+      provider: 'local',
+    },
   },
 })
