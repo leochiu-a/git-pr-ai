@@ -18,17 +18,38 @@ interface LastCheckData {
 }
 
 /**
+ * Detect which package manager has the package installed globally
+ */
+async function detectPackageManager(
+  packageName: string,
+): Promise<'pnpm' | 'npm'> {
+  // Try pnpm first
+  try {
+    await $`pnpm list -g ${packageName}`.quiet()
+    return 'pnpm'
+  } catch {
+    // Fall back to npm
+    return 'npm'
+  }
+}
+
+/**
  * Check current package's latest version using npm-check-updates
  */
 export async function checkLatestVersion(
   packageName: string,
 ): Promise<VersionCheckResult> {
   try {
+    // Detect which package manager was used to install the package
+    const packageManager = await detectPackageManager(packageName)
+
     // Use npm-check-updates to check for global package updates
+    // Must specify packageManager to check the correct global directory
     // Returns { "package-name": "1.9.10" } if update available, {} if not
     const upgraded = (await ncu({
       global: true,
       filter: packageName,
+      packageManager,
       silent: true,
     })) as Record<string, string> | undefined
 
@@ -70,13 +91,19 @@ export async function promptForUpdate(packageName: string): Promise<boolean> {
 }
 
 /**
- * Execute package upgrade
+ * Execute package upgrade using the detected package manager
  */
 export async function upgradePackage(packageName: string): Promise<boolean> {
+  const packageManager = await detectPackageManager(packageName)
+
   const spinner = ora(`Installing ${packageName}@latest...`).start()
 
   try {
-    await $`npm install -g ${packageName}@latest`
+    if (packageManager === 'pnpm') {
+      await $`pnpm add -g ${packageName}@latest`
+    } else {
+      await $`npm install -g ${packageName}@latest`
+    }
     spinner.succeed(`Successfully upgraded ${packageName}!`)
     return true
   } catch (error) {

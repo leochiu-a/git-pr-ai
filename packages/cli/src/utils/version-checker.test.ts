@@ -56,6 +56,11 @@ describe('version-checker', () => {
 
   describe('checkLatestVersion', () => {
     it('should return version info when update is available', async () => {
+      // Mock detectPackageManager to return pnpm
+      mockZx.mockReturnValueOnce({
+        quiet: vi.fn().mockResolvedValue({ stdout: '' }),
+      } as any)
+
       // Mock ncu returning an update
       mockNcu.mockResolvedValueOnce({ 'git-pr-ai': '1.9.6' } as any)
 
@@ -69,13 +74,19 @@ describe('version-checker', () => {
       expect(mockNcu).toHaveBeenCalledWith({
         global: true,
         filter: 'git-pr-ai',
+        packageManager: 'pnpm',
         silent: true,
       })
     })
 
     it('should return up-to-date when no update available', async () => {
+      // Mock detectPackageManager
+      mockZx.mockReturnValueOnce({
+        quiet: vi.fn().mockResolvedValue({ stdout: '' }),
+      } as any)
+
       // Mock ncu returning no updates (empty object)
-      mockNcu.mockResolvedValueOnce({} as any)
+      mockNcu.mockResolvedValueOnce({})
 
       const result = await checkLatestVersion('git-pr-ai')
 
@@ -87,6 +98,11 @@ describe('version-checker', () => {
     })
 
     it('should throw error when ncu fails', async () => {
+      // Mock detectPackageManager
+      mockZx.mockReturnValueOnce({
+        quiet: vi.fn().mockResolvedValue({ stdout: '' }),
+      } as any)
+
       mockNcu.mockRejectedValueOnce(new Error('Network error'))
 
       await expect(checkLatestVersion('git-pr-ai')).rejects.toThrow(
@@ -97,8 +113,13 @@ describe('version-checker', () => {
 
   describe('promptForUpdate', () => {
     it('should prompt for update when update is available', async () => {
+      // Mock detectPackageManager
+      mockZx.mockReturnValueOnce({
+        quiet: vi.fn().mockResolvedValue({ stdout: '' }),
+      } as any)
+
       // Mock ncu returning an update
-      mockNcu.mockResolvedValueOnce({ 'git-pr-ai': '1.9.6' } as any)
+      mockNcu.mockResolvedValueOnce({ 'git-pr-ai': '1.9.6' })
 
       // Mock user confirmation
       mockConfirm.mockResolvedValueOnce(true)
@@ -113,8 +134,13 @@ describe('version-checker', () => {
     })
 
     it('should return false when no update is available', async () => {
+      // Mock detectPackageManager
+      mockZx.mockReturnValueOnce({
+        quiet: vi.fn().mockResolvedValue({ stdout: '' }),
+      } as any)
+
       // Mock ncu returning no updates
-      mockNcu.mockResolvedValueOnce({} as any)
+      mockNcu.mockResolvedValueOnce({})
 
       const result = await promptForUpdate('git-pr-ai')
 
@@ -123,8 +149,13 @@ describe('version-checker', () => {
     })
 
     it('should return false when user declines update', async () => {
+      // Mock detectPackageManager
+      mockZx.mockReturnValueOnce({
+        quiet: vi.fn().mockResolvedValue({ stdout: '' }),
+      } as any)
+
       // Mock ncu returning an update
-      mockNcu.mockResolvedValueOnce({ 'git-pr-ai': '1.9.6' } as any)
+      mockNcu.mockResolvedValueOnce({ 'git-pr-ai': '1.9.6' })
 
       // Mock user declining
       mockConfirm.mockResolvedValueOnce(false)
@@ -136,8 +167,13 @@ describe('version-checker', () => {
   })
 
   describe('upgradePackage', () => {
-    it('should return true when upgrade succeeds', async () => {
-      mockZx.mockResolvedValueOnce({} as any)
+    it('should return true when upgrade succeeds with pnpm', async () => {
+      // Mock detectPackageManager to return pnpm
+      mockZx.mockReturnValueOnce({
+        quiet: vi.fn().mockResolvedValue({ stdout: '' }),
+      } as any)
+      // Mock pnpm add success
+      mockZx.mockResolvedValueOnce({})
 
       const result = await upgradePackage('git-pr-ai')
 
@@ -150,10 +186,15 @@ describe('version-checker', () => {
     })
 
     it('should throw error when upgrade fails', async () => {
-      mockZx.mockRejectedValueOnce(new Error('npm install failed'))
+      // Mock detectPackageManager
+      mockZx.mockReturnValueOnce({
+        quiet: vi.fn().mockResolvedValue({ stdout: '' }),
+      } as any)
+      // Mock upgrade failure
+      mockZx.mockRejectedValueOnce(new Error('pnpm add failed'))
 
       await expect(upgradePackage('git-pr-ai')).rejects.toThrow(
-        'npm install failed',
+        'pnpm add failed',
       )
       expect(mockSpinner.fail).toHaveBeenCalledWith('Failed to upgrade package')
     })
@@ -172,13 +213,22 @@ describe('version-checker', () => {
       // Mock file not exists (shouldCheckVersion returns true)
       mockFs.existsSync.mockReturnValue(false)
 
+      // Mock detectPackageManager (for checkLatestVersion)
+      mockZx.mockReturnValueOnce({
+        quiet: vi.fn().mockResolvedValue({ stdout: '' }),
+      } as any)
       // Mock version check showing update available
-      mockNcu.mockResolvedValueOnce({ 'git-pr-ai': '1.9.6' } as any)
-      // Mock upgrade success
-      mockZx.mockResolvedValueOnce({} as any)
+      mockNcu.mockResolvedValueOnce({ 'git-pr-ai': '1.9.6' })
 
       // Mock user confirming
       mockConfirm.mockResolvedValueOnce(true)
+
+      // Mock detectPackageManager (for upgradePackage)
+      mockZx.mockReturnValueOnce({
+        quiet: vi.fn().mockResolvedValue({ stdout: '' }),
+      } as any)
+      // Mock upgrade success
+      mockZx.mockResolvedValueOnce({})
 
       // Expect process.exit to throw our mocked error
       await expect(checkAndUpgrade()).rejects.toThrow(
@@ -187,8 +237,12 @@ describe('version-checker', () => {
     })
 
     it('should not upgrade when user declines', async () => {
+      // Mock detectPackageManager
+      mockZx.mockReturnValueOnce({
+        quiet: vi.fn().mockResolvedValue({ stdout: '' }),
+      } as any)
       // Mock version check showing update available
-      mockNcu.mockResolvedValueOnce({ 'git-pr-ai': '1.9.6' } as any)
+      mockNcu.mockResolvedValueOnce({ 'git-pr-ai': '1.9.6' })
 
       // Mock user declining
       mockConfirm.mockResolvedValueOnce(false)
@@ -199,8 +253,12 @@ describe('version-checker', () => {
     })
 
     it('should not upgrade when no update is available', async () => {
+      // Mock detectPackageManager
+      mockZx.mockReturnValueOnce({
+        quiet: vi.fn().mockResolvedValue({ stdout: '' }),
+      } as any)
       // Mock version check showing no update
-      mockNcu.mockResolvedValueOnce({} as any)
+      mockNcu.mockResolvedValueOnce({})
 
       await checkAndUpgrade()
 
@@ -232,6 +290,10 @@ describe('version-checker', () => {
       mockFs.existsSync.mockReturnValueOnce(false) // for shouldCheckVersion
       mockFs.existsSync.mockReturnValueOnce(false) // for updateLastCheckTimestamp - dir check
 
+      // Mock detectPackageManager
+      mockZx.mockReturnValueOnce({
+        quiet: vi.fn().mockResolvedValue({ stdout: '' }),
+      } as any)
       // Mock no update available
       mockNcu.mockResolvedValueOnce({})
 
