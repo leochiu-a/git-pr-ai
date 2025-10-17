@@ -35,20 +35,9 @@ export async function checkLatestVersion(
     const latest = upgraded?.[packageName]
     const hasUpdate = !!latest
 
-    // Get current version from global package list
-    let current = 'unknown'
-    try {
-      const listResult =
-        await $`npm list ${packageName} --global --json`.quiet()
-      const listData = JSON.parse(listResult.stdout)
-      current = listData.dependencies?.[packageName]?.version || 'not installed'
-    } catch {
-      current = 'not installed'
-    }
-
     return {
-      current,
-      latest: latest || current,
+      current: hasUpdate ? 'installed' : 'up-to-date',
+      latest: latest || 'up-to-date',
       hasUpdate,
     }
   } catch (error) {
@@ -66,7 +55,7 @@ export async function promptForUpdate(packageName: string): Promise<boolean> {
 
     if (versionInfo.hasUpdate) {
       const shouldUpdate = await confirm({
-        message: `New ${packageName} version available (${versionInfo.current} → ${versionInfo.latest}). Upgrade now?`,
+        message: `New ${packageName} version ${versionInfo.latest} available. Upgrade now?`,
         default: true,
       })
 

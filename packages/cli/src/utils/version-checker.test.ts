@@ -37,11 +37,6 @@ const mockSpinner = {
   fail: vi.fn().mockReturnThis(),
 }
 
-// Helper to create zx mock with .quiet() support
-const createZxMock = (stdout: string) => ({
-  quiet: vi.fn().mockResolvedValue({ stdout }),
-})
-
 describe('version-checker', () => {
   beforeEach(() => {
     // Reset spinner functions
@@ -64,19 +59,10 @@ describe('version-checker', () => {
       // Mock ncu returning an update
       mockNcu.mockResolvedValueOnce({ 'git-pr-ai': '1.9.6' } as any)
 
-      // Mock npm list returning current version
-      mockZx.mockReturnValueOnce(
-        createZxMock(
-          JSON.stringify({
-            dependencies: { 'git-pr-ai': { version: '1.9.5' } },
-          }),
-        ) as any,
-      )
-
       const result = await checkLatestVersion('git-pr-ai')
 
       expect(result).toEqual({
-        current: '1.9.5',
+        current: 'installed',
         latest: '1.9.6',
         hasUpdate: true,
       })
@@ -87,42 +73,15 @@ describe('version-checker', () => {
       })
     })
 
-    it('should return no update when versions are the same', async () => {
+    it('should return up-to-date when no update available', async () => {
       // Mock ncu returning no updates (empty object)
       mockNcu.mockResolvedValueOnce({} as any)
 
-      // Mock npm list returning current version
-      mockZx.mockReturnValueOnce(
-        createZxMock(
-          JSON.stringify({
-            dependencies: { 'git-pr-ai': { version: '1.9.6' } },
-          }),
-        ) as any,
-      )
-
       const result = await checkLatestVersion('git-pr-ai')
 
       expect(result).toEqual({
-        current: '1.9.6',
-        latest: '1.9.6',
-        hasUpdate: false,
-      })
-    })
-
-    it('should return not installed when package is not found', async () => {
-      // Mock ncu returning no updates
-      mockNcu.mockResolvedValueOnce({} as any)
-
-      // Mock npm list failing (package not found)
-      mockZx.mockReturnValueOnce({
-        quiet: vi.fn().mockRejectedValueOnce(new Error('Package not found')),
-      } as any)
-
-      const result = await checkLatestVersion('git-pr-ai')
-
-      expect(result).toEqual({
-        current: 'not installed',
-        latest: 'not installed',
+        current: 'up-to-date',
+        latest: 'up-to-date',
         hasUpdate: false,
       })
     })
@@ -138,15 +97,8 @@ describe('version-checker', () => {
 
   describe('promptForUpdate', () => {
     it('should prompt for update when update is available', async () => {
-      // Mock ncu and npm list
+      // Mock ncu returning an update
       mockNcu.mockResolvedValueOnce({ 'git-pr-ai': '1.9.6' } as any)
-      mockZx.mockReturnValueOnce(
-        createZxMock(
-          JSON.stringify({
-            dependencies: { 'git-pr-ai': { version: '1.9.5' } },
-          }),
-        ) as any,
-      )
 
       // Mock user confirmation
       mockConfirm.mockResolvedValueOnce(true)
@@ -155,8 +107,7 @@ describe('version-checker', () => {
 
       expect(result).toBe(true)
       expect(mockConfirm).toHaveBeenCalledWith({
-        message:
-          'New git-pr-ai version available (1.9.5 → 1.9.6). Upgrade now?',
+        message: 'New git-pr-ai version 1.9.6 available. Upgrade now?',
         default: true,
       })
     })
@@ -164,13 +115,6 @@ describe('version-checker', () => {
     it('should return false when no update is available', async () => {
       // Mock ncu returning no updates
       mockNcu.mockResolvedValueOnce({} as any)
-      mockZx.mockReturnValueOnce(
-        createZxMock(
-          JSON.stringify({
-            dependencies: { 'git-pr-ai': { version: '1.9.6' } },
-          }),
-        ) as any,
-      )
 
       const result = await promptForUpdate('git-pr-ai')
 
@@ -179,15 +123,8 @@ describe('version-checker', () => {
     })
 
     it('should return false when user declines update', async () => {
-      // Mock ncu and npm list
+      // Mock ncu returning an update
       mockNcu.mockResolvedValueOnce({ 'git-pr-ai': '1.9.6' } as any)
-      mockZx.mockReturnValueOnce(
-        createZxMock(
-          JSON.stringify({
-            dependencies: { 'git-pr-ai': { version: '1.9.5' } },
-          }),
-        ) as any,
-      )
 
       // Mock user declining
       mockConfirm.mockResolvedValueOnce(false)
@@ -237,16 +174,8 @@ describe('version-checker', () => {
 
       // Mock version check showing update available
       mockNcu.mockResolvedValueOnce({ 'git-pr-ai': '1.9.6' } as any)
-      mockZx
-        .mockReturnValueOnce(
-          createZxMock(
-            JSON.stringify({
-              dependencies: { 'git-pr-ai': { version: '1.9.5' } },
-            }),
-          ) as any,
-        )
-        // Mock upgrade success
-        .mockResolvedValueOnce({} as any)
+      // Mock upgrade success
+      mockZx.mockResolvedValueOnce({} as any)
 
       // Mock user confirming
       mockConfirm.mockResolvedValueOnce(true)
@@ -260,13 +189,6 @@ describe('version-checker', () => {
     it('should not upgrade when user declines', async () => {
       // Mock version check showing update available
       mockNcu.mockResolvedValueOnce({ 'git-pr-ai': '1.9.6' } as any)
-      mockZx.mockReturnValueOnce(
-        createZxMock(
-          JSON.stringify({
-            dependencies: { 'git-pr-ai': { version: '1.9.5' } },
-          }),
-        ) as any,
-      )
 
       // Mock user declining
       mockConfirm.mockResolvedValueOnce(false)
@@ -279,13 +201,6 @@ describe('version-checker', () => {
     it('should not upgrade when no update is available', async () => {
       // Mock version check showing no update
       mockNcu.mockResolvedValueOnce({} as any)
-      mockZx.mockReturnValueOnce(
-        createZxMock(
-          JSON.stringify({
-            dependencies: { 'git-pr-ai': { version: '1.9.6' } },
-          }),
-        ) as any,
-      )
 
       await checkAndUpgrade()
 
@@ -318,14 +233,7 @@ describe('version-checker', () => {
       mockFs.existsSync.mockReturnValueOnce(false) // for updateLastCheckTimestamp - dir check
 
       // Mock no update available
-      mockNcu.mockResolvedValueOnce({} as any)
-      mockZx.mockReturnValueOnce(
-        createZxMock(
-          JSON.stringify({
-            dependencies: { 'git-pr-ai': { version: '1.9.6' } },
-          }),
-        ) as any,
-      )
+      mockNcu.mockResolvedValueOnce({})
 
       await checkAndUpgrade()
 
