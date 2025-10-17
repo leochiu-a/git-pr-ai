@@ -2,7 +2,7 @@
 
 Get AI-powered code review for a Pull Request.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/MoPQf7M3tw4?si=GDDl3blbKgHGYVJk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/IXcranrf9Dw?si=dCgle0ta9JQOseZ-" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ## Usage
 
