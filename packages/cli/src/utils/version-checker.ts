@@ -38,7 +38,7 @@ async function detectPackageManager(
  */
 export async function checkLatestVersion(
   packageName: string,
-): Promise<VersionCheckResult> {
+): Promise<VersionCheckResult & { packageManager: 'pnpm' | 'npm' }> {
   try {
     // Detect which package manager was used to install the package
     const packageManager = await detectPackageManager(packageName)
@@ -60,6 +60,7 @@ export async function checkLatestVersion(
       current: hasUpdate ? 'installed' : 'up-to-date',
       latest: latest || 'up-to-date',
       hasUpdate,
+      packageManager,
     }
   } catch (error) {
     console.error('Failed to check latest version: ', error)
@@ -70,7 +71,9 @@ export async function checkLatestVersion(
 /**
  * Check version and prompt for upgrade
  */
-export async function promptForUpdate(packageName: string): Promise<boolean> {
+export async function promptForUpdate(
+  packageName: string,
+): Promise<{ shouldUpdate: boolean; packageManager: 'pnpm' | 'npm' }> {
   try {
     const versionInfo = await checkLatestVersion(packageName)
 
@@ -80,9 +83,9 @@ export async function promptForUpdate(packageName: string): Promise<boolean> {
         default: true,
       })
 
-      return shouldUpdate
+      return { shouldUpdate, packageManager: versionInfo.packageManager }
     } else {
-      return false
+      return { shouldUpdate: false, packageManager: versionInfo.packageManager }
     }
   } catch (error) {
     console.error('Failed to prompt for update: ', error)
@@ -93,9 +96,10 @@ export async function promptForUpdate(packageName: string): Promise<boolean> {
 /**
  * Execute package upgrade using the detected package manager
  */
-export async function upgradePackage(packageName: string): Promise<boolean> {
-  const packageManager = await detectPackageManager(packageName)
-
+export async function upgradePackage(
+  packageName: string,
+  packageManager: 'pnpm' | 'npm',
+): Promise<boolean> {
   const spinner = ora(`Installing ${packageName}@latest...`).start()
 
   try {
@@ -169,12 +173,12 @@ export async function checkAndUpgrade(
     return
   }
 
-  const shouldUpdate = await promptForUpdate(packageName)
+  const { shouldUpdate, packageManager } = await promptForUpdate(packageName)
 
   updateLastCheckTimestamp()
 
   if (shouldUpdate) {
-    const success = await upgradePackage(packageName)
+    const success = await upgradePackage(packageName, packageManager)
     if (success) {
       process.exit(0)
     }

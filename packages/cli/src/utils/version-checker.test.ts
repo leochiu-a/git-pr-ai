@@ -70,6 +70,7 @@ describe('version-checker', () => {
         current: 'installed',
         latest: '1.9.6',
         hasUpdate: true,
+        packageManager: 'pnpm',
       })
       expect(mockNcu).toHaveBeenCalledWith({
         global: true,
@@ -94,6 +95,7 @@ describe('version-checker', () => {
         current: 'up-to-date',
         latest: 'up-to-date',
         hasUpdate: false,
+        packageManager: 'pnpm',
       })
     })
 
@@ -126,7 +128,7 @@ describe('version-checker', () => {
 
       const result = await promptForUpdate('git-pr-ai')
 
-      expect(result).toBe(true)
+      expect(result).toEqual({ shouldUpdate: true, packageManager: 'pnpm' })
       expect(mockConfirm).toHaveBeenCalledWith({
         message: 'New git-pr-ai version 1.9.6 available. Upgrade now?',
         default: true,
@@ -144,7 +146,7 @@ describe('version-checker', () => {
 
       const result = await promptForUpdate('git-pr-ai')
 
-      expect(result).toBe(false)
+      expect(result).toEqual({ shouldUpdate: false, packageManager: 'pnpm' })
       expect(mockConfirm).not.toHaveBeenCalled()
     })
 
@@ -162,20 +164,16 @@ describe('version-checker', () => {
 
       const result = await promptForUpdate('git-pr-ai')
 
-      expect(result).toBe(false)
+      expect(result).toEqual({ shouldUpdate: false, packageManager: 'pnpm' })
     })
   })
 
   describe('upgradePackage', () => {
     it('should return true when upgrade succeeds with pnpm', async () => {
-      // Mock detectPackageManager to return pnpm
-      mockZx.mockReturnValueOnce({
-        quiet: vi.fn().mockResolvedValue({ stdout: '' }),
-      } as any)
       // Mock pnpm add success
       mockZx.mockResolvedValueOnce({})
 
-      const result = await upgradePackage('git-pr-ai')
+      const result = await upgradePackage('git-pr-ai', 'pnpm')
 
       expect(result).toBe(true)
       expect(mockOra).toHaveBeenCalledWith('Installing git-pr-ai@latest...')
@@ -186,14 +184,10 @@ describe('version-checker', () => {
     })
 
     it('should throw error when upgrade fails', async () => {
-      // Mock detectPackageManager
-      mockZx.mockReturnValueOnce({
-        quiet: vi.fn().mockResolvedValue({ stdout: '' }),
-      } as any)
       // Mock upgrade failure
       mockZx.mockRejectedValueOnce(new Error('pnpm add failed'))
 
-      await expect(upgradePackage('git-pr-ai')).rejects.toThrow(
+      await expect(upgradePackage('git-pr-ai', 'pnpm')).rejects.toThrow(
         'pnpm add failed',
       )
       expect(mockSpinner.fail).toHaveBeenCalledWith('Failed to upgrade package')
@@ -223,11 +217,7 @@ describe('version-checker', () => {
       // Mock user confirming
       mockConfirm.mockResolvedValueOnce(true)
 
-      // Mock detectPackageManager (for upgradePackage)
-      mockZx.mockReturnValueOnce({
-        quiet: vi.fn().mockResolvedValue({ stdout: '' }),
-      } as any)
-      // Mock upgrade success
+      // Mock upgrade success (no need to mock detectPackageManager again)
       mockZx.mockResolvedValueOnce({})
 
       // Expect process.exit to throw our mocked error
