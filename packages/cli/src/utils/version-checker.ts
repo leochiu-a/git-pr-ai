@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import fs from 'node:fs'
 import path from 'node:path'
 import ora from 'ora'
-import latestVersion from 'latest-version'
+import { run as ncu } from 'npm-check-updates'
 import { $ } from 'zx'
 import { getConfigDir } from '../config'
 
@@ -18,46 +18,37 @@ interface LastCheckData {
 }
 
 /**
- * Check current package's latest version
+ * Check current package's latest version using npm-check-updates
  */
 export async function checkLatestVersion(
   packageName: string,
 ): Promise<VersionCheckResult> {
   try {
-    // Get latest version from npm registry using latest-version package
-    const latest = await latestVersion(packageName)
+    // Use npm-check-updates to check for global package updates
+    // Returns { "package-name": "1.9.10" } if update available, {} if not
+    const upgraded = (await ncu({
+      global: true,
+      filter: packageName,
+      silent: true,
+    })) as Record<string, string> | undefined
 
-    // Get current version by finding the actual executable and reading its package.json
-    // This avoids issues with monorepo and local workspaces
+    const latest = upgraded?.[packageName]
+    const hasUpdate = !!latest
+
+    // Get current version from global package list
     let current = 'unknown'
     try {
-      // Try to find the package in pnpm global directory first
-      try {
-        const pnpmRootResult = await $`pnpm root -g`.quiet()
-        const pnpmRoot = pnpmRootResult.stdout.trim()
-        const pnpmPackageJsonPath = `${pnpmRoot}/${packageName}/package.json`
-        const packageJsonContent = fs.readFileSync(pnpmPackageJsonPath, 'utf-8')
-        const packageJson = JSON.parse(packageJsonContent)
-        current = packageJson.version || 'unknown'
-      } catch {
-        // Fall back to npm global directory
-        const prefixResult = await $`npm config get prefix`.quiet()
-        const npmPrefix = prefixResult.stdout.trim()
-        const npmPackageJsonPath = `${npmPrefix}/lib/node_modules/${packageName}/package.json`
-        const packageJsonContent = fs.readFileSync(npmPackageJsonPath, 'utf-8')
-        const packageJson = JSON.parse(packageJsonContent)
-        current = packageJson.version || 'unknown'
-      }
+      const listResult =
+        await $`npm list ${packageName} --global --json`.quiet()
+      const listData = JSON.parse(listResult.stdout)
+      current = listData.dependencies?.[packageName]?.version || 'not installed'
     } catch {
-      // If we can't find the global package, it might not be installed
-      current = 'unknown'
+      current = 'not installed'
     }
 
-    const hasUpdate = current !== latest && current !== 'unknown'
-
     return {
-      current: current === 'unknown' ? 'not installed' : current,
-      latest,
+      current,
+      latest: latest || current,
       hasUpdate,
     }
   } catch (error) {

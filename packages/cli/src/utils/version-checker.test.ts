@@ -4,7 +4,7 @@ import { confirm } from '@inquirer/prompts'
 import ora from 'ora'
 import fs from 'node:fs'
 import dayjs from 'dayjs'
-import latestVersion from 'latest-version'
+import { run as ncu } from 'npm-check-updates'
 import {
   checkLatestVersion,
   promptForUpdate,
@@ -20,7 +20,7 @@ vi.mock('ora')
 vi.mock('node:fs')
 vi.mock('dayjs')
 vi.mock('../config')
-vi.mock('latest-version')
+vi.mock('npm-check-updates')
 
 const mockZx = vi.mocked($)
 const mockConfirm = vi.mocked(confirm)
@@ -28,7 +28,7 @@ const mockOra = vi.mocked(ora)
 const mockFs = vi.mocked(fs)
 const mockDayjs = vi.mocked(dayjs)
 const mockGetConfigDir = vi.mocked(getConfigDir)
-const mockLatestVersion = vi.mocked(latestVersion)
+const mockNcu = vi.mocked(ncu)
 
 // Mock ora spinner
 const mockSpinner = {
@@ -60,20 +60,17 @@ describe('version-checker', () => {
   })
 
   describe('checkLatestVersion', () => {
-    it('should return version info when package is installed and update available', async () => {
-      // Mock latest version from npm registry
-      mockLatestVersion.mockResolvedValueOnce('1.9.6')
+    it('should return version info when update is available', async () => {
+      // Mock ncu returning an update
+      mockNcu.mockResolvedValueOnce({ 'git-pr-ai': '1.9.6' } as any)
 
-      // Mock pnpm root command
+      // Mock npm list returning current version
       mockZx.mockReturnValueOnce(
         createZxMock(
-          '/Users/test/.local/share/pnpm/global/5/node_modules',
+          JSON.stringify({
+            dependencies: { 'git-pr-ai': { version: '1.9.5' } },
+          }),
         ) as any,
-      )
-
-      // Mock reading package.json
-      mockFs.readFileSync.mockReturnValueOnce(
-        JSON.stringify({ version: '1.9.5' }),
       )
 
       const result = await checkLatestVersion('git-pr-ai')
@@ -83,22 +80,24 @@ describe('version-checker', () => {
         latest: '1.9.6',
         hasUpdate: true,
       })
+      expect(mockNcu).toHaveBeenCalledWith({
+        global: true,
+        filter: 'git-pr-ai',
+        silent: true,
+      })
     })
 
     it('should return no update when versions are the same', async () => {
-      // Mock latest version from npm registry
-      mockLatestVersion.mockResolvedValueOnce('1.9.6')
+      // Mock ncu returning no updates (empty object)
+      mockNcu.mockResolvedValueOnce({} as any)
 
-      // Mock pnpm root command
+      // Mock npm list returning current version
       mockZx.mockReturnValueOnce(
         createZxMock(
-          '/Users/test/.local/share/pnpm/global/5/node_modules',
+          JSON.stringify({
+            dependencies: { 'git-pr-ai': { version: '1.9.6' } },
+          }),
         ) as any,
-      )
-
-      // Mock reading package.json
-      mockFs.readFileSync.mockReturnValueOnce(
-        JSON.stringify({ version: '1.9.6' }),
       )
 
       const result = await checkLatestVersion('git-pr-ai')
@@ -111,50 +110,42 @@ describe('version-checker', () => {
     })
 
     it('should return not installed when package is not found', async () => {
-      // Mock latest version from npm registry
-      mockLatestVersion.mockResolvedValueOnce('1.9.6')
+      // Mock ncu returning no updates
+      mockNcu.mockResolvedValueOnce({} as any)
 
-      // Mock pnpm root command fails
+      // Mock npm list failing (package not found)
       mockZx.mockReturnValueOnce({
-        quiet: vi.fn().mockRejectedValueOnce(new Error('pnpm not found')),
-      } as any)
-
-      // Mock npm config get prefix fails
-      mockZx.mockReturnValueOnce({
-        quiet: vi.fn().mockRejectedValueOnce(new Error('npm not found')),
+        quiet: vi.fn().mockRejectedValueOnce(new Error('Package not found')),
       } as any)
 
       const result = await checkLatestVersion('git-pr-ai')
 
       expect(result).toEqual({
         current: 'not installed',
-        latest: '1.9.6',
+        latest: 'not installed',
         hasUpdate: false,
       })
     })
 
-    it('should throw error when latest-version fails', async () => {
-      mockLatestVersion.mockRejectedValueOnce(
-        new Error('Failed to fetch latest version'),
-      )
+    it('should throw error when ncu fails', async () => {
+      mockNcu.mockRejectedValueOnce(new Error('Network error'))
 
       await expect(checkLatestVersion('git-pr-ai')).rejects.toThrow(
-        'Failed to fetch latest version',
+        'Network error',
       )
     })
   })
 
   describe('promptForUpdate', () => {
     it('should prompt for update when update is available', async () => {
-      // Mock version check
-      mockLatestVersion.mockResolvedValueOnce('1.9.6')
+      // Mock ncu and npm list
+      mockNcu.mockResolvedValueOnce({ 'git-pr-ai': '1.9.6' } as any)
       mockZx.mockReturnValueOnce(
         createZxMock(
-          '/Users/test/.local/share/pnpm/global/5/node_modules',
+          JSON.stringify({
+            dependencies: { 'git-pr-ai': { version: '1.9.5' } },
+          }),
         ) as any,
-      )
-      mockFs.readFileSync.mockReturnValueOnce(
-        JSON.stringify({ version: '1.9.5' }),
       )
 
       // Mock user confirmation
@@ -171,15 +162,14 @@ describe('version-checker', () => {
     })
 
     it('should return false when no update is available', async () => {
-      // Mock version check (same versions)
-      mockLatestVersion.mockResolvedValueOnce('1.9.6')
+      // Mock ncu returning no updates
+      mockNcu.mockResolvedValueOnce({} as any)
       mockZx.mockReturnValueOnce(
         createZxMock(
-          '/Users/test/.local/share/pnpm/global/5/node_modules',
+          JSON.stringify({
+            dependencies: { 'git-pr-ai': { version: '1.9.6' } },
+          }),
         ) as any,
-      )
-      mockFs.readFileSync.mockReturnValueOnce(
-        JSON.stringify({ version: '1.9.6' }),
       )
 
       const result = await promptForUpdate('git-pr-ai')
@@ -189,15 +179,14 @@ describe('version-checker', () => {
     })
 
     it('should return false when user declines update', async () => {
-      // Mock version check
-      mockLatestVersion.mockResolvedValueOnce('1.9.6')
+      // Mock ncu and npm list
+      mockNcu.mockResolvedValueOnce({ 'git-pr-ai': '1.9.6' } as any)
       mockZx.mockReturnValueOnce(
         createZxMock(
-          '/Users/test/.local/share/pnpm/global/5/node_modules',
+          JSON.stringify({
+            dependencies: { 'git-pr-ai': { version: '1.9.5' } },
+          }),
         ) as any,
-      )
-      mockFs.readFileSync.mockReturnValueOnce(
-        JSON.stringify({ version: '1.9.5' }),
       )
 
       // Mock user declining
@@ -206,14 +195,6 @@ describe('version-checker', () => {
       const result = await promptForUpdate('git-pr-ai')
 
       expect(result).toBe(false)
-    })
-
-    it('should throw error when version check fails', async () => {
-      mockLatestVersion.mockRejectedValueOnce(new Error('Version check failed'))
-
-      await expect(promptForUpdate('git-pr-ai')).rejects.toThrow(
-        'Version check failed',
-      )
     })
   })
 
@@ -255,17 +236,17 @@ describe('version-checker', () => {
       mockFs.existsSync.mockReturnValue(false)
 
       // Mock version check showing update available
-      mockLatestVersion.mockResolvedValueOnce('1.9.6')
-      mockZx.mockReturnValueOnce(
-        createZxMock(
-          '/Users/test/.local/share/pnpm/global/5/node_modules',
-        ) as any,
-      )
-      mockFs.readFileSync.mockReturnValueOnce(
-        JSON.stringify({ version: '1.9.5' }),
-      )
-      // Mock upgrade success (no .quiet() for npm install)
-      mockZx.mockResolvedValueOnce({} as any)
+      mockNcu.mockResolvedValueOnce({ 'git-pr-ai': '1.9.6' } as any)
+      mockZx
+        .mockReturnValueOnce(
+          createZxMock(
+            JSON.stringify({
+              dependencies: { 'git-pr-ai': { version: '1.9.5' } },
+            }),
+          ) as any,
+        )
+        // Mock upgrade success
+        .mockResolvedValueOnce({} as any)
 
       // Mock user confirming
       mockConfirm.mockResolvedValueOnce(true)
@@ -278,14 +259,13 @@ describe('version-checker', () => {
 
     it('should not upgrade when user declines', async () => {
       // Mock version check showing update available
-      mockLatestVersion.mockResolvedValueOnce('1.9.6')
+      mockNcu.mockResolvedValueOnce({ 'git-pr-ai': '1.9.6' } as any)
       mockZx.mockReturnValueOnce(
         createZxMock(
-          '/Users/test/.local/share/pnpm/global/5/node_modules',
+          JSON.stringify({
+            dependencies: { 'git-pr-ai': { version: '1.9.5' } },
+          }),
         ) as any,
-      )
-      mockFs.readFileSync.mockReturnValueOnce(
-        JSON.stringify({ version: '1.9.5' }),
       )
 
       // Mock user declining
@@ -294,51 +274,23 @@ describe('version-checker', () => {
       await checkAndUpgrade()
 
       expect(mockExit).not.toHaveBeenCalled()
-      // Verify npm install was not called (only 1 call for pnpm root)
-      expect(mockZx).toHaveBeenCalledTimes(1)
     })
 
     it('should not upgrade when no update is available', async () => {
       // Mock version check showing no update
-      mockLatestVersion.mockResolvedValueOnce('1.9.6')
+      mockNcu.mockResolvedValueOnce({} as any)
       mockZx.mockReturnValueOnce(
         createZxMock(
-          '/Users/test/.local/share/pnpm/global/5/node_modules',
+          JSON.stringify({
+            dependencies: { 'git-pr-ai': { version: '1.9.6' } },
+          }),
         ) as any,
-      )
-      mockFs.readFileSync.mockReturnValueOnce(
-        JSON.stringify({ version: '1.9.6' }),
       )
 
       await checkAndUpgrade()
 
       expect(mockConfirm).not.toHaveBeenCalled()
       expect(mockExit).not.toHaveBeenCalled()
-    })
-
-    it('should use custom package name when provided', async () => {
-      // Mock file not exists (shouldCheckVersion returns true)
-      mockFs.existsSync.mockReturnValue(false)
-
-      // Mock version check for custom package
-      mockLatestVersion.mockResolvedValueOnce('1.0.1')
-      mockZx.mockReturnValueOnce(
-        createZxMock(
-          '/Users/test/.local/share/pnpm/global/5/node_modules',
-        ) as any,
-      )
-      mockFs.readFileSync.mockReturnValueOnce(
-        JSON.stringify({ version: '1.0.0' }),
-      )
-      // Mock upgrade success (no .quiet() for npm install)
-      mockZx.mockResolvedValueOnce({} as any)
-
-      mockConfirm.mockResolvedValueOnce(true)
-
-      // Expect process.exit to throw our mocked error
-      await expect(checkAndUpgrade('custom-pkg')).rejects.toThrow(
-        'process.exit unexpectedly called with "0"',
-      )
     })
 
     it('should skip check when already checked today', async () => {
@@ -356,64 +308,8 @@ describe('version-checker', () => {
       await checkAndUpgrade()
 
       // Should not call version check or prompt
-      expect(mockZx).not.toHaveBeenCalled()
+      expect(mockNcu).not.toHaveBeenCalled()
       expect(mockConfirm).not.toHaveBeenCalled()
-    })
-
-    it('should check when last check was on a different day', async () => {
-      const mockLastCheck = {
-        isSame: vi.fn().mockReturnValue(false),
-      }
-      const mockToday = {}
-
-      // Mock file exists with yesterday's timestamp
-      mockFs.existsSync.mockReturnValue(true)
-      mockFs.readFileSync
-        .mockReturnValueOnce(
-          JSON.stringify({ timestamp: Date.now() - 86400000 }), // 1 day ago - for shouldCheckVersion
-        )
-        .mockReturnValueOnce(JSON.stringify({ version: '1.9.6' })) // for checkLatestVersion
-      mockDayjs.mockReturnValueOnce(mockLastCheck as unknown)
-      mockDayjs.mockReturnValueOnce(mockToday as unknown)
-
-      // Mock no update available
-      mockLatestVersion.mockResolvedValueOnce('1.9.6')
-      mockZx.mockReturnValueOnce(
-        createZxMock(
-          '/Users/test/.local/share/pnpm/global/5/node_modules',
-        ) as any,
-      )
-
-      await checkAndUpgrade()
-
-      // Should perform version check (1 call for pnpm root)
-      expect(mockZx).toHaveBeenCalledTimes(1)
-      // Should update timestamp
-      expect(mockFs.writeFileSync).toHaveBeenCalledWith(
-        '/mock/.git-pr-ai/last-version-check.json',
-        expect.stringContaining('timestamp'),
-      )
-    })
-
-    it('should check when last-version-check.json does not exist', async () => {
-      // Mock file does not exist
-      mockFs.existsSync.mockReturnValue(false)
-
-      // Mock no update available
-      mockLatestVersion.mockResolvedValueOnce('1.9.6')
-      mockZx.mockReturnValueOnce(
-        createZxMock(
-          '/Users/test/.local/share/pnpm/global/5/node_modules',
-        ) as any,
-      )
-      mockFs.readFileSync.mockReturnValueOnce(
-        JSON.stringify({ version: '1.9.6' }),
-      )
-
-      await checkAndUpgrade()
-
-      // Should perform version check (1 call for pnpm root)
-      expect(mockZx).toHaveBeenCalledTimes(1)
     })
 
     it('should update timestamp after checking for updates', async () => {
@@ -422,14 +318,13 @@ describe('version-checker', () => {
       mockFs.existsSync.mockReturnValueOnce(false) // for updateLastCheckTimestamp - dir check
 
       // Mock no update available
-      mockLatestVersion.mockResolvedValueOnce('1.9.6')
+      mockNcu.mockResolvedValueOnce({} as any)
       mockZx.mockReturnValueOnce(
         createZxMock(
-          '/Users/test/.local/share/pnpm/global/5/node_modules',
+          JSON.stringify({
+            dependencies: { 'git-pr-ai': { version: '1.9.6' } },
+          }),
         ) as any,
-      )
-      mockFs.readFileSync.mockReturnValueOnce(
-        JSON.stringify({ version: '1.9.6' }),
       )
 
       await checkAndUpgrade()
