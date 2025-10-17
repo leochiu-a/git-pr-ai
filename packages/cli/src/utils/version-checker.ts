@@ -3,6 +3,7 @@ import dayjs from 'dayjs'
 import fs from 'node:fs'
 import path from 'node:path'
 import ora from 'ora'
+import latestVersion from 'latest-version'
 import { $ } from 'zx'
 import { getConfigDir } from '../config'
 
@@ -23,16 +24,34 @@ export async function checkLatestVersion(
   packageName: string,
 ): Promise<VersionCheckResult> {
   try {
-    // Get current version
-    const currentVersionResult =
-      await $`npm list ${packageName} --global --depth=0 --json`.quiet()
-    const currentData = JSON.parse(currentVersionResult.stdout)
-    const current =
-      currentData.dependencies?.[packageName]?.version || 'unknown'
+    // Get latest version from npm registry using latest-version package
+    const latest = await latestVersion(packageName)
 
-    // Get latest version
-    const latestVersionResult = await $`npm view ${packageName} version`.quiet()
-    const latest = latestVersionResult.stdout.trim()
+    // Get current version by finding the actual executable and reading its package.json
+    // This avoids issues with monorepo and local workspaces
+    let current = 'unknown'
+    try {
+      // Try to find the package in pnpm global directory first
+      try {
+        const pnpmRootResult = await $`pnpm root -g`.quiet()
+        const pnpmRoot = pnpmRootResult.stdout.trim()
+        const pnpmPackageJsonPath = `${pnpmRoot}/${packageName}/package.json`
+        const packageJsonContent = fs.readFileSync(pnpmPackageJsonPath, 'utf-8')
+        const packageJson = JSON.parse(packageJsonContent)
+        current = packageJson.version || 'unknown'
+      } catch {
+        // Fall back to npm global directory
+        const prefixResult = await $`npm config get prefix`.quiet()
+        const npmPrefix = prefixResult.stdout.trim()
+        const npmPackageJsonPath = `${npmPrefix}/lib/node_modules/${packageName}/package.json`
+        const packageJsonContent = fs.readFileSync(npmPackageJsonPath, 'utf-8')
+        const packageJson = JSON.parse(packageJsonContent)
+        current = packageJson.version || 'unknown'
+      }
+    } catch {
+      // If we can't find the global package, it might not be installed
+      current = 'unknown'
+    }
 
     const hasUpdate = current !== latest && current !== 'unknown'
 
