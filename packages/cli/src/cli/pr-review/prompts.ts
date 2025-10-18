@@ -124,9 +124,12 @@ HEAD_SHA=$(echo "$MR_JSON" | jq -r '.diff_refs.head_sha')
 START_SHA=$(echo "$MR_JSON" | jq -r '.diff_refs.start_sha')
 \`\`\`
 
-**Step B - Add overall review note (optional):**
-\`\`\`bash
-glab mr note ${prDetails.number} --message "Overall review summary\\n\\nKey points:\\n- Point 1\\n- Point 2"
+**Step B - Create review.json for overall review note:**
+
+\`\`\`json
+{
+  "body": "Overall review summary\\n\\nKey points:\\n- Point 1\\n- Point 2"
+}
 \`\`\`
 
 **Step C - Create discussion.json for each code comment:**
@@ -145,11 +148,16 @@ glab mr note ${prDetails.number} --message "Overall review summary\\n\\nKey poin
 }
 \`\`\`
 
-**Step D - Submit each comment:**
+**Step C - Submit:**
 \`\`\`bash
+# Submit overall review (if created)
 glab api --method POST \\
-  -H "Content-Type: application/json" \\
-  /projects/$PROJECT_ID/merge_requests/${prDetails.number}/discussions \\
+  /projects/$PROJECT_ID/merge_requests/$MR_IID/notes \\
+  --input review.json
+
+# Submit inline comments (repeat for each comment)
+glab api --method POST \\
+  /projects/$PROJECT_ID/merge_requests/$MR_IID/discussions \\
   --input discussion.json
 \`\`\`
 
