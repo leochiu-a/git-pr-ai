@@ -1,6 +1,6 @@
 {
   "name": "git-pr-ai",
-  "version": "1.9.11",
+  "version": "1.9.12",
   "description": "A tool to automatically extract JIRA ticket numbers from branch names and create GitHub/GitLab PRs",
   "type": "module",
   "bin": {

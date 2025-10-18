@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.9.12
+
+### Patch Changes
+
+- 236e67d: fix: post note format in gitlab
+
 ## 1.9.11
 
 ### Patch Changes
