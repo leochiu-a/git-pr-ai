@@ -16,6 +16,7 @@ import {
   createDiffBranchPrompt,
 } from './prompts'
 import { checkAndUpgrade } from '../../utils/version-checker'
+import { extractBranchName } from './ai-output-parser'
 
 async function createBranch(branchName: string, baseBranch: string) {
   console.log(`Creating branch: ${branchName}`)
@@ -85,29 +86,29 @@ async function generateBranchNameWithAI(
     // Execute AI command and get output
     const aiOutput = await executeAIWithOutput(prompt)
 
-    // Parse AI output
-    const branchMatch = aiOutput.match(/BRANCH_NAME:\s*(.+)/i)
+    // Parse and sanitize AI output
+    const parseResult = extractBranchName(aiOutput)
 
-    if (branchMatch) {
-      const aiBranchName = branchMatch[1].trim()
-      spinner.succeed('Branch name generated successfully!')
-
-      // Confirm the AI suggestion
-      const confirmAI = await confirm({
-        message: `Use AI suggestion: ${aiBranchName}?`,
-        default: true,
-      })
-
-      if (confirmAI) {
-        return aiBranchName
-      } else {
-        console.log('Branch creation cancelled')
-        process.exit(0)
-      }
-    } else {
-      spinner.fail('Could not parse AI output')
+    if (!parseResult.success || !parseResult.branchName) {
+      spinner.fail(parseResult.error || 'Could not parse AI output')
       console.error('AI output:', aiOutput)
       process.exit(1)
+    }
+
+    const aiBranchName = parseResult.branchName
+    spinner.succeed('Branch name generated successfully!')
+
+    // Confirm the AI suggestion
+    const confirmAI = await confirm({
+      message: `Use AI suggestion: ${aiBranchName}?`,
+      default: true,
+    })
+
+    if (confirmAI) {
+      return aiBranchName
+    } else {
+      console.log('Branch creation cancelled')
+      process.exit(0)
     }
   } catch (error) {
     spinner.fail(`AI generation failed: ${error}`)
