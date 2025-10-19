@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.9.13
+
+### Patch Changes
+
+- 2f67077: fix: ai output format
+
 ## 1.9.12
 
 ### Patch Changes
