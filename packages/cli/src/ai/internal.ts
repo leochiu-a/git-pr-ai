@@ -91,13 +91,13 @@ async function runAICommandWithOutput(
         input: prompt,
       })`claude --dangerously-skip-permissions`.quiet()
     } else {
-      result = await $({ input: prompt })`gemini --yolo -p`.quiet()
+      result = await $({ input: prompt })`gemini --yolo`.quiet()
     }
   } else {
     if (agent === 'claude') {
       result = await $({ input: prompt })`claude`.quiet()
     } else {
-      result = await $({ input: prompt })`gemini -p`.quiet()
+      result = await $({ input: prompt })`gemini`.quiet()
     }
   }
 
