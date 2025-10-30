@@ -1,5 +1,13 @@
 # git-pr-ai
 
+## 1.9.14
+
+### Patch Changes
+
+- 9c937b6: fix: resolve Gemini CLI prompt argument error in create-branch command
+
+  Fixed "Not enough arguments following: p" error when using Gemini agent with create-branch command. The issue was caused by using `gemini -p` flag without providing the required argument value. Changed to use stdin input directly, which is natively supported by Gemini CLI and consistent with Claude CLI usage.
+
 ## 1.9.13
 
 ### Patch Changes
