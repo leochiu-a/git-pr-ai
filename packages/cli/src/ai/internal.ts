@@ -2,7 +2,7 @@ import { $ } from 'zx'
 import { loadConfig } from '../config'
 import { getLanguage } from '../git-helpers'
 import { createLanguagePrompt } from '../language-prompts'
-import { SUPPORTED_AGENTS, type AIAgent } from '../constants/agents'
+import { type AIAgent } from '../constants/agents'
 
 export async function executeAIInternal(
   prompt: string,
@@ -35,10 +35,6 @@ export async function executeAIInternal(
     ? createLanguagePrompt(prompt, language)
     : prompt
 
-  if (!SUPPORTED_AGENTS.includes(config.agent as AIAgent)) {
-    throw new Error(`Unsupported AI agent: ${config.agent}`)
-  }
-
   switch (config.agent) {
     case 'claude':
       await checkClaudeCLI()
@@ -49,6 +45,8 @@ export async function executeAIInternal(
     case 'cursor-agent':
       await checkCursorAgentCLI()
       break
+    default:
+      throw new Error(`Unsupported AI agent: ${config.agent}`)
   }
 
   if (outputType === 'inherit') {
