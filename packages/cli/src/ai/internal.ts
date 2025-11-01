@@ -161,12 +161,4 @@ async function checkCursorAgentCLI(): Promise<void> {
     console.error('Please install Cursor Agent: https://docs.cursor.com/agent')
     process.exit(1)
   }
-
-  try {
-    await $`cursor-agent status`.quiet()
-  } catch {
-    console.error('❌ Please authenticate with Cursor Agent first')
-    console.error('Run: cursor-agent login')
-    process.exit(1)
-  }
 }
