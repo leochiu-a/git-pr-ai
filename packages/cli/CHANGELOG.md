@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.10.0
+
+### Minor Changes
+
+- e20bf5d: feat: add cursor agent support
+
 ## 1.9.14
 
 ### Patch Changes
