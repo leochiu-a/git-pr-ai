@@ -115,7 +115,11 @@ async function runAICommandWithOutput(
     }
   }
 
-  return result?.stdout.trim() || ''
+  if (!result) {
+    throw new Error(`AI command failed: no result returned for agent ${agent}`)
+  }
+
+  return result.stdout.trim()
 }
 
 function extractJsonFromOutput(output: string): string {
