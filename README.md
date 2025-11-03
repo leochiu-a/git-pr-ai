@@ -13,7 +13,7 @@ A CLI tool that empowers developers to create GitHub Pull Requests faster and mo
 
 ## ✨ Key Features
 
-- **🤖 AI-Powered Intelligence**: Harness Claude Code or Gemini AI to transform mundane git tasks into intelligent, context-aware workflows that understand your code and intentions.
+- **🤖 AI-Powered Intelligence**: Harness Claude Code, Gemini AI, or Cursor Agent to transform mundane git tasks into intelligent, context-aware workflows that understand your code and intentions.
 - **🎫 Smart JIRA Integration**: Seamlessly bridge your project management and development workflow with automated branch creation and context extraction from tickets.
 - **⚙️ Workflow Revolution**: Replace dozens of repetitive clicks and commands with intuitive, single-command workflows that just work.
 - **🚀 Zero-Friction Setup**: From installation to first PR in under 5 minutes - because your time is better spent coding, not configuring tools.
@@ -31,14 +31,17 @@ Before you begin, please ensure you have completed the following setup:
 - **Platform CLI**: Install and authenticate either GitHub CLI (`gh`) or GitLab CLI (`glab`).
   - GitHub: [Install GitHub CLI](https://cli.github.com/) and run `gh auth login`
   - GitLab: [Install GitLab CLI](https://gitlab.com/gitlab-org/cli) and run `glab auth login`
-- **AI Provider**: Depending on your preference, set up access for either [Claude Code](https://console.anthropic.com/dashboard) or [Gemini CLI](https://ai.google.dev/tutorials/gemini_cli_quickstart).
+- **AI Provider**: Depending on your preference, set up access for one of the following AI providers:
+  - [Claude Code](https://console.anthropic.com/dashboard) - Anthropic's AI assistant
+  - [Gemini CLI](https://ai.google.dev/tutorials/gemini_cli_quickstart) - Google's AI assistant
+  - [Cursor Agent CLI](https://docs.cursor.com/agent) - Cursor's AI assistant
 
 ### 🔌 Platform & AI Provider Support
 
-| Platform | Claude Code | Gemini CLI |
-| -------- | :---------: | :--------: |
-| GitHub   |     ✅      |     ✅     |
-| GitLab   |     ✅      |     ✅     |
+| Platform | Claude Code | Gemini CLI | Cursor CLI |
+| -------- | :---------: | :--------: | :--------: |
+| GitHub   |     ✅      |     ✅     |     ✅     |
+| GitLab   |     ✅      |     ✅     |     ✅     |
 
 All combinations of platforms and AI providers are fully supported!
 
