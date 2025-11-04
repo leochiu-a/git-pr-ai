@@ -32,16 +32,6 @@ Three main modes available:
 - **Multiple Modes**: Works with JIRA tickets, git diff, or custom prompts
 - **Branch Rename**: Can rename existing branches with `--move` option
 
-## How It Works
-
-When you run `git create-branch`, the AI analyzes your input (JIRA ticket, git diff, or custom prompt) and generates **3 branch name options**:
-
-1. **Option 1**: Most conservative/straightforward interpretation
-2. **Option 2**: Alternative approach with different wording
-3. **Option 3**: Most detailed/comprehensive approach
-
-You'll be presented with an interactive selection menu where you can use arrow keys to choose your preferred branch name. This gives you flexibility while still benefiting from AI-powered suggestions.
-
 ## Examples
 
 ### JIRA Ticket Mode
