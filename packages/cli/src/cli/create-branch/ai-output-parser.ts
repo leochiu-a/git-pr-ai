@@ -1,12 +1,12 @@
 /**
- * Parse branch name from AI output and sanitize invalid characters
+ * Parse branch names from AI output and sanitize invalid characters
  */
 
-const BRANCH_NAME_PATTERN = /BRANCH_NAME:\s*(.+)/i
+const SINGLE_BRANCH_NAME_PATTERN = /BRANCH_NAME:\s*(.+)/i
 
 interface ParseResult {
   success: boolean
-  branchName?: string
+  branchNames?: string[]
   error?: string
 }
 
@@ -20,29 +20,64 @@ export function sanitizeBranchName(branchName: string): string {
 }
 
 /**
- * Extract and sanitize branch name from AI output
+ * Extract and sanitize branch names from AI output
+ * Supports both new format (BRANCH_NAME_1, BRANCH_NAME_2, BRANCH_NAME_3)
+ * and legacy format (BRANCH_NAME)
  */
 export function extractBranchName(aiOutput: string): ParseResult {
-  const branchMatch = aiOutput.match(BRANCH_NAME_PATTERN)
+  // Try to match multiple branch names (new format)
+  const branchMatches = aiOutput.match(/BRANCH_NAME_(\d):\s*(.+)/gi)
 
-  if (!branchMatch || !branchMatch[1]) {
+  if (branchMatches && branchMatches.length > 0) {
+    // New format: extract all numbered branch names
+    const branchNames: string[] = []
+
+    for (let i = 1; i <= 3; i++) {
+      const pattern = new RegExp(`BRANCH_NAME_${i}:\\s*(.+)`, 'i')
+      const match = aiOutput.match(pattern)
+
+      if (match && match[1]) {
+        const sanitized = sanitizeBranchName(match[1])
+        if (sanitized) {
+          branchNames.push(sanitized)
+        }
+      }
+    }
+
+    if (branchNames.length === 0) {
+      return {
+        success: false,
+        error: `No valid branch names found after sanitization`,
+      }
+    }
+
     return {
-      success: false,
-      error: `Could not parse branch name from AI output`,
+      success: true,
+      branchNames,
     }
   }
 
-  const sanitized = sanitizeBranchName(branchMatch[1])
+  // Fallback to legacy format: single branch name
+  const singleMatch = aiOutput.match(SINGLE_BRANCH_NAME_PATTERN)
 
-  if (!sanitized) {
+  if (singleMatch && singleMatch[1]) {
+    const sanitized = sanitizeBranchName(singleMatch[1])
+
+    if (!sanitized) {
+      return {
+        success: false,
+        error: `Branch name is empty after sanitization`,
+      }
+    }
+
     return {
-      success: false,
-      error: `Branch name is empty after sanitization`,
+      success: true,
+      branchNames: [sanitized],
     }
   }
 
   return {
-    success: true,
-    branchName: sanitized,
+    success: false,
+    error: `Could not parse branch name from AI output`,
   }
 }
