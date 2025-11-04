@@ -27,14 +27,10 @@ Three main modes available:
 
 ## Features
 
-- **JIRA Integration**: Automatically fetches JIRA ticket title
-- **AI-Powered Naming**: Uses Claude or Gemini to generate 3 branch name options with different perspectives
-- **Interactive Selection**: Choose from multiple AI-generated branch name options via an intuitive selection interface
-- **Smart Branch Types**: AI determines appropriate branch type (feat, fix, docs, etc.)
-- **Diverse Options**: Each option offers a different approach (conservative, alternative wording, detailed)
-- **Existing Branch Handling**: Gracefully handles existing branches
-- **Simple Base Branch Logic**: Uses current branch as base
-- **Backward Compatible**: Supports legacy single branch name format
+- **JIRA Integration**: Fetches ticket information automatically
+- **AI-Powered**: Generates 3 branch name options to choose from
+- **Multiple Modes**: Works with JIRA tickets, git diff, or custom prompts
+- **Branch Rename**: Can rename existing branches with `--move` option
 
 ## How It Works
 
