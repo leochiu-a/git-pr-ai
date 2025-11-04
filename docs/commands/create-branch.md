@@ -45,18 +45,6 @@ git create-branch --jira PROJ-123
 #   3. feat/PROJ-123-user-authentication-system
 # → Select your preferred option from the interactive menu
 
-# Create a feature branch using full JIRA URL
-git create-branch --jira https://xxxx.atlassian.net/browse/KB2CW-2684
-# → Extracts ticket ID and generates multiple branch name options
-# → Choose the option that best describes your work
-
-# Rename current branch with JIRA info
-git create-branch --jira PROJ-456 --move
-# → Generates options like:
-#   1. fix/PROJ-456-resolve-memory-leak
-#   2. fix/PROJ-456-fix-memory-issue
-#   3. fix/PROJ-456-memory-leak-in-cache
-# → Select and rename current branch
 ```
 
 ### Git Diff Mode
@@ -70,10 +58,7 @@ git create-branch --git-diff
 #   3. feat/password-validation-system
 # → Select the option that best matches your intent
 
-# Rename current branch based on changes
-git create-branch --git-diff --move
-# → Generates branch name options based on your diff
-# → Choose and apply to current branch
+
 ```
 
 ### Custom Prompt Mode
@@ -87,11 +72,4 @@ git create-branch --prompt "Implement OAuth integration"
 #   3. feat/oauth-authentication-integration
 # → Select your preferred naming style
 
-# More complex description
-git create-branch --prompt "Fix memory leak in user cache system"
-# → Generates options like:
-#   1. fix/memory-leak-user-cache
-#   2. fix/resolve-cache-memory-issue
-#   3. fix/user-cache-memory-leak-system
-# → Choose the most appropriate branch name
 ```
