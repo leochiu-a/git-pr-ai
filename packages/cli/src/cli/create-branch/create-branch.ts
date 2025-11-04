@@ -1,6 +1,6 @@
 import { $ } from 'zx'
 import { Command } from 'commander'
-import { confirm } from '@inquirer/prompts'
+import { confirm, select } from '@inquirer/prompts'
 import ora from 'ora'
 import {
   checkGitCLI,
@@ -79,7 +79,7 @@ async function generateBranchNameWithAI(
   const config = await loadConfig()
 
   const spinner = ora(
-    `Using ${config.agent.toUpperCase()} to generate branch name...`,
+    `Using ${config.agent.toUpperCase()} to generate branch name options...`,
   ).start()
 
   try {
@@ -89,27 +89,44 @@ async function generateBranchNameWithAI(
     // Parse and sanitize AI output
     const parseResult = extractBranchName(aiOutput)
 
-    if (!parseResult.success || !parseResult.branchName) {
+    if (
+      !parseResult.success ||
+      !parseResult.branchNames ||
+      parseResult.branchNames.length === 0
+    ) {
       spinner.fail(parseResult.error || 'Could not parse AI output')
       console.error('AI output:', aiOutput)
       process.exit(1)
     }
 
-    const aiBranchName = parseResult.branchName
-    spinner.succeed('Branch name generated successfully!')
+    const branchNames = parseResult.branchNames
+    spinner.succeed(`Generated ${branchNames.length} branch name option(s)!`)
 
-    // Confirm the AI suggestion
-    const confirmAI = await confirm({
-      message: `Use AI suggestion: ${aiBranchName}?`,
-      default: true,
+    // If only one option, return it directly
+    if (branchNames.length === 1) {
+      const confirmAI = await confirm({
+        message: `Use suggestion: ${branchNames[0]}?`,
+        default: true,
+      })
+
+      if (confirmAI) {
+        return branchNames[0]
+      } else {
+        console.log('Branch creation cancelled')
+        process.exit(0)
+      }
+    }
+
+    // Multiple options: let user choose
+    const selectedBranchName = await select({
+      message: 'Select a branch name:',
+      choices: branchNames.map((name) => ({
+        name,
+        value: name,
+      })),
     })
 
-    if (confirmAI) {
-      return aiBranchName
-    } else {
-      console.log('Branch creation cancelled')
-      process.exit(0)
-    }
+    return selectedBranchName
   } catch (error) {
     spinner.fail(`AI generation failed: ${error}`)
     process.exit(1)
