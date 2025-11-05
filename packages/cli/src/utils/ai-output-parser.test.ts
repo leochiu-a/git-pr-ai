@@ -64,6 +64,24 @@ These are the results.`
       expect(result.success).toBe(true)
       expect(result.values).toEqual(['value1', 'value2'])
     })
+
+    it('should handle markdown bold formatting', () => {
+      const output = `**OPTION_1:** value1
+**OPTION_2:** value2
+**OPTION_3:** value3`
+      const result = parseNumberedOutput(output)
+
+      expect(result.success).toBe(true)
+      expect(result.values).toEqual(['value1', 'value2', 'value3'])
+    })
+
+    it('should handle markdown code formatting', () => {
+      const output = '`OPTION_1:` value1\n`OPTION_2:` value2'
+      const result = parseNumberedOutput(output)
+
+      expect(result.success).toBe(true)
+      expect(result.values).toEqual(['value1', 'value2'])
+    })
   })
 
   describe('sanitization', () => {

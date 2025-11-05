@@ -36,7 +36,11 @@ export function parseNumberedOutput(
 
   for (const line of lines) {
     // Match patterns like: PREFIX_1: value, PREFIX_2: value
-    const numberedPattern = new RegExp(`^${prefix}_(\\d+):\\s*(.+)$`, 'i')
+    // Also handles markdown formatting like **PREFIX_1:** or `PREFIX_1:`
+    const numberedPattern = new RegExp(
+      `^[*\`]*${prefix}_(\\d+):[*\`]*\\s*(.+)$`,
+      'i',
+    )
     const match = line.trim().match(numberedPattern)
 
     if (match) {
