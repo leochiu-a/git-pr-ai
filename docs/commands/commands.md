@@ -7,6 +7,7 @@ Git PR AI Tool provides several commands to streamline your development workflow
 ### Branch and PR Management
 
 - **[git create-branch](./create-branch)** - Create a new git branch using JIRA ticket information with AI-powered naming
+- **[git ai-commit](./ai-commit)** - Generate AI-powered commit messages based on your code changes
 - **[git open-pr](./open-pr)** - Create or open a Pull Request for the current branch (works with both GitHub and GitLab)
 - **[git update-pr-desc](./update-pr-desc)** - Update Pull Request description using AI assistance
 - **[git pr-review](./pr-review)** - Get AI-powered code review for a Pull Request
@@ -33,6 +34,9 @@ git pr-ai config
 # Create a feature branch
 git create-branch --jira PROJ-123
 
+# Create AI-powered commit
+git ai-commit
+
 # Open a Pull Request
 git open-pr
 
@@ -46,8 +50,9 @@ After installation, these git aliases are automatically configured:
 
 ```bash
 git pr-ai config    # Configure the tool
-git open-pr         # Create/open Pull Request
 git create-branch   # Create new branch
+git ai-commit       # Generate AI commit message
+git open-pr         # Create/open Pull Request
 git update-pr-desc  # Update PR description
 git pr-review       # Review Pull Request
 git plan-issue      # Generate implementation plan from JIRA ticket

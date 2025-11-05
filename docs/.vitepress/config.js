@@ -31,6 +31,7 @@ export default defineConfig({
         items: [
           { text: 'Commands Reference', link: '/commands/commands' },
           { text: 'git create-branch', link: '/commands/create-branch' },
+          { text: 'git ai-commit', link: '/commands/ai-commit' },
           { text: 'git open-pr', link: '/commands/open-pr' },
           { text: 'git update-pr-desc', link: '/commands/update-pr-desc' },
           { text: 'git pr-review', link: '/commands/pr-review' },

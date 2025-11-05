@@ -63,7 +63,16 @@ All combinations of platforms and AI providers are fully supported!
 
     _No more inconsistent branch names or forgetting ticket details. Just paste your JIRA ID and get perfectly formatted branches every time._
 
-3.  **Create a Pull Request** ⚡:
+3.  **Create AI-powered Commits** 💬:
+
+    ```bash
+    # AI-generated commit messages based on your changes
+    git ai-commit
+    ```
+
+    _No more generic commit messages. AI analyzes your changes and suggests 3 meaningful commit messages following conventional commit format. Pick the one that fits best!_
+
+4.  **Create a Pull Request** ⚡:
 
     ```bash
     # One-command PR creation with intelligent title formatting
@@ -72,7 +81,7 @@ All combinations of platforms and AI providers are fully supported!
 
     _Transform your workflow from "commit → switch to browser → fill forms → copy URLs" to just "commit → one command → done!"_
 
-4.  **Update PR Description with AI** 🧠:
+5.  **Update PR Description with AI** 🧠:
 
     ```bash
     # AI-powered PR descriptions that explain what changed and why
@@ -81,7 +90,7 @@ All combinations of platforms and AI providers are fully supported!
 
     _Never write another boring "fix bug" description. Get detailed, context-aware PR descriptions that help reviewers understand your changes instantly._
 
-5.  **Review PR with AI** 🔍:
+6.  **Review PR with AI** 🔍:
 
     ```bash
     # Instant AI code review with improvement suggestions
@@ -90,7 +99,7 @@ All combinations of platforms and AI providers are fully supported!
 
     _Think of it as having a senior developer review your code 24/7. Catch bugs early, improve code quality, and learn best practices automatically._
 
-6.  **Generate Weekly Summary** 📊:
+7.  **Generate Weekly Summary** 📊:
 
     ```bash
     # AI-generated weekly summaries for standups and reviews
