@@ -16,7 +16,7 @@ import {
   createDiffBranchPrompt,
 } from './prompts'
 import { checkAndUpgrade } from '../../utils/version-checker'
-import { extractBranchName } from './ai-output-parser'
+import { parseNumberedOutput } from '../../utils/ai-output-parser'
 
 async function createBranch(branchName: string, baseBranch: string) {
   console.log(`Creating branch: ${branchName}`)
@@ -86,20 +86,20 @@ async function generateBranchNameWithAI(
     // Execute AI command and get output
     const aiOutput = await executeAIWithOutput(prompt)
 
-    // Parse and sanitize AI output
-    const parseResult = extractBranchName(aiOutput)
+    // Parse AI output
+    const parseResult = parseNumberedOutput(aiOutput)
 
     if (
       !parseResult.success ||
-      !parseResult.branchNames ||
-      parseResult.branchNames.length === 0
+      !parseResult.values ||
+      parseResult.values.length === 0
     ) {
       spinner.fail(parseResult.error || 'Could not parse AI output')
       console.error('AI output:', aiOutput)
       process.exit(1)
     }
 
-    const branchNames = parseResult.branchNames
+    const branchNames = parseResult.values
     spinner.succeed(`Generated ${branchNames.length} branch name option(s)!`)
 
     // If only one option, return it directly

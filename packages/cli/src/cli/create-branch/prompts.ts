@@ -33,14 +33,14 @@ Requirements:
 - Provide 3 distinct options with different perspectives
 
 Please respond with exactly this format:
-BRANCH_NAME_1: {first_generated_branch_name}
-BRANCH_NAME_2: {second_generated_branch_name}
-BRANCH_NAME_3: {third_generated_branch_name}
+OPTION_1: {first_generated_branch_name}
+OPTION_2: {second_generated_branch_name}
+OPTION_3: {third_generated_branch_name}
 
 Example:
-BRANCH_NAME_1: feat/PROJ-123-add-user-auth
-BRANCH_NAME_2: feat/PROJ-123-implement-authentication
-BRANCH_NAME_3: feat/PROJ-123-user-authentication-system`
+OPTION_1: feat/PROJ-123-add-user-auth
+OPTION_2: feat/PROJ-123-implement-authentication
+OPTION_3: feat/PROJ-123-user-authentication-system`
 
 export const createCustomBranchPrompt = (
   customPrompt: string,
@@ -74,14 +74,14 @@ Requirements:
 - Provide 3 distinct options with different perspectives
 
 Please respond with exactly this format:
-BRANCH_NAME_1: {first_generated_branch_name}
-BRANCH_NAME_2: {second_generated_branch_name}
-BRANCH_NAME_3: {third_generated_branch_name}
+OPTION_1: {first_generated_branch_name}
+OPTION_2: {second_generated_branch_name}
+OPTION_3: {third_generated_branch_name}
 
 Example:
-BRANCH_NAME_1: feat/add-user-authentication
-BRANCH_NAME_2: feat/implement-user-auth-system
-BRANCH_NAME_3: feat/user-authentication-module`
+OPTION_1: feat/add-user-authentication
+OPTION_2: feat/implement-user-auth-system
+OPTION_3: feat/user-authentication-module`
 
 export const createDiffBranchPrompt = (
   gitDiff: string,
@@ -120,15 +120,15 @@ Requirements:
 - Provide 3 distinct options with different perspectives
 
 Please respond with exactly this format:
-BRANCH_NAME_1: {first_generated_branch_name}
-BRANCH_NAME_2: {second_generated_branch_name}
-BRANCH_NAME_3: {third_generated_branch_name}
+OPTION_1: {first_generated_branch_name}
+OPTION_2: {second_generated_branch_name}
+OPTION_3: {third_generated_branch_name}
 
 Examples:
-BRANCH_NAME_1: feat/KB2CW-123-add-user-auth
-BRANCH_NAME_2: feat/KB2CW-123-implement-authentication
-BRANCH_NAME_3: feat/KB2CW-123-user-authentication-system
+OPTION_1: feat/KB2CW-123-add-user-auth
+OPTION_2: feat/KB2CW-123-implement-authentication
+OPTION_3: feat/KB2CW-123-user-authentication-system
 Or without JIRA:
-BRANCH_NAME_1: fix/update-validation-logic
-BRANCH_NAME_2: fix/improve-form-validation
-BRANCH_NAME_3: fix/validation-error-handling`
+OPTION_1: fix/update-validation-logic
+OPTION_2: fix/improve-form-validation
+OPTION_3: fix/validation-error-handling`
