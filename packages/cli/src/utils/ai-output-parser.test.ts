@@ -82,6 +82,30 @@ These are the results.`
       expect(result.success).toBe(true)
       expect(result.values).toEqual(['value1', 'value2'])
     })
+
+    it('should remove trailing markdown formatting', () => {
+      const output = `OPTION_1: value1**
+OPTION_2: value2**
+OPTION_3: value3**`
+      const result = parseNumberedOutput(output)
+
+      expect(result.success).toBe(true)
+      expect(result.values).toEqual(['value1', 'value2', 'value3'])
+    })
+
+    it('should handle both leading and trailing markdown formatting', () => {
+      const output = `**OPTION_1:** refactor: standardize AI output format to use OPTION prefix**
+**OPTION_2:** refactor: update output parsing format**
+**OPTION_3:** refactor: standardize commit message parsing**`
+      const result = parseNumberedOutput(output)
+
+      expect(result.success).toBe(true)
+      expect(result.values).toEqual([
+        'refactor: standardize AI output format to use OPTION prefix',
+        'refactor: update output parsing format',
+        'refactor: standardize commit message parsing',
+      ])
+    })
   })
 
   describe('sanitization', () => {

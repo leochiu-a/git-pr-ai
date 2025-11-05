@@ -10,6 +10,7 @@ export default defineConfig({
     'git-plan-issue': 'src/cli/plan-issue/plan-issue.ts',
     'git-take-issue': 'src/cli/take-issue/take-issue.ts',
     'git-weekly-summary': 'src/cli/weekly-summary/weekly-summary.ts',
+    'git-ai-commit': 'src/cli/ai-commit/ai-commit.ts',
     postinstall: 'scripts/postinstall.ts',
   },
   format: ['esm'],

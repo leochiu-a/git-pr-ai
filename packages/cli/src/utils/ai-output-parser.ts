@@ -45,6 +45,8 @@ export function parseNumberedOutput(
 
     if (match) {
       let value = match[2].trim()
+      // Remove trailing markdown formatting (**, `, etc.)
+      value = value.replace(/[*`]+$/, '').trim()
       if (sanitize) {
         value = sanitize(value)
       }
