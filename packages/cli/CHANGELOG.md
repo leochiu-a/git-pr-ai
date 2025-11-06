@@ -1,5 +1,17 @@
 # git-pr-ai
 
+## 1.11.0
+
+### Minor Changes
+
+- 9f2acf4: feat: add branch name selection with multiple AI-generated options
+  - Generate 3 branch name options instead of single suggestion
+  - Support both JIRA, custom prompt, and git diff based generation
+  - Allow users to select from multiple naming alternatives
+  - Maintain backward compatibility with legacy single branch name format
+
+- 9cc2834: feat: add ai-commit command
+
 ## 1.10.0
 
 ### Minor Changes

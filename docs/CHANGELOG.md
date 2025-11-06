@@ -1,5 +1,11 @@
 # @git-pr-ai/docs
 
+## 1.10.0
+
+### Minor Changes
+
+- 9cc2834: feat: add ai-commit command
+
 ## 1.9.6
 
 ### Patch Changes
