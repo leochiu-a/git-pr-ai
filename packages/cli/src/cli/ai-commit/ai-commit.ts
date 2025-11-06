@@ -75,8 +75,6 @@ async function createCommit(commitMessage: string): Promise<void> {
     // Create the commit
     // Use stdio: 'inherit' to preserve TTY for hooks
     await $({ stdio: 'inherit' })`git commit -m ${commitMessage}`
-
-    console.log(`\nCommit created: ${commitMessage}`)
   } catch (error) {
     console.error('Failed to create commit')
     throw error
