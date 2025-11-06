@@ -15,15 +15,9 @@ async function getGitDiff(): Promise<string> {
     let result = await $`git diff --cached`
     let gitDiff = result.stdout.trim()
 
-    // If no staged changes, check unstaged changes
-    if (!gitDiff) {
-      result = await $`git diff`
-      gitDiff = result.stdout.trim()
-    }
-
     if (!gitDiff) {
       throw new Error(
-        'No changes detected. Please stage your changes with "git add" or make some changes first',
+        'No staged changes detected. Please stage your files before committing.',
       )
     }
 
@@ -71,9 +65,11 @@ async function createCommit(commitMessage: string): Promise<void> {
     const stagedResult = await $`git diff --cached --quiet`.exitCode
     const hasStaged = stagedResult !== 0
 
-    // If no staged changes, stage all changes
     if (!hasStaged) {
-      await $`git add -A`
+      const message =
+        'No staged changes detected. Please stage your files before committing.'
+      console.error(message)
+      throw new Error(message)
     }
 
     // Create the commit
