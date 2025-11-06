@@ -11,7 +11,8 @@
     "git-create-branch": "./dist/git-create-branch.js",
     "git-plan-issue": "./dist/git-plan-issue.js",
     "git-take-issue": "./dist/git-take-issue.js",
-    "git-weekly-summary": "./dist/git-weekly-summary.js"
+    "git-weekly-summary": "./dist/git-weekly-summary.js",
+    "git-ai-commit": "./dist/git-ai-commit.js"
   },
   "files": [
     "dist",
