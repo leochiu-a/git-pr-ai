@@ -22,11 +22,9 @@ async function getGitDiff(): Promise<string> {
     }
 
     if (!gitDiff) {
-      console.error('No changes detected')
-      console.error(
-        'Please stage your changes with "git add" or make some changes first',
+      throw new Error(
+        'No changes detected. Please stage your changes with "git add" or make some changes first',
       )
-      process.exit(1)
     }
 
     return gitDiff
@@ -54,16 +52,16 @@ async function generateCommitMessages(gitDiff: string): Promise<string[]> {
       !parseResult.values ||
       parseResult.values.length === 0
     ) {
-      spinner.fail(parseResult.error || 'Could not parse AI output')
+      spinner.fail('Parsing AI output failed; see details below')
       console.error('AI output:', aiOutput)
-      process.exit(1)
+      throw new Error(parseResult.error || 'Failed to parse AI output')
     }
 
     spinner.stop()
     return parseResult.values
   } catch (error) {
     spinner.fail(`Failed: ${error}`)
-    process.exit(1)
+    throw error
   }
 }
 
