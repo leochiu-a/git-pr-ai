@@ -16,13 +16,6 @@ git ai-commit
 - **Smart Staging**: Automatically stages changes if nothing is staged yet
 - **Context-Aware**: Generates messages that explain WHAT changed and WHY
 
-## How It Works
-
-1. **Analyzes Changes**: Reads your staged changes (or all changes if nothing is staged)
-2. **AI Generation**: Uses AI to generate 3 commit message options
-3. **Interactive Selection**: Presents options for you to choose from
-4. **Creates Commit**: Automatically creates the commit with your selected message
-
 ## Examples
 
 ### With Staged Changes
@@ -71,22 +64,3 @@ The AI automatically selects the appropriate commit type based on your changes:
 | `chore`    | Maintenance tasks        | chore: update dependencies            |
 | `ci`       | CI/CD changes            | ci: add GitHub Actions workflow       |
 | `build`    | Build system changes     | build: update webpack configuration   |
-
-## Best Practices
-
-1. **Review the Diff First**: Make sure your changes are logical and cohesive
-2. **Stage Related Changes**: Stage only related changes together for more accurate messages
-3. **Read All Options**: Consider all 3 options before selecting - they offer different perspectives
-4. **Edit if Needed**: While AI generates good messages, you can always edit them manually if needed
-
-## Tips
-
-- **Focused Commits**: Smaller, focused changes result in more accurate commit messages
-- **Multiple Commits**: For unrelated changes, create separate commits by staging files individually
-- **Conventional Format**: The AI follows conventional commits, making your history more readable
-- **Time Saver**: No more typing generic "fix bug" or "update code" messages
-
-## Prerequisites
-
-- Git provider CLI must be installed and authenticated (GitHub CLI or GitLab CLI)
-- AI provider must be configured in `~/.git-pr-ai/.git-pr-ai.json`
