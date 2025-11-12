@@ -11,6 +11,10 @@ export const AI_AGENT_CHOICES = [
     name: 'Cursor CLI',
     value: 'cursor-agent' as const,
   },
+  {
+    name: 'Codex CLI',
+    value: 'codex' as const,
+  },
 ] as const
 
 export type AIAgent = (typeof AI_AGENT_CHOICES)[number]['value']
