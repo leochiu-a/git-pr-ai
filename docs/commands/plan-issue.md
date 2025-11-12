@@ -42,7 +42,7 @@ The tool offers three different enhancement modes:
 
 ## Features
 
-- **AI-powered enhancement**: Uses Claude or Gemini for intelligent content generation
+- **AI-powered enhancement**: Uses whichever AI provider you configured (see [AI Providers](../introduction/ai-providers)) for intelligent content generation
 - **Interactive workflow**: Choose between replace content, add comment, or save to file
 - **Multi-platform support**: Works with GitHub and GitLab
 - **JIRA integration**: Seamlessly converts JIRA tickets to Git platform issues

@@ -43,7 +43,7 @@ Use `--plan-file` to execute a predefined plan:
 
 ## Features
 
-- **AI-Powered Implementation**: Uses Claude or Gemini for code implementation
+- **AI-Powered Implementation**: Uses whichever AI provider you configured (see [AI Providers](../introduction/ai-providers)) for code implementation
 - **Multi-Platform Support**: Works with both GitHub and GitLab
 - **Direct Execution**: AI directly implements changes to your codebase
 - **Plan File Support**: Execute predefined development plans

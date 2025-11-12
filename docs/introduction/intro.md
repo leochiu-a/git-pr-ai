@@ -6,7 +6,7 @@ Git PR AI Tool is a powerful command-line tool that automates Pull Request creat
 
 - 🚀 **Multi-Platform Support**: Works with both GitHub and GitLab repositories
 - 🔍 **JIRA Integration**: Can integrate with JIRA to fetch ticket information
-- 🤖 **AI-Powered Intelligence**: Leverages Claude Code and Gemini for smart content generation and code analysis
+- 🤖 **AI-Powered Intelligence**: Leverages Claude Code, Gemini, Cursor Agent, and Codex for smart content generation and code analysis
 - 🎯 **Context-Aware Analysis**: Understands your repository without manual input
 
 ## Quick Start
@@ -20,9 +20,11 @@ pnpm add -g git-pr-ai
 **Configure AI provider (and optional JIRA integration):**
 
 ```bash
-# Set up AI provider (defaults to Claude Code, or choose Gemini) and optionally JIRA authentication
+# Set up AI provider (defaults to Claude Code, or choose Gemini, Cursor Agent, or Codex) and optionally JIRA authentication
 git pr-ai config
 ```
+
+Need help deciding which provider to use? Check the [AI Providers guide](./ai-providers).
 
 ### Available Commands
 

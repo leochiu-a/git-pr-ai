@@ -22,6 +22,7 @@ export default defineConfig({
         items: [
           { text: 'What is git-pr-ai?', link: '/introduction/intro' },
           { text: 'Installation', link: '/introduction/installation' },
+          { text: 'AI Providers', link: '/introduction/ai-providers' },
           { text: 'Usage', link: '/introduction/usage' },
         ],
       },

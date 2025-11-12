@@ -7,7 +7,7 @@ This guide will walk you through installing Git PR AI Tool and setting up the re
 - **Node.js**: Version 20.0.0 or higher
 - **Git**: Installed and configured
 - **Platform CLI**: GitHub CLI (gh) or GitLab CLI (glab) for PR operations
-- **AI Provider**: Claude Code (required for AI features)
+- **AI Provider**: Claude Code, Gemini CLI, Cursor Agent CLI, or Codex CLI (required for AI features)
 
 ## Step 1: Install Git PR AI Tool
 
@@ -57,20 +57,17 @@ brew install glab
 
 Visit https://gitlab.com/gitlab-org/cli for more installation options.
 
-## Step 3: Install Claude Code (Required)
+## Step 3: Install an AI Provider CLI (Required)
 
-Claude Code is required for AI-powered features like PR description generation and code reviews.
+Git PR AI works with multiple AI CLIs. Install and authenticate at least one of the following:
 
-1. Visit the [Claude Code documentation](https://docs.anthropic.com/en/docs/claude-code)
-2. Follow the installation instructions for your platform
-3. Ensure Claude Code is properly authenticated with your Anthropic account
+- **Claude Code** (default): Follow the [Claude Code documentation](https://docs.anthropic.com/en/docs/claude-code) to install and authenticate.
+- **Gemini CLI**: Install from [geminicli.com](https://geminicli.com/) and link your Google account.
+- **Cursor Agent CLI**: Install via [cursor.com/cli](https://cursor.com/cli) and run `cursor-agent auth`.
+- **Codex CLI**: Install from [developers.openai.com/codex/cli](https://developers.openai.com/codex/cli/) and authenticate with your OpenAI account.
 
-Claude Code provides:
-
-- Intelligent code analysis
-- Automatic PR description generation
-- Comprehensive code reviews
-- Context-aware suggestions
+Each provider unlocks the same AI-powered workflows (PR descriptions, reviews, weekly summaries, etc.). Pick the one that best matches your tooling preference.
+See the [AI Providers guide](./ai-providers) for a quick comparison and configuration tips.
 
 ## Step 4: Verify Installation
 
@@ -84,8 +81,11 @@ git pr-ai --help
 gh --version      # For GitHub users
 glab --version    # For GitLab users
 
-# Check Claude Code
-claude --version  # Ensure Claude Code is installed and accessible
+# Check AI provider CLI (run the one you installed)
+claude --version        # Claude Code
+# gemini --version      # Gemini CLI
+# cursor-agent --version  # Cursor Agent CLI
+# codex --version       # Codex CLI
 ```
 
 ## Step 5: Optional Configuration
@@ -98,7 +98,7 @@ git pr-ai config
 
 This command will:
 
-- Let you choose between Claude and Gemini
+- Let you choose between Claude, Gemini, Cursor Agent, or Codex
 - Create a configuration file at `~/.git-pr-ai/.git-pr-ai.json`
 - Set up JIRA integration if needed
 

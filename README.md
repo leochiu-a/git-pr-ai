@@ -33,15 +33,17 @@ Before you begin, please ensure you have completed the following setup:
   - GitLab: [Install GitLab CLI](https://gitlab.com/gitlab-org/cli) and run `glab auth login`
 - **AI Provider**: Depending on your preference, set up access for one of the following AI providers:
   - [Claude Code](https://console.anthropic.com/dashboard) - Anthropic's AI assistant
-  - [Gemini CLI](https://ai.google.dev/tutorials/gemini_cli_quickstart) - Google's AI assistant
-  - [Cursor Agent CLI](https://docs.cursor.com/agent) - Cursor's AI assistant
+  - [Gemini CLI](https://geminicli.com/) - Google's AI assistant
+  - [Cursor Agent CLI](https://cursor.com/cli) - Cursor's AI assistant
+  - [Codex CLI](https://developers.openai.com/codex/cli/) - Codex's AI assistant
+  - Need help choosing? Read the [AI Providers guide](https://leochiu-a.github.io/git-pr-ai/introduction/ai-providers).
 
 ### 🔌 Platform & AI Provider Support
 
-| Platform | Claude Code | Gemini CLI | Cursor CLI |
-| -------- | :---------: | :--------: | :--------: |
-| GitHub   |     ✅      |     ✅     |     ✅     |
-| GitLab   |     ✅      |     ✅     |     ✅     |
+| Platform | Claude Code | Gemini CLI | Cursor CLI | Codex CLI |
+| -------- | :---------: | :--------: | :--------: | :-------: |
+| GitHub   |     ✅      |     ✅     |     ✅     |    ✅     |
+| GitLab   |     ✅      |     ✅     |     ✅     |    ✅     |
 
 All combinations of platforms and AI providers are fully supported!
 
@@ -50,7 +52,7 @@ All combinations of platforms and AI providers are fully supported!
 1.  **Configure the tool** (required for git-pr-ai to fetch JIRA data):
 
     ```bash
-    # Set up your preferred AI provider (Claude or Gemini)
+    # Set up your preferred AI provider (see AI Providers guide for options)
     git pr-ai config
     ```
 

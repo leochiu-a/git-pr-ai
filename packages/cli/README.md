@@ -13,7 +13,7 @@ A CLI tool that empowers developers to create GitHub Pull Requests faster and mo
 
 ## ✨ Key Features
 
-- **🤖 AI-Powered Assistance**: Utilizes powerful AI models (Claude Code or Gemini) to automatically generate PR descriptions and review code.
+- **🤖 AI-Powered Assistance**: Utilizes powerful AI models (Claude Code, Gemini, Cursor Agent, or Codex) to automatically generate PR descriptions and review code.
 - **🎫 JIRA Integration**: Directly create git branches with standardized names from JIRA tickets.
 - **⚙️ Simplified Workflow**: Consolidates multiple git commands into single, easy-to-remember commands.
 - **🚀 Quick Start**: Get up and running with just a few simple installation and setup steps.
@@ -31,14 +31,14 @@ Before you begin, please ensure you have completed the following setup:
 - **Platform CLI**: Install and authenticate either GitHub CLI (`gh`) or GitLab CLI (`glab`).
   - GitHub: [Install GitHub CLI](https://cli.github.com/) and run `gh auth login`
   - GitLab: [Install GitLab CLI](https://gitlab.com/gitlab-org/cli) and run `glab auth login`
-- **AI Provider**: Depending on your preference, set up access for either [Claude Code](https://console.anthropic.com/dashboard) or [Gemini CLI](https://ai.google.dev/tutorials/gemini_cli_quickstart).
+- **AI Provider**: Depending on your preference, set up access for [Claude Code](https://console.anthropic.com/dashboard), [Gemini CLI](https://geminicli.com/), [Cursor Agent CLI](https://cursor.com/cli), or [Codex CLI](https://developers.openai.com/codex/cli/). Need help choosing? Read the [AI Providers guide](https://leochiu-a.github.io/git-pr-ai/introduction/ai-providers).
 
 ## 🚀 Quick Start
 
 1.  **Configure the tool** (required for git-pr-ai to fetch JIRA data):
 
     ```bash
-    # Set up your preferred AI provider (Claude or Gemini)
+    # Set up your preferred AI provider (see the AI Providers guide for options)
     git pr-ai config
     ```
 

@@ -10,7 +10,7 @@ git pr-ai config
 
 ## Features
 
-- **AI Provider Selection**: Choose between Claude and Gemini
+- **AI Provider Selection**: Choose any supported provider (see [AI Providers](../introduction/ai-providers))
 - **JIRA Configuration**: Set up JIRA integration
 - **Configuration File**: Creates `~/.git-pr-ai/.git-pr-ai.json`
 

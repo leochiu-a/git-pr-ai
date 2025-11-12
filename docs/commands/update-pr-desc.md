@@ -22,7 +22,7 @@ git update-pr-desc [options] [additional context...]
 
 ## Features
 
-- **AI-Powered Descriptions**: Uses Claude or Gemini for intelligent content generation
+- **AI-Powered Descriptions**: Uses whichever AI provider you configured (see [AI Providers](../introduction/ai-providers)) for intelligent content generation
 - **Smart Analysis**: AI analyzes your code changes automatically without manual diff input
 - **Platform Agnostic**: Works with both GitHub and GitLab Pull Requests
 - **Context Aware**: Understands your repository structure and changes
