@@ -63,18 +63,19 @@ Examples:
   $ git pr-review -c "Focus on security issues"
     Review with additional context
 
-Behavior:
-  1. If a URL is provided, review that specific PR/MR
-  2. If no URL is provided, look for PR/MR on current branch
-  3. If no PR/MR found on current branch, list all available PRs/MRs and use the first one
+  Behavior:
+    1. If a URL is provided, review that specific PR/MR
+    2. If no URL is provided, look for PR/MR on current branch
+    3. If no PR/MR found on current branch, list all available PRs/MRs and use the first one
 
-Configuration:
-  Create .git-pr-ai.json with {"agent": "claude"} or {"agent": "gemini"}
-  Defaults to Claude if no configuration is provided
+  Configuration:
+    Create .git-pr-ai.json with {"agent": "claude"}
+      - Agent can be set to any supported provider (see docs/introduction/ai-providers)
+    Defaults to Claude if no configuration is provided
 
-Prerequisites:
-  - GitHub CLI (gh) or GitLab CLI (glab) must be installed and authenticated
-  - Claude Code (for Claude) or Gemini CLI (for Gemini) must be installed and authenticated
+  Prerequisites:
+    - GitHub CLI (gh) or GitLab CLI (glab) must be installed and authenticated
+    - Install and authenticate the CLI for your chosen AI provider
     `,
     )
 
