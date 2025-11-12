@@ -169,7 +169,7 @@ async function checkCursorAgentCLI(): Promise<void> {
     await $`cursor-agent --version`.quiet()
   } catch {
     console.error('🤖 Cursor Agent not found')
-    console.error('Please install Cursor Agent: https://docs.cursor.com/agent')
+    console.error('Please install Cursor Agent: https://cursor.com/cli')
     process.exit(1)
   }
 }
