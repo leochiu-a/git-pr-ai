@@ -80,7 +80,7 @@ async function runAICommand(
         stdio: 'inherit',
       })`cursor-agent --force ${prompt}`
     } else if (agent === 'codex') {
-      await $({ stdio: 'inherit' })`codex ${prompt}`
+      await $({ stdio: 'inherit' })`codex  --yolo ${prompt}`
     }
   } else {
     if (agent === 'claude') {
