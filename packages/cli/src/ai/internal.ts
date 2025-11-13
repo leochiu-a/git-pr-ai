@@ -112,7 +112,7 @@ async function runAICommandWithOutput(
     } else if (agent === 'cursor-agent') {
       result = await $({ input: prompt })`cursor-agent --print --force`.quiet()
     } else if (agent === 'codex') {
-      result = await $({ input: prompt })`codex`.quiet()
+      result = await $({ input: prompt })`codex exec --yolo`.quiet()
     }
   } else {
     if (agent === 'claude') {
@@ -122,7 +122,7 @@ async function runAICommandWithOutput(
     } else if (agent === 'cursor-agent') {
       result = await $({ input: prompt })`cursor-agent --print`.quiet()
     } else if (agent === 'codex') {
-      result = await $({ input: prompt })`codex`.quiet()
+      result = await $({ input: prompt })`codex exec`.quiet()
     }
   }
 
