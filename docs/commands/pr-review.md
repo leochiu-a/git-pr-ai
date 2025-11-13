@@ -24,7 +24,7 @@ git pr-review [URL] [-c, --context <context>]
 ## Features
 
 - **Comprehensive Analysis**: Reviews code changes, structure, and best practices
-- **AI-Powered Insights**: Uses Claude or Gemini for intelligent feedback
+- **AI-Powered Insights**: Uses your configured AI provider (see [AI Providers](../introduction/ai-providers)) for intelligent feedback
 - **Automatic PR Detection**: Finds PR for current branch or lists available PRs
 - **URL Support**: Review specific PRs by GitHub/GitLab URL
 - **Additional Context**: Provide specific focus areas for the review
@@ -59,7 +59,7 @@ git pr-review --yolo --context "Focus on security"
 
 ```
 🔍 Looking for PR on current branch...
-Reviewing PR #123 using CLAUDE...
+Reviewing PR #123 using CODEX...
 🔗 PR URL: https://github.com/owner/repo/pull/123
 📋 Target branch: main
 🌿 Source branch: feature/PROJ-123-add-login

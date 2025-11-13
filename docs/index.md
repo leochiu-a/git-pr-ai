@@ -20,7 +20,7 @@ features:
   - icon:
       src: https://fonts.gstatic.com/s/e/notoemoji/latest/1f3af/512.gif
     title: Multi-Platform Support
-    details: Works with GitHub, GitLab, and supports Claude Code & Gemini AI providers
+    details: Works with GitHub, GitLab, and supports Claude Code, Gemini, Cursor Agent, and Codex AI providers
   - icon:
       src: https://fonts.gstatic.com/s/e/notoemoji/latest/1f52e/512.gif
     title: One-Command Branch Creation

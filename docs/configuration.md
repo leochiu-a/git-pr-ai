@@ -12,7 +12,7 @@ git pr-ai config
 
 This command will guide you through:
 
-- Choosing your preferred AI provider (Claude or Gemini)
+- Choosing your preferred AI provider (Claude, Gemini, Cursor Agent, or Codex)
 - Setting up JIRA integration (optional)
 - Creating the configuration file
 
@@ -39,7 +39,7 @@ Choose your preferred AI provider:
 
 ```json
 {
-  "agent": "claude" // or "gemini"
+  "agent": "claude" // or "gemini", "cursor-agent", "codex"
 }
 ```
 
@@ -47,6 +47,10 @@ Choose your preferred AI provider:
 
 - `"claude"` (default): Uses Claude Code for AI assistance
 - `"gemini"`: Uses Gemini CLI for AI assistance
+- `"cursor-agent"`: Uses Cursor Agent CLI for AI assistance
+- `"codex"`: Uses Codex CLI for AI assistance
+
+Need help picking or installing one? See the [AI Providers guide](./introduction/ai-providers).
 
 ### JIRA Integration (`jira`)
 
@@ -97,7 +101,7 @@ Or manually edit the configuration file at `~/.git-pr-ai/.git-pr-ai.json`.
 
 Without configuration, the tool will:
 
-- Use Claude as the default AI provider (if available)
+- Use Claude as the default AI provider (if available). Switch to Gemini, Cursor Agent, or Codex anytime by running `git pr-ai config`.
 - Skip JIRA integration (use branch names for PR titles)
 - Work with basic GitHub integration only
 

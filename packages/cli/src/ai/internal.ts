@@ -45,6 +45,9 @@ export async function executeAIInternal(
     case 'cursor-agent':
       await checkCursorAgentCLI()
       break
+    case 'codex':
+      await checkCodexCLI()
+      break
     default:
       throw new Error(`Unsupported AI agent: ${config.agent}`)
   }
@@ -76,6 +79,8 @@ async function runAICommand(
       await $({
         stdio: 'inherit',
       })`cursor-agent --force ${prompt}`
+    } else if (agent === 'codex') {
+      await $({ stdio: 'inherit' })`codex --yolo ${prompt}`
     }
   } else {
     if (agent === 'claude') {
@@ -84,6 +89,8 @@ async function runAICommand(
       await $({ stdio: 'inherit' })`gemini --prompt-interactive ${prompt}`
     } else if (agent === 'cursor-agent') {
       await $({ stdio: 'inherit' })`cursor-agent ${prompt}`
+    } else if (agent === 'codex') {
+      await $({ stdio: 'inherit' })`codex ${prompt}`
     }
   }
 }
@@ -104,6 +111,8 @@ async function runAICommandWithOutput(
       result = await $({ input: prompt })`gemini --yolo`.quiet()
     } else if (agent === 'cursor-agent') {
       result = await $({ input: prompt })`cursor-agent --print --force`.quiet()
+    } else if (agent === 'codex') {
+      result = await $({ input: prompt })`codex exec --yolo`.quiet()
     }
   } else {
     if (agent === 'claude') {
@@ -112,6 +121,8 @@ async function runAICommandWithOutput(
       result = await $({ input: prompt })`gemini`.quiet()
     } else if (agent === 'cursor-agent') {
       result = await $({ input: prompt })`cursor-agent --print`.quiet()
+    } else if (agent === 'codex') {
+      result = await $({ input: prompt })`codex exec`.quiet()
     }
   }
 
@@ -158,7 +169,19 @@ async function checkCursorAgentCLI(): Promise<void> {
     await $`cursor-agent --version`.quiet()
   } catch {
     console.error('🤖 Cursor Agent not found')
-    console.error('Please install Cursor Agent: https://docs.cursor.com/agent')
+    console.error('Please install Cursor Agent: https://cursor.com/cli')
+    process.exit(1)
+  }
+}
+
+async function checkCodexCLI(): Promise<void> {
+  try {
+    await $`codex --version`.quiet()
+  } catch {
+    console.error('🤖 Codex CLI not found')
+    console.error(
+      'Please install Codex CLI from the official Codex documentation',
+    )
     process.exit(1)
   }
 }
