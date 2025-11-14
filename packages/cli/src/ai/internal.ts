@@ -100,7 +100,7 @@ async function runAICommand(
       if (model) {
         await $({
           stdio: 'inherit',
-        })`gemini --yolo --prompt-interactive --model ${model} ${prompt}`
+        })`gemini --yolo --model ${model} --prompt-interactive ${prompt}`
       } else {
         await $({
           stdio: 'inherit',
@@ -134,7 +134,7 @@ async function runAICommand(
       if (model) {
         await $({
           stdio: 'inherit',
-        })`gemini --prompt-interactive --model ${model} ${prompt}`
+        })`gemini --model ${model} --prompt-interactive ${prompt}`
       } else {
         await $({ stdio: 'inherit' })`gemini --prompt-interactive ${prompt}`
       }
