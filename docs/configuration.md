@@ -189,9 +189,3 @@ On different systems:
 
 - **macOS/Linux**: `/Users/username/.git-pr-ai/.git-pr-ai.json`
 - **Windows**: `C:\Users\username\.git-pr-ai\.git-pr-ai.json`
-
-## Security Considerations
-
-- **API Tokens**: Store JIRA API tokens securely
-- **File Permissions**: Ensure configuration files are not world-readable
-- **Environment Variables**: Be cautious with API tokens in shell history
