@@ -8,6 +8,7 @@ import {
   getConfigPath,
   getConfigDir,
   loadConfig,
+  type CommandName,
 } from '../config'
 import {
   getLanguage,
@@ -16,6 +17,7 @@ import {
   SUPPORTED_LANGUAGES,
 } from '../git-helpers'
 import { AI_AGENT_CHOICES } from '../constants/agents'
+import { COMMAND_MODEL_CHOICES } from '../constants/command-models'
 
 async function openConfig() {
   const configPath = getConfigPath()
@@ -133,11 +135,13 @@ function determineWhatToUpdate(options: {
   agent?: boolean
   jira?: boolean
   language?: boolean
+  model?: boolean
 }): string {
   const selections = []
   if (options.agent) selections.push('agent')
   if (options.jira) selections.push('jira')
   if (options.language) selections.push('language')
+  if (options.model) selections.push('model')
 
   if (selections.length === 0) {
     // Will ask user interactively
@@ -159,7 +163,11 @@ async function askWhatToUpdate(): Promise<string> {
       { name: 'AI Agent only', value: 'agent' },
       { name: 'Language only', value: 'language' },
       { name: 'JIRA integration only', value: 'jira' },
-      { name: 'All (Agent, Language, and JIRA)', value: 'agent,language,jira' },
+      { name: 'Command models only', value: 'model' },
+      {
+        name: 'All (Agent, Language, JIRA, and models)',
+        value: 'agent,language,jira,model',
+      },
     ],
   })
 }
@@ -187,6 +195,46 @@ async function updateLanguageConfig(): Promise<void> {
   })
 
   await setLanguage(selectedLanguage)
+}
+
+async function updateModelConfig(
+  config: GitPrAiConfig,
+): Promise<GitPrAiConfig> {
+  const selectedCommand = await select<CommandName>({
+    message: 'Which command would you like to set a model for?',
+    choices: COMMAND_MODEL_CHOICES,
+  })
+
+  const selectedAgent = await select({
+    message: 'Which AI agent should use this model?',
+    choices: AI_AGENT_CHOICES,
+    default: config.agent,
+  })
+
+  console.log(
+    '⚠️ Please enter the exact model ID supported by your agent. Incorrect values will prevent the command from running.',
+  )
+
+  const modelName = await input({
+    message: 'Model ID:',
+    validate: (value) => {
+      if (!value.trim()) {
+        return 'Model ID is required. Without a correct value the command cannot run.'
+      }
+      return true
+    },
+  })
+
+  return {
+    ...config,
+    model: {
+      ...config.model,
+      [selectedCommand]: {
+        ...config.model?.[selectedCommand],
+        [selectedAgent]: modelName.trim(),
+      },
+    },
+  }
 }
 
 async function updateJiraConfig(config: GitPrAiConfig): Promise<GitPrAiConfig> {
@@ -237,6 +285,7 @@ async function initConfig(options: {
   agent?: boolean
   jira?: boolean
   language?: boolean
+  model?: boolean
 }) {
   await ensureConfigDir()
 
@@ -273,6 +322,9 @@ async function initConfig(options: {
   if (updateOptions.includes('language')) {
     await updateLanguageConfig()
   }
+  if (updateOptions.includes('model')) {
+    config = await updateModelConfig(config)
+  }
   if (updateOptions.includes('jira')) {
     config = await updateJiraConfig(config)
   }
@@ -293,6 +345,7 @@ program
   .option('-a, --agent', 'configure AI agent only')
   .option('-l, --language', 'configure language only')
   .option('-j, --jira', 'configure JIRA integration only')
+  .option('-m, --model', 'configure AI model for a specific command')
   .action(async (options) => {
     try {
       if (options.open) {
