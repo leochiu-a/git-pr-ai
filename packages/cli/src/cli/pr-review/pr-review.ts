@@ -31,7 +31,11 @@ async function reviewPR(
       providerName: provider.name,
     })
 
-    await executeAICommand(prompt, { useLanguage: true, yolo: options.yolo })
+    await executeAICommand(prompt, {
+      useLanguage: true,
+      yolo: options.yolo,
+      commandName: 'prReview',
+    })
     console.log('✅ PR/MR review completed and comment posted!')
   } catch (error) {
     console.error('❌ Failed to complete PR/MR review')

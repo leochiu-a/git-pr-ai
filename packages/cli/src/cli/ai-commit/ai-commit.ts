@@ -37,7 +37,9 @@ async function generateCommitMessages(gitDiff: string): Promise<string[]> {
 
   try {
     const prompt = createCommitMessagePrompt(gitDiff)
-    const aiOutput = await executeAIWithOutput(prompt)
+    const aiOutput = await executeAIWithOutput(prompt, {
+      commandName: 'aiCommit',
+    })
 
     const parseResult = parseNumberedOutput(aiOutput)
 

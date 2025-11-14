@@ -1,5 +1,5 @@
 import { $ } from 'zx'
-import { loadConfig } from '../config'
+import { loadConfig, getModelForCommand, type CommandName } from '../config'
 import { getLanguage } from '../git-helpers'
 import { createLanguagePrompt } from '../language-prompts'
 import { type AIAgent } from '../constants/agents'
@@ -10,6 +10,7 @@ export async function executeAIInternal(
     useLanguage?: boolean
     yolo?: boolean
     outputType?: 'inherit'
+    commandName?: CommandName
   },
 ): Promise<void>
 export async function executeAIInternal(
@@ -18,6 +19,7 @@ export async function executeAIInternal(
     useLanguage?: boolean
     yolo?: boolean
     outputType: 'capture' | 'json'
+    commandName?: CommandName
   },
 ): Promise<string>
 export async function executeAIInternal(
@@ -26,14 +28,25 @@ export async function executeAIInternal(
     useLanguage?: boolean
     yolo?: boolean
     outputType?: 'inherit' | 'capture' | 'json'
+    commandName?: CommandName
   } = {},
 ): Promise<string | void> {
-  const { useLanguage = true, yolo = false, outputType = 'inherit' } = options
+  const {
+    useLanguage = true,
+    yolo = false,
+    outputType = 'inherit',
+    commandName,
+  } = options
   const config = await loadConfig()
   const language = useLanguage ? await getLanguage() : 'en'
   const finalPrompt = useLanguage
     ? createLanguagePrompt(prompt, language)
     : prompt
+
+  // Get model configuration for the command if specified
+  const model = commandName
+    ? getModelForCommand(config, commandName)
+    : undefined
 
   switch (config.agent) {
     case 'claude':
@@ -53,10 +66,15 @@ export async function executeAIInternal(
   }
 
   if (outputType === 'inherit') {
-    await runAICommand(config.agent, finalPrompt, yolo)
+    await runAICommand(config.agent, finalPrompt, yolo, model)
     return
   } else {
-    const output = await runAICommandWithOutput(config.agent, finalPrompt, yolo)
+    const output = await runAICommandWithOutput(
+      config.agent,
+      finalPrompt,
+      yolo,
+      model,
+    )
     return outputType === 'json' ? extractJsonFromOutput(output) : output
   }
 }
@@ -65,32 +83,73 @@ async function runAICommand(
   agent: AIAgent,
   prompt: string,
   yolo: boolean,
+  model?: string,
 ): Promise<void> {
   if (yolo) {
     if (agent === 'claude') {
-      await $({
-        stdio: 'inherit',
-      })`claude --dangerously-skip-permissions ${prompt}`
+      if (model) {
+        await $({
+          stdio: 'inherit',
+        })`claude --dangerously-skip-permissions --model ${model} ${prompt}`
+      } else {
+        await $({
+          stdio: 'inherit',
+        })`claude --dangerously-skip-permissions ${prompt}`
+      }
     } else if (agent === 'gemini') {
-      await $({
-        stdio: 'inherit',
-      })`gemini --yolo --prompt-interactive ${prompt}`
+      if (model) {
+        await $({
+          stdio: 'inherit',
+        })`gemini --yolo --prompt-interactive --model ${model} ${prompt}`
+      } else {
+        await $({
+          stdio: 'inherit',
+        })`gemini --yolo --prompt-interactive ${prompt}`
+      }
     } else if (agent === 'cursor-agent') {
-      await $({
-        stdio: 'inherit',
-      })`cursor-agent --force ${prompt}`
+      if (model) {
+        await $({
+          stdio: 'inherit',
+        })`cursor-agent --force --model ${model} ${prompt}`
+      } else {
+        await $({
+          stdio: 'inherit',
+        })`cursor-agent --force ${prompt}`
+      }
     } else if (agent === 'codex') {
-      await $({ stdio: 'inherit' })`codex --yolo ${prompt}`
+      if (model) {
+        await $({ stdio: 'inherit' })`codex --yolo --model ${model} ${prompt}`
+      } else {
+        await $({ stdio: 'inherit' })`codex --yolo ${prompt}`
+      }
     }
   } else {
     if (agent === 'claude') {
-      await $({ stdio: 'inherit' })`claude ${prompt}`
+      if (model) {
+        await $({ stdio: 'inherit' })`claude --model ${model} ${prompt}`
+      } else {
+        await $({ stdio: 'inherit' })`claude ${prompt}`
+      }
     } else if (agent === 'gemini') {
-      await $({ stdio: 'inherit' })`gemini --prompt-interactive ${prompt}`
+      if (model) {
+        await $({
+          stdio: 'inherit',
+        })`gemini --prompt-interactive --model ${model} ${prompt}`
+      } else {
+        await $({ stdio: 'inherit' })`gemini --prompt-interactive ${prompt}`
+      }
     } else if (agent === 'cursor-agent') {
-      await $({ stdio: 'inherit' })`cursor-agent ${prompt}`
+      if (model) {
+        await $({ stdio: 'inherit' })`cursor-agent --model ${model} ${prompt}`
+      } else {
+        await $({ stdio: 'inherit' })`cursor-agent ${prompt}`
+      }
     } else if (agent === 'codex') {
-      await $({ stdio: 'inherit' })`codex ${prompt}`
+      if (model) {
+        await $({ stdio: 'inherit' })`codex --model ${model} ${prompt}`
+      } else {
+        await $({ stdio: 'inherit' })`codex ${prompt}`
+      }
     }
   }
 }
@@ -99,30 +158,75 @@ async function runAICommandWithOutput(
   agent: AIAgent,
   prompt: string,
   yolo: boolean,
+  model?: string,
 ): Promise<string> {
   let result
 
   if (yolo) {
     if (agent === 'claude') {
-      result = await $({
-        input: prompt,
-      })`claude --dangerously-skip-permissions`.quiet()
+      if (model) {
+        result = await $({
+          input: prompt,
+        })`claude --dangerously-skip-permissions --model ${model}`.quiet()
+      } else {
+        result = await $({
+          input: prompt,
+        })`claude --dangerously-skip-permissions`.quiet()
+      }
     } else if (agent === 'gemini') {
-      result = await $({ input: prompt })`gemini --yolo`.quiet()
+      if (model) {
+        result = await $({
+          input: prompt,
+        })`gemini --yolo --model ${model}`.quiet()
+      } else {
+        result = await $({ input: prompt })`gemini --yolo`.quiet()
+      }
     } else if (agent === 'cursor-agent') {
-      result = await $({ input: prompt })`cursor-agent --print --force`.quiet()
+      if (model) {
+        result = await $({
+          input: prompt,
+        })`cursor-agent --print --force --model ${model}`.quiet()
+      } else {
+        result = await $({
+          input: prompt,
+        })`cursor-agent --print --force`.quiet()
+      }
     } else if (agent === 'codex') {
-      result = await $({ input: prompt })`codex exec --yolo`.quiet()
+      if (model) {
+        result = await $({
+          input: prompt,
+        })`codex exec --yolo --model ${model}`.quiet()
+      } else {
+        result = await $({ input: prompt })`codex exec --yolo`.quiet()
+      }
     }
   } else {
     if (agent === 'claude') {
-      result = await $({ input: prompt })`claude`.quiet()
+      if (model) {
+        result = await $({ input: prompt })`claude --model ${model}`.quiet()
+      } else {
+        result = await $({ input: prompt })`claude`.quiet()
+      }
     } else if (agent === 'gemini') {
-      result = await $({ input: prompt })`gemini`.quiet()
+      if (model) {
+        result = await $({ input: prompt })`gemini --model ${model}`.quiet()
+      } else {
+        result = await $({ input: prompt })`gemini`.quiet()
+      }
     } else if (agent === 'cursor-agent') {
-      result = await $({ input: prompt })`cursor-agent --print`.quiet()
+      if (model) {
+        result = await $({
+          input: prompt,
+        })`cursor-agent --print --model ${model}`.quiet()
+      } else {
+        result = await $({ input: prompt })`cursor-agent --print`.quiet()
+      }
     } else if (agent === 'codex') {
-      result = await $({ input: prompt })`codex exec`.quiet()
+      if (model) {
+        result = await $({ input: prompt })`codex exec --model ${model}`.quiet()
+      } else {
+        result = await $({ input: prompt })`codex exec`.quiet()
+      }
     }
   }
 

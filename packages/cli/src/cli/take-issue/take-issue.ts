@@ -144,6 +144,7 @@ async function handleIssueMode(
   await executeAICommand(createIssuePrompt(issue), {
     useLanguage: true,
     yolo: options.yolo,
+    commandName: 'takeIssue',
   })
 }
 
@@ -157,6 +158,7 @@ async function handlePlanFileMode(
   await executeAICommand(createPlanPrompt(planContent), {
     useLanguage: true,
     yolo: options.yolo,
+    commandName: 'takeIssue',
   })
 }
 
