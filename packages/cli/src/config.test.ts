@@ -5,7 +5,9 @@ import {
   loadConfig,
   getConfigPath,
   getConfigDir,
+  getModelForCommand,
   CONFIG_FILENAME,
+  type GitPrAiConfig,
 } from './config'
 
 // Mock fs module
@@ -98,6 +100,97 @@ describe('Config', () => {
       )
 
       consoleSpy.mockRestore()
+    })
+  })
+
+  describe('getModelForCommand', () => {
+    it('should return model for specific command and agent', () => {
+      const config: GitPrAiConfig = {
+        agent: 'claude',
+        model: {
+          createBranch: {
+            claude: 'haiku',
+            gemini: 'gemini-2.5-flash',
+          },
+        },
+      }
+
+      expect(getModelForCommand(config, 'createBranch')).toBe('haiku')
+    })
+
+    it('should return undefined if command has no model config', () => {
+      const config: GitPrAiConfig = {
+        agent: 'claude',
+      }
+
+      expect(getModelForCommand(config, 'createBranch')).toBeUndefined()
+    })
+
+    it('should return undefined if command config exists but agent not specified', () => {
+      const config: GitPrAiConfig = {
+        agent: 'claude',
+        model: {
+          createBranch: {
+            gemini: 'gemini-2.5-flash',
+          },
+        },
+      }
+
+      expect(getModelForCommand(config, 'createBranch')).toBeUndefined()
+    })
+
+    it('should return correct model for different agents', () => {
+      const config: GitPrAiConfig = {
+        agent: 'gemini',
+        model: {
+          createBranch: {
+            claude: 'haiku',
+            gemini: 'gemini-2.5-flash',
+          },
+        },
+      }
+
+      expect(getModelForCommand(config, 'createBranch')).toBe(
+        'gemini-2.5-flash',
+      )
+    })
+
+    it('should handle multiple commands with different models', () => {
+      const config: GitPrAiConfig = {
+        agent: 'claude',
+        model: {
+          createBranch: {
+            claude: 'haiku',
+          },
+          prReview: {
+            claude: 'sonnet',
+          },
+        },
+      }
+
+      expect(getModelForCommand(config, 'createBranch')).toBe('haiku')
+      expect(getModelForCommand(config, 'prReview')).toBe('sonnet')
+      expect(getModelForCommand(config, 'aiCommit')).toBeUndefined()
+    })
+
+    it('should handle all supported agents', () => {
+      const config: GitPrAiConfig = {
+        agent: 'cursor-agent',
+        model: {
+          createBranch: {
+            claude: 'haiku',
+            gemini: 'gemini-2.5-flash',
+            'cursor-agent': 'cursor-model',
+            codex: 'codex-model',
+          },
+        },
+      }
+
+      expect(getModelForCommand(config, 'createBranch')).toBe('cursor-model')
+
+      // Test with different agents
+      config.agent = 'codex'
+      expect(getModelForCommand(config, 'createBranch')).toBe('codex-model')
     })
   })
 })

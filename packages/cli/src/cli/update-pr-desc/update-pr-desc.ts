@@ -62,7 +62,11 @@ async function main() {
 
       console.log('🤖 Launching AI assistant...')
 
-      await executeAICommand(prompt, { useLanguage: true, yolo: options.yolo })
+      await executeAICommand(prompt, {
+        useLanguage: true,
+        yolo: options.yolo,
+        commandName: 'updatePrDesc',
+      })
 
       // Show success message
       console.log('✅ PR description updated successfully!')

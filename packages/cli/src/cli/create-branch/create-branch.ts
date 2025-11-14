@@ -84,7 +84,9 @@ async function generateBranchNameWithAI(
 
   try {
     // Execute AI command and get output
-    const aiOutput = await executeAIWithOutput(prompt)
+    const aiOutput = await executeAIWithOutput(prompt, {
+      commandName: 'createBranch',
+    })
 
     // Parse AI output
     const parseResult = parseNumberedOutput(aiOutput)

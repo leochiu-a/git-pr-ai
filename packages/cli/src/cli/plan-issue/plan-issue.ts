@@ -47,7 +47,9 @@ async function optimizeIssue(issue: IssueDetails): Promise<OptimizedContent> {
 
   try {
     const prompt = createOptimizePrompt(issue)
-    const response = await executeAIWithJsonOutput(prompt)
+    const response = await executeAIWithJsonOutput(prompt, {
+      commandName: 'planIssue',
+    })
     const content = JSON.parse(response)
 
     spinner.succeed('Issue content optimized')
@@ -65,7 +67,9 @@ async function generateComment(issue: IssueDetails): Promise<CommentSolution> {
 
   try {
     const prompt = createCommentPrompt(issue)
-    const response = await executeAIWithJsonOutput(prompt)
+    const response = await executeAIWithJsonOutput(prompt, {
+      commandName: 'planIssue',
+    })
     const solution = JSON.parse(response)
 
     spinner.succeed('Analysis and solution generated')
@@ -95,7 +99,9 @@ async function processJiraTicket(
       'Converting JIRA ticket to GitHub issue...',
     ).start()
     const prompt = createJiraPrompt(ticketDetails)
-    const response = await executeAIWithJsonOutput(prompt)
+    const response = await executeAIWithJsonOutput(prompt, {
+      commandName: 'planIssue',
+    })
     const issue = JSON.parse(response)
 
     convertSpinner.succeed('JIRA ticket converted to GitHub issue')

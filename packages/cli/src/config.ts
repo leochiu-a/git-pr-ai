@@ -3,8 +3,31 @@ import { join } from 'path'
 import { homedir } from 'os'
 import { type AIAgent } from './constants/agents'
 
+export interface CommandModelConfig {
+  gemini?: string
+  claude?: string
+  'cursor-agent'?: string
+  codex?: string
+}
+
+export type CommandName =
+  | 'createBranch'
+  | 'aiCommit'
+  | 'prReview'
+  | 'updatePrDesc'
+  | 'planIssue'
+  | 'takeIssue'
+
 export interface GitPrAiConfig {
   agent: AIAgent
+  model?: {
+    createBranch?: CommandModelConfig
+    aiCommit?: CommandModelConfig
+    prReview?: CommandModelConfig
+    updatePrDesc?: CommandModelConfig
+    planIssue?: CommandModelConfig
+    takeIssue?: CommandModelConfig
+  }
   jira?: {
     baseUrl: string
     email: string
@@ -43,4 +66,17 @@ export async function loadConfig(): Promise<GitPrAiConfig> {
   }
 
   return config
+}
+
+/**
+ * Get the model configuration for a specific command based on the current agent
+ * @param config - The Git PR AI configuration
+ * @param commandName - The name of the command
+ * @returns The model string if configured, undefined otherwise
+ */
+export function getModelForCommand(
+  config: GitPrAiConfig,
+  commandName: CommandName,
+): string | undefined {
+  return config.model?.[commandName]?.[config.agent]
 }

@@ -18,11 +18,19 @@ This command will guide you through:
 
 ## Configuration File
 
-The configuration is stored in `~/.git-pr-ai/.git-pr-ai.json`. Here's an example:
+The configuration is stored in `~/.git-pr-ai/.git-pr-ai.json`. Here's an example with `agent` and `model`:
 
 ```json
 {
   "agent": "claude",
+  "model": {
+    "createBranch": {
+      "claude": "haiku"
+    },
+    "prReview": {
+      "claude": "sonnet"
+    }
+  },
   "jira": {
     "baseUrl": "https://your-company.atlassian.net",
     "email": "your-email@company.com",
@@ -31,7 +39,7 @@ The configuration is stored in `~/.git-pr-ai/.git-pr-ai.json`. Here's an example
 }
 ```
 
-## Configuration Options
+## Setting `agent` and `model`
 
 ### AI Provider (`agent`)
 
@@ -51,6 +59,70 @@ Choose your preferred AI provider:
 - `"codex"`: Uses Codex CLI for AI assistance
 
 Need help picking or installing one? See the [AI Providers guide](./introduction/ai-providers).
+
+### AI Model Configuration (`model`)
+
+Customize which AI model each command uses. This allows fine-grained control over performance vs. cost trade-offs for different operations.
+
+```json
+{
+  "agent": "claude",
+  "model": {
+    "createBranch": {
+      "claude": "haiku",
+      "gemini": "gemini-2.5-flash"
+    },
+    "aiCommit": {
+      "claude": "haiku"
+    },
+    "prReview": {
+      "claude": "sonnet"
+    },
+    "updatePrDesc": {
+      "claude": "sonnet"
+    },
+    "planIssue": {
+      "claude": "sonnet"
+    },
+    "takeIssue": {
+      "claude": "sonnet"
+    }
+  }
+}
+```
+
+**How it works:**
+
+1. The `agent` field determines which CLI tool to use globally
+2. For each command, you can specify model preferences per agent
+3. The tool uses the model specified for the current `agent`
+4. If no model is specified for a command, the CLI's default model is used
+
+**Available commands:**
+
+Each command supports the following agent names: `claude`, `gemini`, `cursor-agent`, `codex`
+
+- `createBranch`: Branch name generation (`git-create-branch`)
+- `aiCommit`: Commit message generation (`git-ai-commit`)
+- `prReview`: Pull request review (`git-pr-review`)
+- `updatePrDesc`: PR description updates (`git-update-pr-desc`)
+- `planIssue`: Issue planning and optimization (`git-plan-issue`)
+- `takeIssue`: Issue implementation (`git-take-issue`)
+
+**Configuration structure:**
+
+```json
+{
+  "model": {
+    "<commandName>": {
+      "claude": "<model-for-claude>",
+      "gemini": "<model-for-gemini>",
+      "cursor-agent": "<model-for-cursor>",
+      "codex": "<model-for-codex>"
+    }
+  }
+}
+```
 
 ### JIRA Integration (`jira`)
 
@@ -117,9 +189,3 @@ On different systems:
 
 - **macOS/Linux**: `/Users/username/.git-pr-ai/.git-pr-ai.json`
 - **Windows**: `C:\Users\username\.git-pr-ai\.git-pr-ai.json`
-
-## Security Considerations
-
-- **API Tokens**: Store JIRA API tokens securely
-- **File Permissions**: Ensure configuration files are not world-readable
-- **Environment Variables**: Be cautious with API tokens in shell history
