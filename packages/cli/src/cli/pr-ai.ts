@@ -206,20 +206,20 @@ async function updateModelConfig(
   })
 
   const selectedAgent = await select({
-    message: 'Which AI agent should use this model?',
+    message: "Which AI agent's model would you like to configure?",
     choices: AI_AGENT_CHOICES,
     default: config.agent,
   })
 
   console.log(
-    '⚠️ Please enter the exact model ID supported by your agent. Incorrect values will prevent the command from running.',
+    '⚠️ Please enter the exact model name supported by your agent. Incorrect values will prevent the command from running.',
   )
 
   const modelName = await input({
-    message: 'Model ID:',
+    message: 'Model name:',
     validate: (value) => {
       if (!value.trim()) {
-        return 'Model ID is required. Without a correct value the command cannot run.'
+        return 'Model name is required. Without a correct value the command cannot run.'
       }
       return true
     },
