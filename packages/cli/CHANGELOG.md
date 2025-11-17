@@ -1,5 +1,34 @@
 # git-pr-ai
 
+## 1.12.0
+
+### Minor Changes
+
+- cbb6098: Add Codex CLI as a supported AI agent alongside refreshed documentation that centralizes provider info and updates official Gemini/Cursor/Codex links.
+- 2273c1e: Add per-command model configuration support. Users can now specify different AI models for each command in the configuration file, allowing fine-grained control over performance vs. cost trade-offs.
+
+  Example configuration:
+
+  ```json
+  {
+    "agent": "claude",
+    "model": {
+      "createBranch": { "claude": "haiku" },
+      "prReview": { "claude": "sonnet" }
+    }
+  }
+  ```
+
+  This feature enables:
+  - Command-specific model selection (e.g., use fast models for branch naming, powerful models for PR reviews)
+  - Multi-agent model preparation (configure models for different agents without switching)
+  - Backward compatibility (existing configs continue to work without changes)
+
+- 7dbdf8b: Improve the `git pr-ai config` flow with agent-specific model selection:
+  - choose the command via select prompt, pick which agent's model to configure, and enter the exact model name
+  - warn users that incorrect model names block command execution
+  - reuse a shared constant for command/model choices so future commands stay in sync
+
 ## 1.11.0
 
 ### Minor Changes
