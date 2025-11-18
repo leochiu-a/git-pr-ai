@@ -2,6 +2,8 @@
 
 Generate AI-powered commit messages based on your actual code changes. The AI analyzes your git diff and generates **3 commit message options** following conventional commit format, allowing you to choose the one that best describes your changes.
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/mhOpvbq9OCc?si=y7aaKn37TzeZjl2_" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 ## Usage
 
 ```bash
