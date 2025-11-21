@@ -13,16 +13,10 @@ A CLI tool that empowers developers to create GitHub Pull Requests faster and mo
 
 ## Key Features
 
-- **AI-Powered Intelligence**: Harness Claude Code, Gemini AI, or Cursor Agent to transform mundane git tasks into intelligent, context-aware workflows that understand your code and intentions.
+- **AI-Powered Intelligence**: Harness Claude Code, Gemini AI, Cursor Agent, or Codex to transform mundane git tasks into intelligent, context-aware workflows that understand your code and intentions.
 - **Smart JIRA Integration**: Seamlessly bridge your project management and development workflow with automated branch creation and context extraction from tickets.
-- **Workflow Revolution**: Replace dozens of repetitive clicks and commands with intuitive, single-command workflows that just work.
+- **Agent-Agnostic Simplicity**: No need to rely on MCP or write custom prompts. Use the same intuitive commands to switch seamlessly between different AI Agents.
 - **Zero-Friction Setup**: From installation to first PR in under 5 minutes - because your time is better spent coding, not configuring tools.
-
-## Installation
-
-```bash
-pnpm add -g git-pr-ai
-```
 
 ## Prerequisites
 
@@ -47,7 +41,15 @@ Before you begin, please ensure you have completed the following setup:
 
 All combinations of platforms and AI providers are fully supported!
 
+## Installation
+
+```bash
+pnpm add -g git-pr-ai
+```
+
 ## Quick Start
+
+After installing `git-pr-ai`, the CLI registers a suite of `git` subcommands (e.g., `git pr-ai`, `git create-branch`, `git pr-review`) so you can run everything directly from your terminal.
 
 1.  **Configure the tool** (required for git-pr-ai to fetch JIRA data):
 
