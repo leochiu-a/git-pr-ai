@@ -4,12 +4,12 @@ Git PR AI delegates all AI-powered features (branch naming, commit messages, PR 
 
 ## Supported Agents
 
-| Provider         | CLI Command    | Notes                                                                              |
-| ---------------- | -------------- | ---------------------------------------------------------------------------------- |
-| Claude Code      | `claude`       | Default agent. Requires Anthropic account with Claude Code access.                 |
-| Gemini CLI       | `gemini`       | Install from geminicli.com and link your Google account.                           |
-| Cursor Agent CLI | `cursor-agent` | Install from cursor.com/cli; run `cursor-agent auth` to link your account.         |
-| Codex CLI        | `codex`        | Install from developers.openai.com/codex/cli and authenticate with your workspace. |
+| Provider         | CLI Command    | Notes         |
+| ---------------- | -------------- | ------------- |
+| Claude Code      | `claude`       | Default agent |
+| Gemini CLI       | `gemini`       |               |
+| Cursor Agent CLI | `cursor-agent` |               |
+| Codex CLI        | `codex`        |               |
 
 All commands work the same regardless of which provider you select.
 
@@ -32,7 +32,6 @@ After installing a CLI, verify it works by running the corresponding `--version`
 
 ## Feature Expectations
 
-- **Parity**: Every AI-dependent command (plan issue, take issue, ai-commit, update PR description, pr-review, weekly summary, etc.) automatically uses the configured agent.
-- **YOLO mode**: When commands expose `--yolo`, the flag maps to each agent's "force/skip prompt" behavior automatically.
+Every AI-dependent command (plan issue, take issue, ai-commit, update PR description, pr-review, weekly summary, etc.) automatically uses the configured agent.
 
 If you install multiple providers, simply rerun `git pr-ai config` whenever you want to switch. No other changes are required.
