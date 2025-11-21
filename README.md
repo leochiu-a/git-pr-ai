@@ -1,4 +1,4 @@
-# 🚀 Git PR AI
+# Git PR AI
 
 [![npm version](https://img.shields.io/npm/v/git-pr-ai.svg)](https://www.npmjs.com/package/git-pr-ai)
 [![npm downloads](https://img.shields.io/npm/dt/git-pr-ai.svg)](https://www.npmjs.com/package/git-pr-ai)
@@ -11,20 +11,20 @@ A CLI tool that empowers developers to create GitHub Pull Requests faster and mo
 
 `git-pr-ai` is a command-line tool designed to streamline the process of creating GitHub Pull Requests from JIRA tickets. By leveraging the power of AI, it can automatically generate branch names, PR descriptions, and even assist with code reviews, allowing you to focus on what truly matters: writing high-quality code.
 
-## ✨ Key Features
+## Key Features
 
-- **🤖 AI-Powered Intelligence**: Harness Claude Code, Gemini AI, or Cursor Agent to transform mundane git tasks into intelligent, context-aware workflows that understand your code and intentions.
-- **🎫 Smart JIRA Integration**: Seamlessly bridge your project management and development workflow with automated branch creation and context extraction from tickets.
-- **⚙️ Workflow Revolution**: Replace dozens of repetitive clicks and commands with intuitive, single-command workflows that just work.
-- **🚀 Zero-Friction Setup**: From installation to first PR in under 5 minutes - because your time is better spent coding, not configuring tools.
+- **AI-Powered Intelligence**: Harness Claude Code, Gemini AI, or Cursor Agent to transform mundane git tasks into intelligent, context-aware workflows that understand your code and intentions.
+- **Smart JIRA Integration**: Seamlessly bridge your project management and development workflow with automated branch creation and context extraction from tickets.
+- **Workflow Revolution**: Replace dozens of repetitive clicks and commands with intuitive, single-command workflows that just work.
+- **Zero-Friction Setup**: From installation to first PR in under 5 minutes - because your time is better spent coding, not configuring tools.
 
-## 📦 Installation
+## Installation
 
 ```bash
 pnpm add -g git-pr-ai
 ```
 
-## 📋 Prerequisites
+## Prerequisites
 
 Before you begin, please ensure you have completed the following setup:
 
@@ -38,7 +38,7 @@ Before you begin, please ensure you have completed the following setup:
   - [Codex CLI](https://developers.openai.com/codex/cli/) - Codex's AI assistant
   - Need help choosing? Read the [AI Providers guide](https://leochiu-a.github.io/git-pr-ai/introduction/ai-providers).
 
-### 🔌 Platform & AI Provider Support
+### Platform & AI Provider Support
 
 | Platform | Claude Code | Gemini CLI | Cursor CLI | Codex CLI |
 | -------- | :---------: | :--------: | :--------: | :-------: |
@@ -47,7 +47,7 @@ Before you begin, please ensure you have completed the following setup:
 
 All combinations of platforms and AI providers are fully supported!
 
-## 🚀 Quick Start
+## Quick Start
 
 1.  **Configure the tool** (required for git-pr-ai to fetch JIRA data):
 
@@ -56,7 +56,7 @@ All combinations of platforms and AI providers are fully supported!
     git pr-ai config
     ```
 
-2.  **Create a branch from a JIRA Ticket** 🌿:
+2.  **Create a branch from a JIRA Ticket**:
 
     ```bash
     # Automatically generates semantic branch names from JIRA tickets
@@ -65,7 +65,7 @@ All combinations of platforms and AI providers are fully supported!
 
     _No more inconsistent branch names or forgetting ticket details. Just paste your JIRA ID and get perfectly formatted branches every time._
 
-3.  **Create AI-powered Commits** 💬:
+3.  **Create AI-powered Commits**:
 
     ```bash
     # AI-generated commit messages based on your changes
@@ -74,7 +74,7 @@ All combinations of platforms and AI providers are fully supported!
 
     _No more generic commit messages. AI analyzes your changes and suggests 3 meaningful commit messages following conventional commit format. Pick the one that fits best!_
 
-4.  **Create a Pull Request** ⚡:
+4.  **Create a Pull Request**:
 
     ```bash
     # One-command PR creation with intelligent title formatting
@@ -83,7 +83,7 @@ All combinations of platforms and AI providers are fully supported!
 
     _Transform your workflow from "commit → switch to browser → fill forms → copy URLs" to just "commit → one command → done!"_
 
-5.  **Update PR Description with AI** 🧠:
+5.  **Update PR Description with AI**:
 
     ```bash
     # AI-powered PR descriptions that explain what changed and why
@@ -92,7 +92,7 @@ All combinations of platforms and AI providers are fully supported!
 
     _Never write another boring "fix bug" description. Get detailed, context-aware PR descriptions that help reviewers understand your changes instantly._
 
-6.  **Review PR with AI** 🔍:
+6.  **Review PR with AI**:
 
     ```bash
     # Instant AI code review with improvement suggestions
@@ -101,7 +101,7 @@ All combinations of platforms and AI providers are fully supported!
 
     _Think of it as having a senior developer review your code 24/7. Catch bugs early, improve code quality, and learn best practices automatically._
 
-7.  **Generate Weekly Summary** 📊:
+7.  **Generate Weekly Summary**:
 
     ```bash
     # AI-generated weekly summaries for standups and reviews
@@ -110,7 +110,7 @@ All combinations of platforms and AI providers are fully supported!
 
     _Stop scrambling to remember what you worked on this week. Get AI-generated summaries that highlight your impact and achievements automatically._
 
-## 📚 Documentation
+## Documentation
 
 Want to learn more about detailed configurations and features?
 
