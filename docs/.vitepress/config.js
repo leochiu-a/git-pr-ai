@@ -15,11 +15,6 @@ export default defineConfig({
   themeConfig: {
     logo: '/logo.svg',
 
-    nav: [
-      { text: 'Home', link: '/' },
-      { text: 'GitHub', link: 'https://github.com/leochiu-a/git-pr-ai' },
-    ],
-
     sidebar: [
       {
         text: 'Introduction',
