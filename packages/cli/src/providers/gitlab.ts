@@ -44,6 +44,9 @@ export class GitLabProvider implements GitProvider {
     }
   }
 
+  /**
+   * Check if there's an existing PR for the current branch
+   */
   async checkExistingPR(): Promise<string | null> {
     try {
       const currentBranch = await $`git rev-parse --abbrev-ref HEAD`
@@ -160,7 +163,18 @@ export class GitLabProvider implements GitProvider {
   }
 
   async getPRDetails(): Promise<PRDetails> {
-    const mrResult = await $`glab mr view -F json`
+    const prUrl = await this.checkExistingPR()
+
+    if (!prUrl) {
+      throw new Error(
+        "No open Merge Request found for the current branch. Please ensure there's an open MR before running this command.",
+      )
+    }
+
+    const match = prUrl.match(/merge_requests\/(\d+)/)
+    const mrId = match?.[1]
+
+    const mrResult = await $`glab mr view ${mrId} -F json`
     const repoResult = await $`glab repo view -F json`
 
     const mrData = JSON.parse(mrResult.stdout)
