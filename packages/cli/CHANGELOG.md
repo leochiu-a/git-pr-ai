@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.12.1
+
+### Patch Changes
+
+- 99e2849: fix: validate MR exists before fetching details in GitLab provider
+
 ## 1.12.0
 
 ### Minor Changes
