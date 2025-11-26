@@ -176,11 +176,11 @@ async function askWhatToUpdate(): Promise<string> {
   return await select({
     message: 'What would you like to configure?',
     choices: [
-      { name: 'AI Agent only', value: 'agent' },
-      { name: 'Git provider only', value: 'provider' },
-      { name: 'Language only', value: 'language' },
-      { name: 'JIRA integration only', value: 'jira' },
-      { name: 'Command models only', value: 'model' },
+      { name: 'AI Agent', value: 'agent' },
+      { name: 'Git provider', value: 'provider' },
+      { name: 'Language', value: 'language' },
+      { name: 'JIRA integration', value: 'jira' },
+      { name: 'Command models', value: 'model' },
       {
         name: 'All (Agent, Git provider, Language, JIRA, and models)',
         value: 'agent,provider,language,jira,model',
@@ -379,10 +379,10 @@ program
   .description('Initialize or update Git PR AI configuration')
   .option('-f, --force', 'force overwrite existing configuration')
   .option('-o, --open', 'open existing configuration file')
-  .option('-a, --agent', 'configure AI agent only')
-  .option('-p, --provider', 'configure Git provider only')
-  .option('-l, --language', 'configure language only')
-  .option('-j, --jira', 'configure JIRA integration only')
+  .option('-a, --agent', 'configure AI agent')
+  .option('-p, --provider', 'configure Git provider')
+  .option('-l, --language', 'configure language')
+  .option('-j, --jira', 'configure JIRA integration')
   .option('-m, --model', 'configure AI model for a specific command')
   .action(async (options) => {
     try {
