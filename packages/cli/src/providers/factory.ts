@@ -2,6 +2,7 @@ import { $ } from 'zx'
 import { GitProvider, ProviderType } from './types'
 import { GitHubProvider } from './github'
 import { GitLabProvider } from './gitlab'
+import { loadConfig } from '../config'
 
 let cachedProviderType: ProviderType | null = null
 let cachedProvider: GitProvider | null = null
@@ -31,10 +32,15 @@ export async function detectProvider(): Promise<ProviderType> {
   }
 }
 
-export async function getCurrentProvider(
-  type?: ProviderType,
-): Promise<GitProvider> {
-  const providerType = type || (await detectProvider())
+export async function getCurrentProvider(): Promise<GitProvider> {
+  if (!cachedProviderType) {
+    const config = await loadConfig()
+    if (config.gitProvider) {
+      cachedProviderType = config.gitProvider
+    }
+  }
+
+  const providerType = cachedProviderType ?? (await detectProvider())
 
   if (cachedProvider && cachedProviderType === providerType) {
     return cachedProvider

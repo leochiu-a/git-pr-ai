@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'fs'
 import { join } from 'path'
 import { homedir } from 'os'
 import { type AIAgent } from './constants/agents'
+import { type ProviderType } from './providers/types'
 
 export interface CommandModelConfig {
   gemini?: string
@@ -20,6 +21,7 @@ export type CommandName =
 
 export interface GitPrAiConfig {
   agent: AIAgent
+  gitProvider?: ProviderType
   model?: {
     createBranch?: CommandModelConfig
     aiCommit?: CommandModelConfig
