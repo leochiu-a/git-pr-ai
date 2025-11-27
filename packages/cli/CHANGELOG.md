@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.13.0
+
+### Minor Changes
+
+- 14b23c2: Add configurable Git provider support so `git pr-ai config` can pin GitHub or GitLab and provider detection honors the new setting.
+
 ## 1.12.1
 
 ### Patch Changes
