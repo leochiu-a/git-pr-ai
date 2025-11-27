@@ -18,6 +18,19 @@ import {
 } from '../git-helpers'
 import { AI_AGENT_CHOICES } from '../constants/agents'
 import { COMMAND_MODEL_CHOICES } from '../constants/command-models'
+import {
+  PROVIDER_CHOICES,
+  PROVIDER_NAME_MAP,
+  type ProviderChoice,
+} from '../constants/providers'
+import { type ProviderType } from '../providers/types'
+
+function formatProviderChoice(provider?: ProviderType): string {
+  if (!provider) {
+    return 'Auto-detect (based on git remote origin)'
+  }
+  return PROVIDER_NAME_MAP[provider]
+}
 
 async function openConfig() {
   const configPath = getConfigPath()
@@ -106,6 +119,7 @@ async function displayExistingConfig(config: GitPrAiConfig) {
   console.log('Found existing configuration:')
   console.log('')
   console.log(`Agent: ${config.agent}`)
+  console.log(`Git provider: ${formatProviderChoice(config.gitProvider)}`)
   console.log(
     `Language: ${SUPPORTED_LANGUAGES[currentLanguage]} (${currentLanguage})`,
   )
@@ -133,12 +147,14 @@ async function confirmUpdate(force: boolean): Promise<boolean> {
 
 function determineWhatToUpdate(options: {
   agent?: boolean
+  provider?: boolean
   jira?: boolean
   language?: boolean
   model?: boolean
 }): string {
   const selections = []
   if (options.agent) selections.push('agent')
+  if (options.provider) selections.push('provider')
   if (options.jira) selections.push('jira')
   if (options.language) selections.push('language')
   if (options.model) selections.push('model')
@@ -160,13 +176,14 @@ async function askWhatToUpdate(): Promise<string> {
   return await select({
     message: 'What would you like to configure?',
     choices: [
-      { name: 'AI Agent only', value: 'agent' },
-      { name: 'Language only', value: 'language' },
-      { name: 'JIRA integration only', value: 'jira' },
-      { name: 'Command models only', value: 'model' },
+      { name: 'AI Agent', value: 'agent' },
+      { name: 'Git provider', value: 'provider' },
+      { name: 'Language', value: 'language' },
+      { name: 'JIRA integration', value: 'jira' },
+      { name: 'Command models', value: 'model' },
       {
-        name: 'All (Agent, Language, JIRA, and models)',
-        value: 'agent,language,jira,model',
+        name: 'All (Agent, Git provider, Language, JIRA, and models)',
+        value: 'agent,provider,language,jira,model',
       },
     ],
   })
@@ -180,6 +197,21 @@ async function updateAgentConfig(
     choices: AI_AGENT_CHOICES,
   })
   return { ...config, agent: selectedAgent }
+}
+
+async function updateProviderConfig(
+  config: GitPrAiConfig,
+): Promise<GitPrAiConfig> {
+  const selectedProvider = await select<ProviderChoice>({
+    message: 'Which Git provider would you like to use?',
+    choices: PROVIDER_CHOICES,
+    default: (config.gitProvider ?? 'auto') as ProviderChoice,
+  })
+
+  return {
+    ...config,
+    gitProvider: selectedProvider === 'auto' ? undefined : selectedProvider,
+  }
 }
 
 async function updateLanguageConfig(): Promise<void> {
@@ -267,6 +299,7 @@ async function saveConfig(config: GitPrAiConfig): Promise<void> {
     spinner.succeed('Configuration updated successfully!')
     console.log(`Config path: ${configPath}`)
     console.log(`AI agent: ${config.agent}`)
+    console.log(`Git provider: ${formatProviderChoice(config.gitProvider)}`)
     console.log(
       `Language: ${SUPPORTED_LANGUAGES[currentLanguage]} (${currentLanguage})`,
     )
@@ -283,6 +316,7 @@ async function saveConfig(config: GitPrAiConfig): Promise<void> {
 async function initConfig(options: {
   force?: boolean
   agent?: boolean
+  provider?: boolean
   jira?: boolean
   language?: boolean
   model?: boolean
@@ -319,6 +353,9 @@ async function initConfig(options: {
   if (updateOptions.includes('agent')) {
     config = await updateAgentConfig(config)
   }
+  if (updateOptions.includes('provider')) {
+    config = await updateProviderConfig(config)
+  }
   if (updateOptions.includes('language')) {
     await updateLanguageConfig()
   }
@@ -342,9 +379,10 @@ program
   .description('Initialize or update Git PR AI configuration')
   .option('-f, --force', 'force overwrite existing configuration')
   .option('-o, --open', 'open existing configuration file')
-  .option('-a, --agent', 'configure AI agent only')
-  .option('-l, --language', 'configure language only')
-  .option('-j, --jira', 'configure JIRA integration only')
+  .option('-a, --agent', 'configure AI agent')
+  .option('-p, --provider', 'configure Git provider')
+  .option('-l, --language', 'configure language')
+  .option('-j, --jira', 'configure JIRA integration')
   .option('-m, --model', 'configure AI model for a specific command')
   .action(async (options) => {
     try {

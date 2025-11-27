@@ -12,6 +12,7 @@ git pr-ai config
 
 This command will guide you through:
 
+- Selecting your Git provider preference (auto-detect, GitHub, or GitLab)
 - Choosing your preferred AI provider (Claude, Gemini, Cursor Agent, or Codex)
 - Setting up JIRA integration (optional)
 - Creating the configuration file
@@ -22,6 +23,7 @@ The configuration is stored in `~/.git-pr-ai/.git-pr-ai.json`. Here's an example
 
 ```json
 {
+  "gitProvider": "gitlab",
   "agent": "claude",
   "model": {
     "createBranch": {
@@ -39,7 +41,21 @@ The configuration is stored in `~/.git-pr-ai/.git-pr-ai.json`. Here's an example
 }
 ```
 
-## Setting `agent` and `model`
+## Setting Git Provider, `agent`, and `model`
+
+### Git Provider (`gitProvider`)
+
+By default, the CLI auto-detects whether you're working with GitHub or GitLab by inspecting the `origin` remote. Set `gitProvider` if you want to pin the behavior (useful when working with mirrored or atypical remotes).
+
+> 💡 In practice, you only need to set this when your GitLab instance lives on a custom domain or you rely on a nonstandard remote URL. GitHub users (and GitLab projects hosted on `gitlab.com`) can leave it on auto-detect.
+
+```json
+{
+  "gitProvider": "github" // or "gitlab"
+}
+```
+
+Use `git pr-ai config --provider` to switch between auto-detect, GitHub, or GitLab anytime.
 
 ### AI Provider (`agent`)
 
@@ -175,7 +191,7 @@ Without configuration, the tool will:
 
 - Use Claude as the default AI provider (if available). Switch to Gemini, Cursor Agent, or Codex anytime by running `git pr-ai config`.
 - Skip JIRA integration (use branch names for PR titles)
-- Work with basic GitHub integration only
+- Auto-detect the Git provider from the `origin` remote (falls back to GitHub if detection fails)
 
 ## Configuration File Location
 

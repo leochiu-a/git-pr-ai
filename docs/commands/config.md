@@ -16,6 +16,21 @@ git pr-ai config
 
 For detailed configuration options and advanced settings, see the [Configuration Guide](../configuration).
 
+## Options
+
+| Option           | Description                                                            |
+| ---------------- | ---------------------------------------------------------------------- |
+| `-f, --force`    | Force overwrite existing configuration without confirmation            |
+| `-o, --open`     | Open the existing configuration file in your editor                    |
+| `-a, --agent`    | Configure the AI agent only                                            |
+| `-p, --provider` | Configure the Git provider preference (auto-detect, GitHub, or GitLab) |
+| `-l, --language` | Configure the CLI language only                                        |
+| `-j, --jira`     | Configure JIRA integration only                                        |
+| `-m, --model`    | Configure the AI model for a specific command                          |
+| `-h, --help`     | Display help for the command                                           |
+
+Most GitHub users can skip the `--provider` option—the CLI detects GitHub automatically. Configure it if your GitLab installation uses a custom domain or nonstandard remote URL.
+
 ## Command Aliases
 
 After installation, these git aliases are automatically configured:

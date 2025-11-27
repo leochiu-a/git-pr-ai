@@ -15,6 +15,7 @@ A CLI tool that empowers developers to create GitHub Pull Requests faster and mo
 
 - **🤖 AI-Powered Assistance**: Utilizes powerful AI models (Claude Code, Gemini, Cursor Agent, or Codex) to automatically generate PR descriptions and review code.
 - **🎫 JIRA Integration**: Directly create git branches with standardized names from JIRA tickets.
+- **🌐 GitHub + GitLab Ready**: Works across both hosting providers and lets you explicitly choose which one to target if auto-detection isn't correct for your setup.
 - **⚙️ Simplified Workflow**: Consolidates multiple git commands into single, easy-to-remember commands.
 - **🚀 Quick Start**: Get up and running with just a few simple installation and setup steps.
 
@@ -38,7 +39,7 @@ Before you begin, please ensure you have completed the following setup:
 1.  **Configure the tool** (required for git-pr-ai to fetch JIRA data):
 
     ```bash
-    # Set up your preferred AI provider (see the AI Providers guide for options)
+    # Set up your preferred AI provider and optionally select GitHub or GitLab
     git pr-ai config
     ```
 
