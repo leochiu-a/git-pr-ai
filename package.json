@@ -25,6 +25,7 @@
     "version": "changeset version",
     "release": "pnpm build && changeset publish",
     "test": "pnpm --filter git-pr-ai test",
+    "type-check": "pnpm --filter git-pr-ai type-check",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "prettier --write .",
