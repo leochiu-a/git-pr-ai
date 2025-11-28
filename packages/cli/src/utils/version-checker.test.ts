@@ -3,7 +3,7 @@ import { $ } from 'zx'
 import { confirm } from '@inquirer/prompts'
 import ora from 'ora'
 import fs from 'node:fs'
-import dayjs from 'dayjs'
+import dayjs, { type Dayjs } from 'dayjs'
 import { run as ncu } from 'npm-check-updates'
 import {
   checkLatestVersion,
@@ -195,7 +195,9 @@ describe('version-checker', () => {
   })
 
   describe('checkAndUpgrade', () => {
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation(((code) => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation(((
+      code?: number,
+    ) => {
       throw new Error(`process.exit unexpectedly called with "${code}"`)
     }) as any)
 
@@ -259,14 +261,14 @@ describe('version-checker', () => {
     it('should skip check when already checked today', async () => {
       const mockToday = {
         isSame: vi.fn().mockReturnValue(true),
-      }
+      } as unknown as Dayjs
 
       // Mock file exists and contains today's timestamp
       mockFs.existsSync.mockReturnValue(true)
       mockFs.readFileSync.mockReturnValue(
         JSON.stringify({ timestamp: Date.now() }),
       )
-      mockDayjs.mockReturnValue(mockToday as unknown)
+      mockDayjs.mockReturnValue(mockToday)
 
       await checkAndUpgrade()
 

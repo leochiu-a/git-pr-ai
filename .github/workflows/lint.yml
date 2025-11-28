@@ -31,5 +31,8 @@ jobs:
       - name: Run OXLint
         run: pnpm run lint
 
+      - name: Type Check
+        run: pnpm run type-check
+
       - name: Check Prettier Format
         run: pnpm run format:check
