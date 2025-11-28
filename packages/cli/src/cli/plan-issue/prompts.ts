@@ -1,4 +1,5 @@
-import { IssueDetails, JiraTicketDetails } from './types'
+import { type JiraTicketDetails } from './types'
+import { type IssueDetails } from '../../providers/types'
 
 export function createOptimizePrompt(issue: IssueDetails): string {
   return `
