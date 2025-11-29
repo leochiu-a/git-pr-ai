@@ -164,20 +164,16 @@ export class GitLabProvider implements GitProvider {
 
   async getPRDetails(prNumberOrUrl?: string): Promise<PRDetails> {
     let mrId = prNumberOrUrl
-    let repoPath: string | undefined
 
     if (prNumberOrUrl && prNumberOrUrl.startsWith('http')) {
-      // Extract both project path and MR number from URL
-      // Pattern matches: https://gitlab.com/group/subgroup/project/-/merge_requests/123
-      const gitlabPattern = /https?:\/\/[^/]+\/(.+?)\/-\/merge_requests\/(\d+)/
+      const gitlabPattern = /\/(?:-\/)?merge_requests\/(\d+)/
       const match = prNumberOrUrl.match(gitlabPattern)
       if (!match) {
         throw new Error(
           'Invalid GitLab MR URL format. Expected: https://gitlab.com/group/project/-/merge_requests/123',
         )
       }
-      repoPath = match[1]
-      mrId = match[2]
+      mrId = match[1]
     }
 
     if (!mrId) {
@@ -196,8 +192,8 @@ export class GitLabProvider implements GitProvider {
       mrId = match[1]
     }
 
-    const mrResult = await $`glab mr view ${mrId} -R ${repoPath} -F json`
-    const repoResult = await $`glab repo view -R ${repoPath} -F json`
+    const mrResult = await $`glab mr view ${mrId} -F json`
+    const repoResult = await $`glab repo view -F json`
 
     const mrData = JSON.parse(mrResult.stdout)
     const repoData = JSON.parse(repoResult.stdout)

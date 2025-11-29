@@ -151,24 +151,24 @@ export class GitHubProvider implements GitProvider {
 
   async getPRDetails(prNumberOrUrl?: string): Promise<PRDetails> {
     let prNumber = prNumberOrUrl
-    let repoPath: string | undefined
 
-    // If it looks like a URL, extract the PR number and repo path
+    // If it looks like a URL, extract the PR number
     if (prNumberOrUrl && prNumberOrUrl.startsWith('http')) {
-      const githubPattern = /https:\/\/github\.com\/([^/]+\/[^/]+)\/pull\/(\d+)/
+      const githubPattern = /https:\/\/github\.com\/[^/]+\/[^/]+\/pull\/(\d+)/
       const match = prNumberOrUrl.match(githubPattern)
       if (!match) {
         throw new Error(
           'Invalid GitHub PR URL format. Expected: https://github.com/owner/repo/pull/123',
         )
       }
-      repoPath = match[1]
-      prNumber = match[2]
+      prNumber = match[1]
     }
 
-    const prResult =
-      await $`gh pr view ${prNumber} -R ${repoPath} --json number,title,url,baseRefName,headRefName,state,author`
-    const repoResult = await $`gh repo view -R ${repoPath} --json owner,name`
+    const prResult = prNumber
+      ? await $`gh pr view ${prNumber} --json number,title,url,baseRefName,headRefName,state,author`
+      : await $`gh pr view --json number,title,url,baseRefName,headRefName,state,author`
+
+    const repoResult = await $`gh repo view --json owner,name`
 
     const prData = JSON.parse(prResult.stdout)
     const repoData = JSON.parse(repoResult.stdout)
