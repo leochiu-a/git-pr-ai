@@ -27,7 +27,7 @@ export interface GitProvider {
   listPRs(): Promise<PR[]>
 
   /** Get detailed information about a specific PR/MR (by number) or from URL */
-  getPRDetails(): Promise<PRDetails>
+  getPRDetails(prNumberOrUrl?: string): Promise<PRDetails>
 
   /** Get the diff/changes for a specific PR/MR */
   getPRDiff(prNumber?: string): Promise<string>

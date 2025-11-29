@@ -162,17 +162,35 @@ export class GitLabProvider implements GitProvider {
     }
   }
 
-  async getPRDetails(): Promise<PRDetails> {
-    const prUrl = await this.checkExistingPR()
+  async getPRDetails(prNumberOrUrl?: string): Promise<PRDetails> {
+    let mrId = prNumberOrUrl
 
-    if (!prUrl) {
-      throw new Error(
-        "No open Merge Request found for the current branch. Please ensure there's an open MR before running this command.",
-      )
+    if (prNumberOrUrl && prNumberOrUrl.startsWith('http')) {
+      const gitlabPattern = /\/(?:-\/)?merge_requests\/(\d+)/
+      const match = prNumberOrUrl.match(gitlabPattern)
+      if (!match) {
+        throw new Error(
+          'Invalid GitLab MR URL format. Expected: https://gitlab.com/group/project/-/merge_requests/123',
+        )
+      }
+      mrId = match[1]
     }
 
-    const match = prUrl.match(/merge_requests\/(\d+)/)
-    const mrId = match?.[1]
+    if (!mrId) {
+      const prUrl = await this.checkExistingPR()
+
+      if (!prUrl) {
+        throw new Error(
+          "No open Merge Request found for the current branch. Please ensure there's an open MR before running this command.",
+        )
+      }
+
+      const match = prUrl.match(/\/(?:-\/)?merge_requests\/(\d+)/)
+      if (!match) {
+        throw new Error('Unable to determine Merge Request number from URL.')
+      }
+      mrId = match[1]
+    }
 
     const mrResult = await $`glab mr view ${mrId} -F json`
     const repoResult = await $`glab repo view -F json`
