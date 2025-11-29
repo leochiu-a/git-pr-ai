@@ -117,70 +117,56 @@ export function buildGitLabReviewPrompt({
   const submitInstructions = `
 **Step A - Get project ID and SHAs:**
 \`\`\`bash
-MR_JSON=$(glab mr view ${prDetails.number} -F json)
-PROJECT_ID=$(glab repo view -F json | jq -r '.id')
-BASE_SHA=$(echo "$MR_JSON" | jq -r '.diff_refs.base_sha')
-HEAD_SHA=$(echo "$MR_JSON" | jq -r '.diff_refs.head_sha')
-START_SHA=$(echo "$MR_JSON" | jq -r '.diff_refs.start_sha')
+# Split commands to avoid shell parsing errors
+glab mr view ${prDetails.number} -F json > /tmp/mr.json
+glab repo view -F json > /tmp/repo.json
+
+PROJECT_ID=$(cat /tmp/repo.json | jq -r '.id')
+MR_IID=$(cat /tmp/mr.json | jq -r '.iid')
+BASE_SHA=$(cat /tmp/mr.json | jq -r '.diff_refs.base_sha')
+HEAD_SHA=$(cat /tmp/mr.json | jq -r '.diff_refs.head_sha')
+START_SHA=$(cat /tmp/mr.json | jq -r '.diff_refs.start_sha')
 \`\`\`
 
-**Step B - Create review.json for overall review note:**
-
-\`\`\`json
-{
-  "body": "Overall review summary\\n\\nKey points:\\n- Point 1\\n- Point 2"
-}
-\`\`\`
-
-**Step C - Create discussion.json for each code comment:**
-\`\`\`json
-{
-  "body": "**Issue**\\n\\nCurrent:\\n\\\`\\\`\\\`ts\\nconst x = \\"value\\"\\n\\\`\\\`\\\`\\n\\nFix:\\n\\\`\\\`\\\`ts\\nconst x = 'value'\\n\\\`\\\`\\\`",
-  "position": {
-    "position_type": "text",
-    "base_sha": "REPLACE_WITH_BASE_SHA_FROM_STEP_A",
-    "head_sha": "REPLACE_WITH_HEAD_SHA_FROM_STEP_A",
-    "start_sha": "REPLACE_WITH_START_SHA_FROM_STEP_A",
-    "new_path": "src/file.ts",
-    "old_path": "src/file.ts",
-    "new_line": 15
-  }
-}
-\`\`\`
-
-**Step C - Submit:**
+**Step B - Submit overall review (use --raw-field, NOT --input):**
 \`\`\`bash
-# Submit overall review (if created)
-glab api --method POST \\
-  /projects/$PROJECT_ID/merge_requests/$MR_IID/notes \\
-  --input review.json
+glab api --method POST /projects/$PROJECT_ID/merge_requests/$MR_IID/notes \\
+  --raw-field 'body=## Review Summary
 
-# Submit inline comments (repeat for each comment)
-glab api --method POST \\
-  /projects/$PROJECT_ID/merge_requests/$MR_IID/discussions \\
-  --input discussion.json
+Key points:
+- Point 1
+- Point 2'
 \`\`\`
 
-**JSON rules:**
-- Newlines: \\n
-- Code blocks: \\\`\\\`\\\`
-- Double quotes in code: \\" (MUST escape!)
-- Single quotes: ' (NO backslash!)
-- new_line: for added/modified lines (after change)
-- old_line: for deleted lines (before change)
-- CRITICAL: Verify all line numbers exist in diff before submitting
+**Step C - Submit inline comments (use --raw-field for all fields):**
+\`\`\`bash
+glab api --method POST /projects/$PROJECT_ID/merge_requests/$MR_IID/discussions \\
+  --raw-field 'body=**Issue**
 
-**Multi-line comments:**
-Add line_range to position for multi-line highlighting:
-\`\`\`json
-"position": {
-  ...,
-  "line_range": {
-    "start": { "line_code": "...", "type": "new" },
-    "end": { "line_code": "...", "type": "new" }
-  }
-}
+Current:
+\\\`\\\`\\\`ts
+const x = "value"
+\\\`\\\`\\\`
+
+Fix:
+\\\`\\\`\\\`ts
+const x = '"'"'value'"'"'
+\\\`\\\`\\\`' \\
+  --raw-field 'position[position_type]=text' \\
+  --raw-field 'position[base_sha]=$BASE_SHA' \\
+  --raw-field 'position[head_sha]=$HEAD_SHA' \\
+  --raw-field 'position[start_sha]=$START_SHA' \\
+  --raw-field 'position[new_path]=src/file.ts' \\
+  --raw-field 'position[old_path]=src/file.ts' \\
+  --raw-field 'position[new_line]=15'
 \`\`\`
+
+**Important notes:**
+- MUST use --raw-field (GitLab API requires form fields, not JSON)
+- Escape single quotes in bash: '"'"' (e.g., 'Vue'"'"'s' → "Vue's")
+- Code blocks: \\\`\\\`\\\` (triple backticks with backslash)
+- new_line: line number in new file (after change)
+- CRITICAL: Verify line numbers exist in diff before submitting
 `
 
   return `${basePrompt}
