@@ -1,5 +1,12 @@
 # git-pr-ai
 
+## 1.13.1
+
+### Patch Changes
+
+- 71b7b66: Allow GitLab provider APIs such as PR review to accept a merge request number or URL, matching the GitHub implementation.
+- 25f8e5f: Add TypeScript type checking to CI/CD pipeline to catch type errors early and improve code quality
+
 ## 1.13.0
 
 ### Minor Changes
