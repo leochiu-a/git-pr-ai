@@ -150,7 +150,6 @@ export class GitHubProvider implements GitProvider {
   }
 
   async getPRDetails(prNumberOrUrl?: string): Promise<PRDetails> {
-    let prNumber = prNumberOrUrl
     let repoPath: string | undefined
 
     // If it looks like a URL, extract the PR number and repo path
@@ -163,12 +162,11 @@ export class GitHubProvider implements GitProvider {
         )
       }
       repoPath = match[1]
-      prNumber = match[2]
     }
 
     const prResult =
-      await $`gh pr view ${prNumber} -R ${repoPath} --json number,title,url,baseRefName,headRefName,state,author`
-    const repoResult = await $`gh repo view -R ${repoPath} --json owner,name`
+      await $`gh pr view ${prNumberOrUrl} --json number,title,url,baseRefName,headRefName,state,author`
+    const repoResult = await $`gh repo view ${repoPath} --json owner,name`
 
     const prData = JSON.parse(prResult.stdout)
     const repoData = JSON.parse(repoResult.stdout)
