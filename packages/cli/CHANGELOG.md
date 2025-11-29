@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.13.2
+
+### Patch Changes
+
+- 6e90e2c: Surface GitLab merge request metadata (repo path and diff SHAs) from `getPRDetails` and wire prompts to use it instead of extra CLI JSON calls.
+
 ## 1.13.1
 
 ### Patch Changes
