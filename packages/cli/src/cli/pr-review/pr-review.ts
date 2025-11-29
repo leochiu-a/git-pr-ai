@@ -49,6 +49,10 @@ function setupCommander() {
   program
     .name('git-pr-review')
     .description('AI-powered Pull Request/Merge Request Review Tool')
+    .argument(
+      '[prNumberOrUrl]',
+      'Specific PR/MR number or full URL to review (optional)',
+    )
     .option('-c, --context <context>', 'Additional context for the review')
     .option('--yolo', 'skip prompts and proceed with defaults')
     .addHelpText(
@@ -89,27 +93,32 @@ Examples:
 async function main() {
   const program = setupCommander()
 
-  program.action(async (options: { context?: string; yolo?: boolean }) => {
-    try {
-      // Check for version updates
-      await checkAndUpgrade()
+  program.action(
+    async (
+      prNumberOrUrl: string | undefined,
+      options: { context?: string; yolo?: boolean },
+    ) => {
+      try {
+        // Check for version updates
+        await checkAndUpgrade()
 
-      await checkGitCLI()
+        await checkGitCLI()
 
-      const provider = await getCurrentProvider()
-      const prDetails = await provider.getPRDetails()
+        const provider = await getCurrentProvider()
+        const prDetails = await provider.getPRDetails(prNumberOrUrl)
 
-      await reviewPR(prDetails, {
-        additionalContext: options.context,
-        yolo: options.yolo,
-      })
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error)
-      console.error('Error:', errorMessage)
-      process.exit(1)
-    }
-  })
+        await reviewPR(prDetails, {
+          additionalContext: options.context,
+          yolo: options.yolo,
+        })
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error)
+        console.error('Error:', errorMessage)
+        process.exit(1)
+      }
+    },
+  )
 
   program.parse()
 }
