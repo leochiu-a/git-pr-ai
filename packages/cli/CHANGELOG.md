@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.13.3
+
+### Patch Changes
+
+- 9accd7b: Verify GitLab CLI authentication with `glab api user` to ensure the token can access the API.
+
 ## 1.13.2
 
 ### Patch Changes
