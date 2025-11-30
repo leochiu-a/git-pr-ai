@@ -23,7 +23,7 @@ export class GitLabProvider implements GitProvider {
     }
 
     try {
-      await $`glab auth status`.quiet()
+      await $`glab api user`.quiet()
     } catch {
       console.error('❌ Please authenticate with GitLab CLI first')
       console.error('Run: glab auth login')
