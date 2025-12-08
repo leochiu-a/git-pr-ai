@@ -1,16 +1,30 @@
 import { loadConfig } from './config'
 import { JiraTicketDetails } from './cli/plan-issue/types'
 
-export function extractJiraTicket(branchName: string): string | null {
-  const jiraPattern = /([A-Z0-9]+-\d+)/
-  const match = branchName.match(jiraPattern)
+const JIRA_TICKET_PATTERN = /([A-Z0-9]+-\d+)/i
+const JIRA_BROWSE_URL_PATTERN = /\/browse\/([A-Z0-9]+-\d+)/i
 
-  if (!match) {
+export function normalizeJiraTicketInput(input: string): string | null {
+  if (!input) return null
+
+  const browseMatch = input.match(JIRA_BROWSE_URL_PATTERN)
+  if (browseMatch) {
+    return browseMatch[1].toUpperCase()
+  }
+
+  const ticketMatch = input.match(JIRA_TICKET_PATTERN)
+  return ticketMatch ? ticketMatch[1].toUpperCase() : null
+}
+
+export function extractJiraTicket(branchName: string): string | null {
+  const ticket = normalizeJiraTicketInput(branchName)
+
+  if (!ticket) {
     console.log('ℹ️ No JIRA ticket found in branch name, proceeding without it')
     return null
   }
 
-  return match[1]
+  return ticket
 }
 
 function createJiraApiUrl(baseUrl: string, ticketKey: string): string {
