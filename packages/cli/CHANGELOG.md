@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.13.4
+
+### Patch Changes
+
+- 756642a: Support `git create-branch --jira` accepting full JIRA URLs via shared normalization helper.
+
 ## 1.13.3
 
 ### Patch Changes
