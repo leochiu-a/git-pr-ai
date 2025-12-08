@@ -7,7 +7,7 @@ import {
   getCurrentBranch,
   getDefaultBranch,
 } from '../../git-helpers'
-import { getJiraTicketTitle } from '../../jira'
+import { getJiraTicketTitle, normalizeJiraTicketInput } from '../../jira'
 import { loadConfig } from '../../config'
 import { executeAIWithOutput } from '../../ai/executor'
 import {
@@ -319,11 +319,13 @@ async function main() {
         branchName = await generateBranchNameFromPrompt(options.prompt)
       } else if (options.jira) {
         // Generate branch name from JIRA ticket
-        // Extract ticket ID from URL if provided, otherwise use as-is
-        let jiraTicket = options.jira
-        const urlMatch = jiraTicket.match(/\/browse\/([A-Z]+-\d+)/i)
-        if (urlMatch) {
-          jiraTicket = urlMatch[1]
+        const jiraTicket = normalizeJiraTicketInput(options.jira)
+
+        if (!jiraTicket) {
+          console.error(
+            'Invalid JIRA ticket provided. Use a ticket key like PROJ-123 or a valid JIRA URL.',
+          )
+          process.exit(1)
         }
         console.log(`JIRA Ticket: ${jiraTicket}`)
 
