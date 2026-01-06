@@ -36,6 +36,7 @@ git create-branch --jira PROJ-123
 
 # Create AI-powered commit
 git ai-commit
+git ai-commit "explain why the change was needed"
 
 # Open a Pull Request
 git open-pr

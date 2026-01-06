@@ -1,9 +1,17 @@
 export const createCommitMessagePrompt = (
   gitDiff: string,
-) => `Based on the following git diff, generate 3 commit message options:
+  userPrompt?: string,
+) => {
+  const trimmedPrompt = userPrompt?.trim()
+  const extraContext = trimmedPrompt
+    ? `\nAdditional context from user:\n${trimmedPrompt}\n`
+    : '\n'
+
+  return `Based on the following git diff, generate 3 commit message options:
 
 ${gitDiff}
 
+${extraContext}
 Please analyze the changes and provide 3 commit message options with different approaches:
 1. An appropriate commit type prefix following commitlint conventional types:
    - feat: new features
@@ -39,3 +47,4 @@ OPTION_1: feat: add user authentication module
 OPTION_2: feat: implement login and signup functionality
 OPTION_3: feat: add JWT-based authentication system for users
 `
+}

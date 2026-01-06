@@ -28,7 +28,10 @@ async function getGitDiff(): Promise<string> {
   }
 }
 
-async function generateCommitMessages(gitDiff: string): Promise<string[]> {
+async function generateCommitMessages(
+  gitDiff: string,
+  userPrompt?: string,
+): Promise<string[]> {
   const config = await loadConfig()
 
   const spinner = ora(
@@ -36,7 +39,7 @@ async function generateCommitMessages(gitDiff: string): Promise<string[]> {
   ).start()
 
   try {
-    const prompt = createCommitMessagePrompt(gitDiff)
+    const prompt = createCommitMessagePrompt(gitDiff, userPrompt)
     const aiOutput = await executeAIWithOutput(prompt, {
       commandName: 'aiCommit',
     })
@@ -89,6 +92,10 @@ function setupCommander() {
   program
     .name('git-ai-commit')
     .description('Generate AI-powered commit messages based on your changes')
+    .argument(
+      '[prompt]',
+      'Additional context to refine the commit message suggestions',
+    )
     .addHelpText(
       'after',
       `
@@ -100,6 +107,9 @@ Examples:
   $ git ai-commit
     If no changes are staged, AI will analyze all unstaged changes
     and automatically stage them before committing
+  
+  $ git ai-commit "explain why the change was needed"
+    AI will incorporate your context when generating commit messages
 
 Features:
   - AI-powered commit message generation based on actual code changes
@@ -120,7 +130,7 @@ Prerequisites:
 async function main() {
   const program = setupCommander()
 
-  program.action(async () => {
+  program.action(async (prompt?: string) => {
     try {
       // Check for version updates
       await checkAndUpgrade()
@@ -131,7 +141,7 @@ async function main() {
       const gitDiff = await getGitDiff()
 
       // Generate commit messages using AI
-      const commitMessages = await generateCommitMessages(gitDiff)
+      const commitMessages = await generateCommitMessages(gitDiff, prompt)
 
       // Let user select a commit message
       const selectedMessage = await select({
