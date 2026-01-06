@@ -52,8 +52,13 @@ function applyJiraFormat(messages: string[], jira: JiraContext): string[] {
 
   return messages.map((message) => {
     const type = extractCommitType(message) || 'chore'
+    const rawDescription = extractCommitDescription(message)
     const description =
-      jiraTitle || extractCommitDescription(message) || ticketTag
+      jiraTitle ||
+      rawDescription
+        .replace(new RegExp(`^\\[${jira.ticketKey}\\]\\s*`, 'i'), '')
+        .trim() ||
+      jira.ticketKey
     return `${type}: ${ticketTag} ${description}`.trim()
   })
 }
