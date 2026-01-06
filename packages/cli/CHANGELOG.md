@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.14.0
+
+### Minor Changes
+
+- 975614e: Update ai-commit JIRA mode to enforce `{type}: [TICKET] <jira-title>` formatting and handle more AI output formats.
+
 ## 1.13.4
 
 ### Patch Changes
