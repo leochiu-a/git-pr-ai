@@ -83,6 +83,16 @@ These are the results.`
       expect(result.values).toEqual(['value1', 'value2'])
     })
 
+    it('should handle "Option 1" formatting', () => {
+      const output = `Option 1: value1
+Option 2: value2
+Option 3: value3`
+      const result = parseNumberedOutput(output)
+
+      expect(result.success).toBe(true)
+      expect(result.values).toEqual(['value1', 'value2', 'value3'])
+    })
+
     it('should remove trailing markdown formatting', () => {
       const output = `OPTION_1: value1**
 OPTION_2: value2**

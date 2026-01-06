@@ -76,6 +76,16 @@ After installing `git-pr-ai`, the CLI registers a suite of `git` subcommands (e.
 
     _No more generic commit messages. AI analyzes your changes and suggests 3 meaningful commit messages following conventional commit format. Pick the one that fits best!_
 
+    ```bash
+    # Provide extra context for the commit message
+    git ai-commit "explain why the change was needed"
+    ```
+
+    ```bash
+    # Include a JIRA ticket in the commit message
+    git ai-commit --jira SL-1234
+    ```
+
 4.  **Create a Pull Request**:
 
     ```bash
