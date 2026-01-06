@@ -8,6 +8,7 @@ import { executeAIWithOutput } from '../../ai/executor'
 import { createCommitMessagePrompt } from './prompts'
 import { checkAndUpgrade } from '../../utils/version-checker'
 import { parseNumberedOutput } from '../../utils/ai-output-parser'
+import { getJiraTicketTitle, normalizeJiraTicketInput } from '../../jira'
 
 async function getGitDiff(): Promise<string> {
   try {
@@ -28,9 +29,39 @@ async function getGitDiff(): Promise<string> {
   }
 }
 
+type JiraContext = {
+  ticketKey: string
+  title?: string | null
+}
+
+function extractCommitType(message: string): string | null {
+  const match = message.trim().match(/^([a-z]+(?:\([^)]+\))?)(!?)\s*:/i)
+  if (!match) return null
+  return `${match[1]}${match[2] || ''}`
+}
+
+function extractCommitDescription(message: string): string {
+  const parts = message.split(':')
+  if (parts.length <= 1) return message.trim()
+  return parts.slice(1).join(':').trim()
+}
+
+function applyJiraFormat(messages: string[], jira: JiraContext): string[] {
+  const ticketTag = `[${jira.ticketKey}]`
+  const jiraTitle = jira.title?.replace(/\s+/g, ' ').trim()
+
+  return messages.map((message) => {
+    const type = extractCommitType(message) || 'chore'
+    const description =
+      jiraTitle || extractCommitDescription(message) || ticketTag
+    return `${type}: ${ticketTag} ${description}`.trim()
+  })
+}
+
 async function generateCommitMessages(
   gitDiff: string,
   userPrompt?: string,
+  jira?: JiraContext,
 ): Promise<string[]> {
   const config = await loadConfig()
 
@@ -39,7 +70,7 @@ async function generateCommitMessages(
   ).start()
 
   try {
-    const prompt = createCommitMessagePrompt(gitDiff, userPrompt)
+    const prompt = createCommitMessagePrompt(gitDiff, userPrompt, jira)
     const aiOutput = await executeAIWithOutput(prompt, {
       commandName: 'aiCommit',
     })
@@ -57,7 +88,11 @@ async function generateCommitMessages(
     }
 
     spinner.stop()
-    return parseResult.values
+    const values = parseResult.values
+    if (jira) {
+      return applyJiraFormat(values, jira)
+    }
+    return values
   } catch (error) {
     spinner.fail(`Failed: ${error}`)
     throw error
@@ -96,6 +131,7 @@ function setupCommander() {
       '[prompt]',
       'Additional context to refine the commit message suggestions',
     )
+    .option('-j, --jira <ticket>', 'specify JIRA ticket ID or URL')
     .addHelpText(
       'after',
       `
@@ -111,12 +147,16 @@ Examples:
   $ git ai-commit "explain why the change was needed"
     AI will incorporate your context when generating commit messages
 
+  $ git ai-commit --jira PROJ-123
+    AI will include the JIRA ticket in commit messages
+
 Features:
   - AI-powered commit message generation based on actual code changes
   - Follows commitlint conventional commit format
   - Provides 3 different commit message options to choose from
   - Automatically stages changes if nothing is staged
   - Uses git diff to understand what changed
+  - Optionally includes JIRA ticket keys in commit messages
 
 Prerequisites:
   - Git provider CLI must be installed and authenticated: GitHub CLI (gh) or GitLab CLI (glab)
@@ -130,37 +170,64 @@ Prerequisites:
 async function main() {
   const program = setupCommander()
 
-  program.action(async (prompt?: string) => {
-    try {
-      // Check for version updates
-      await checkAndUpgrade()
+  program.action(
+    async (prompt: string | undefined, options: { jira?: string }) => {
+      try {
+        // Check for version updates
+        await checkAndUpgrade()
 
-      await checkGitCLI()
+        await checkGitCLI()
 
-      // Get git diff
-      const gitDiff = await getGitDiff()
+        // Get git diff
+        const gitDiff = await getGitDiff()
 
-      // Generate commit messages using AI
-      const commitMessages = await generateCommitMessages(gitDiff, prompt)
+        let jiraContext: JiraContext | undefined
+        if (options.jira) {
+          const jiraTicket = normalizeJiraTicketInput(options.jira)
+          if (!jiraTicket) {
+            throw new Error(
+              'Invalid JIRA ticket provided. Use a ticket key like PROJ-123 or a valid JIRA URL.',
+            )
+          }
 
-      // Let user select a commit message
-      const selectedMessage = await select({
-        message: 'Select a commit message:',
-        choices: commitMessages.map((msg) => ({
-          name: msg,
-          value: msg,
-        })),
-      })
+          console.log(`JIRA Ticket: ${jiraTicket}`)
+          const jiraSpinner = ora('Fetching JIRA ticket title...').start()
+          const jiraTitle = await getJiraTicketTitle(jiraTicket)
+          if (jiraTitle) {
+            jiraSpinner.succeed(`JIRA Title: ${jiraTitle}`)
+          } else {
+            jiraSpinner.warn('Could not fetch JIRA title, using ticket ID only')
+          }
 
-      // Create the commit
-      await createCommit(selectedMessage)
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error)
-      console.error('Error:', errorMessage)
-      process.exit(1)
-    }
-  })
+          jiraContext = { ticketKey: jiraTicket, title: jiraTitle }
+        }
+
+        // Generate commit messages using AI
+        const commitMessages = await generateCommitMessages(
+          gitDiff,
+          prompt,
+          jiraContext,
+        )
+
+        // Let user select a commit message
+        const selectedMessage = await select({
+          message: 'Select a commit message:',
+          choices: commitMessages.map((msg) => ({
+            name: msg,
+            value: msg,
+          })),
+        })
+
+        // Create the commit
+        await createCommit(selectedMessage)
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error)
+        console.error('Error:', errorMessage)
+        process.exit(1)
+      }
+    },
+  )
 
   program.parse()
 }

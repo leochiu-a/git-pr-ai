@@ -1,10 +1,28 @@
+type JiraContext = {
+  ticketKey: string
+  title?: string | null
+}
+
 export const createCommitMessagePrompt = (
   gitDiff: string,
   userPrompt?: string,
+  jira?: JiraContext,
 ) => {
   const trimmedPrompt = userPrompt?.trim()
-  const extraContext = trimmedPrompt
-    ? `\nAdditional context from user:\n${trimmedPrompt}\n`
+  const contextBlocks: string[] = []
+
+  if (jira) {
+    contextBlocks.push(
+      `JIRA Ticket: ${jira.ticketKey}\nJIRA Title: ${jira.title || 'Not available'}`,
+    )
+  }
+
+  if (trimmedPrompt) {
+    contextBlocks.push(`Additional context from user:\n${trimmedPrompt}`)
+  }
+
+  const extraContext = contextBlocks.length
+    ? `\n${contextBlocks.join('\n\n')}\n`
     : '\n'
 
   return `Based on the following git diff, generate 3 commit message options:
@@ -31,6 +49,8 @@ Please analyze the changes and provide 3 commit message options with different a
 
 Requirements:
 - Choose the commit type based on the changes shown in the diff
+- If a JIRA Ticket is provided, use this exact format for every option:
+  {type}: [TICKET-123] {JIRA_TITLE}
 - Keep the description clear and concise (max 72 characters)
 - Use imperative mood (e.g., "add feature" not "adds feature" or "added feature")
 - Do not end the subject line with a period

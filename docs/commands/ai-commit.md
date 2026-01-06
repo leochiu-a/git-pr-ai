@@ -14,6 +14,10 @@ git ai-commit
 git ai-commit "explain why the change was needed"
 ```
 
+```bash
+git ai-commit --jira PROJ-123
+```
+
 ## Features
 
 - **AI-Powered Analysis**: Analyzes your git diff to understand what changed
@@ -22,6 +26,7 @@ git ai-commit "explain why the change was needed"
 - **Smart Staging**: Automatically stages changes if nothing is staged yet
 - **Context-Aware**: Generates messages that explain WHAT changed and WHY
 - **Optional Prompt**: Use a short prompt to add extra context for the AI
+- **JIRA-Aware**: Include a ticket key to add `[TICKET-123]` in commit messages
 
 ## Examples
 
@@ -61,6 +66,17 @@ git ai-commit
 # Add context about why the change was needed
 git ai-commit "align error handling with upstream API changes"
 # → AI uses your context to craft more specific commit messages
+```
+
+### With JIRA Ticket
+
+```bash
+# Add a JIRA ticket ID or URL
+git ai-commit --jira SL-1234
+# Or provide a full JIRA URL
+git ai-commit --jira https://your-company.atlassian.net/browse/SL-1234
+# → AI includes the ticket in commit messages:
+#   fix: [SL-1234] <jira-title>
 ```
 
 ## Commit Message Types

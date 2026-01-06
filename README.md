@@ -81,6 +81,11 @@ After installing `git-pr-ai`, the CLI registers a suite of `git` subcommands (e.
     git ai-commit "explain why the change was needed"
     ```
 
+    ```bash
+    # Include a JIRA ticket in the commit message
+    git ai-commit --jira SL-1234
+    ```
+
 4.  **Create a Pull Request**:
 
     ```bash
