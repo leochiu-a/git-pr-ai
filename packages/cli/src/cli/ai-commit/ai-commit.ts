@@ -2,7 +2,7 @@ import { $ } from 'zx'
 import { Command } from 'commander'
 import { select } from '@inquirer/prompts'
 import ora from 'ora'
-import { checkGitCLI, getCurrentBranch } from '../../git-helpers'
+import { checkGitCLI } from '../../git-helpers'
 import { loadConfig } from '../../config'
 import { executeAIWithOutput } from '../../ai/executor'
 import { CommitJiraContext, createCommitMessagePrompt } from './prompts'
@@ -205,7 +205,7 @@ Examples:
 
   $ git ai-commit --non-interactive
     Auto-select commit type/message without local prompts
-    (Commit type is inferred from current branch prefix when possible)
+    (Commit type is chosen by AI when --type is not provided)
 
 Prerequisites:
   - Git provider CLI must be installed and authenticated: GitHub CLI (gh) or GitLab CLI (glab)
@@ -238,12 +238,9 @@ async function main() {
         const nonInteractive = resolveNonInteractiveMode(options, {
           includeLegacyYolo: false,
         })
-        const currentBranch =
-          nonInteractive && !options.type ? await getCurrentBranch() : undefined
         const commitTypeFromOptions = resolveCommitType(
           options.type,
           nonInteractive,
-          currentBranch,
         )
         const commitType =
           commitTypeFromOptions ||
@@ -253,12 +250,7 @@ async function main() {
           }))
 
         if (nonInteractive && !options.type) {
-          const source = currentBranch
-            ? `inferred from branch '${currentBranch}'`
-            : 'fallback default'
-          console.log(
-            `Non-interactive mode: using commit type '${commitType}' (${source})`,
-          )
+          console.log(`Non-interactive mode: commit type will be chosen by AI`)
         }
 
         if (options.jira) {

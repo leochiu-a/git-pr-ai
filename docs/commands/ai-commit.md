@@ -103,7 +103,7 @@ The `link:` line is included only when a JIRA base URL is available.
 
 ```bash
 # Skip local select prompts and auto-use defaults
-# Commit type is inferred from current branch prefix when possible
+# Commit type is chosen by AI when --type is not provided
 git ai-commit --non-interactive
 
 # Specify commit type explicitly without prompt

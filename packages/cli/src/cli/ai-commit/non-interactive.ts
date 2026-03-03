@@ -11,49 +11,18 @@ export const SUPPORTED_COMMIT_TYPES = [
   'build',
 ] as const
 
-export const DEFAULT_COMMIT_TYPE = 'feat'
-
-const BRANCH_TYPE_ALIASES: Record<string, string> = {
-  feature: 'feat',
-  bugfix: 'fix',
-  hotfix: 'fix',
-}
-
-function inferCommitTypeFromBranch(
-  currentBranch: string | undefined,
-): string | undefined {
-  const normalizedBranch = currentBranch?.trim().toLowerCase()
-  if (!normalizedBranch) {
-    return undefined
-  }
-
-  const prefix = normalizedBranch.split(/[/_-]/)[0]
-  if (!prefix) {
-    return undefined
-  }
-
-  if (
-    SUPPORTED_COMMIT_TYPES.includes(
-      prefix as (typeof SUPPORTED_COMMIT_TYPES)[number],
-    )
-  ) {
-    return prefix
-  }
-
-  return BRANCH_TYPE_ALIASES[prefix]
-}
+export const AUTO_COMMIT_TYPE = 'auto'
 
 export function resolveCommitType(
   commitType: string | undefined,
   nonInteractive: boolean,
-  currentBranch?: string,
 ): string | undefined {
   if (!commitType) {
     if (!nonInteractive) {
       return undefined
     }
 
-    return inferCommitTypeFromBranch(currentBranch) ?? DEFAULT_COMMIT_TYPE
+    return AUTO_COMMIT_TYPE
   }
 
   const normalizedType = commitType.trim().toLowerCase()

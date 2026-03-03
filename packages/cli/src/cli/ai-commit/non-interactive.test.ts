@@ -1,28 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import {
-  DEFAULT_COMMIT_TYPE,
+  AUTO_COMMIT_TYPE,
   pickPreferredCommitMessage,
   resolveCommitType,
 } from './non-interactive'
 
 describe('ai-commit non-interactive', () => {
-  it('uses default commit type in non-interactive mode', () => {
-    expect(resolveCommitType(undefined, true)).toBe(DEFAULT_COMMIT_TYPE)
-  })
-
-  it('infers commit type from branch in non-interactive mode', () => {
-    expect(resolveCommitType(undefined, true, 'fix/PROJ-123-login-bug')).toBe(
-      'fix',
-    )
-    expect(
-      resolveCommitType(undefined, true, 'feature/PROJ-123-login-flow'),
-    ).toBe('feat')
-  })
-
-  it('falls back to default type when branch prefix is unknown', () => {
-    expect(resolveCommitType(undefined, true, 'release/2026-03')).toBe(
-      DEFAULT_COMMIT_TYPE,
-    )
+  it('uses auto commit type in non-interactive mode', () => {
+    expect(resolveCommitType(undefined, true)).toBe(AUTO_COMMIT_TYPE)
+    expect(resolveCommitType(undefined, true)).toBe(AUTO_COMMIT_TYPE)
   })
 
   it('normalizes provided commit type', () => {
