@@ -569,4 +569,28 @@ describe('GitHubProvider', () => {
       provider.updateDescription('body', '101'),
     ).resolves.toBeUndefined()
   })
+
+  it('postComment executes gh command as structured args instead of a single command string', async () => {
+    const provider = new GitHubProvider()
+    vi.spyOn(fs, 'writeFile').mockResolvedValue(undefined)
+    vi.spyOn(fs, 'unlink').mockResolvedValue(undefined)
+
+    mockZx.mockImplementation((...args: unknown[]) => {
+      const [template, ...values] = args as [string[], ...unknown[]]
+      const isSingleInterpolatedCommand =
+        template.length === 2 &&
+        template[0] === '' &&
+        template[1] === '' &&
+        values.length === 1 &&
+        typeof values[0] === 'string'
+
+      if (isSingleInterpolatedCommand) {
+        throw new Error(`/bin/bash: ${String(values[0])}: command not found`)
+      }
+
+      return Promise.resolve({ stdout: '' })
+    })
+
+    await expect(provider.postComment('body', '101')).resolves.toBeUndefined()
+  })
 })

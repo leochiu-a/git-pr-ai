@@ -467,10 +467,11 @@ export class GitHubProvider implements GitProvider {
     await fs.writeFile(tempFile, content)
 
     try {
-      const cmd = prNumber
-        ? `gh pr comment ${prNumber} --body-file ${tempFile}`
-        : `gh pr comment --body-file ${tempFile}`
-      await $`${cmd}`
+      if (prNumber) {
+        await $`gh pr comment ${prNumber} --body-file ${tempFile}`
+      } else {
+        await $`gh pr comment --body-file ${tempFile}`
+      }
     } finally {
       try {
         await fs.unlink(tempFile)
