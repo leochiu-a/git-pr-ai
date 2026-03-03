@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { $ } from 'zx'
 import ora from 'ora'
+import fs from 'fs/promises'
 import { GitHubProvider } from './github'
 
 vi.mock('zx')
@@ -541,5 +542,31 @@ describe('GitHubProvider', () => {
     await expect(provider.getPRDetails()).rejects.toThrow(
       'No open pull request found for branch "feat/fork-branch" in repositories: org/main-repo, alice/fork-repo',
     )
+  })
+
+  it('updateDescription executes gh command as structured args instead of a single command string', async () => {
+    const provider = new GitHubProvider()
+    vi.spyOn(fs, 'writeFile').mockResolvedValue(undefined)
+    vi.spyOn(fs, 'unlink').mockResolvedValue(undefined)
+
+    mockZx.mockImplementation((...args: unknown[]) => {
+      const [template, ...values] = args as [string[], ...unknown[]]
+      const isSingleInterpolatedCommand =
+        template.length === 2 &&
+        template[0] === '' &&
+        template[1] === '' &&
+        values.length === 1 &&
+        typeof values[0] === 'string'
+
+      if (isSingleInterpolatedCommand) {
+        throw new Error(`/bin/bash: ${String(values[0])}: command not found`)
+      }
+
+      return Promise.resolve({ stdout: '' })
+    })
+
+    await expect(
+      provider.updateDescription('body', '101'),
+    ).resolves.toBeUndefined()
   })
 })
