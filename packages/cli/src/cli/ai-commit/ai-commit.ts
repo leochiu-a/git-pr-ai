@@ -10,6 +10,7 @@ import { checkAndUpgrade } from '../../utils/version-checker'
 import { parseNumberedOutput } from '../../utils/ai-output-parser'
 import { buildJiraCommitMessage, resolveJiraContext } from './utils'
 import {
+  assertJiraRequiresType,
   pickPreferredCommitMessage,
   resolveCommitType,
 } from './non-interactive'
@@ -238,6 +239,13 @@ async function main() {
         const nonInteractive = resolveNonInteractiveMode(options, {
           includeLegacyYolo: false,
         })
+
+        assertJiraRequiresType({
+          jira: options.jira,
+          nonInteractive,
+          type: options.type,
+        })
+
         const commitTypeFromOptions = resolveCommitType(
           options.type,
           nonInteractive,

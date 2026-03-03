@@ -13,6 +13,18 @@ export const SUPPORTED_COMMIT_TYPES = [
 
 export const AUTO_COMMIT_TYPE = 'auto'
 
+export function assertJiraRequiresType(options: {
+  jira?: string | boolean
+  nonInteractive: boolean
+  type?: string
+}): void {
+  if (options.jira && options.nonInteractive && !options.type) {
+    throw new Error(
+      '--type is required when using --jira with --non-interactive/--ci',
+    )
+  }
+}
+
 export function resolveCommitType(
   commitType: string | undefined,
   nonInteractive: boolean,
