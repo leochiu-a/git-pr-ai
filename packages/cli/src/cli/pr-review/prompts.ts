@@ -54,9 +54,11 @@ export function buildGitHubReviewPrompt({
   const basePrompt = buildBasePrompt(prDetails, 'GitHub', diffCommand)
 
   const submitInstructions = `
-**Step A - Get SHA:**
+**Step A - Get metadata:**
 \`\`\`bash
 SHA=$(gh pr view ${prDetails.number} --json headRefOid -q '.headRefOid')
+PR_AUTHOR=$(gh pr view ${prDetails.number} --json author -q '.author.login')
+CURRENT_USER=$(gh api user -q '.login')
 \`\`\`
 
 **Step B - Create review.json:**
@@ -77,7 +79,14 @@ SHA=$(gh pr view ${prDetails.number} --json headRefOid -q '.headRefOid')
 }
 \`\`\`
 
-**Step C - Submit:**
+**Step C - Ensure safe event before submit:**
+\`\`\`bash
+# IMPORTANT:
+# If PR_AUTHOR equals CURRENT_USER, force event to COMMENT in review.json.
+# Never submit REQUEST_CHANGES on your own PR.
+\`\`\`
+
+**Step D - Submit:**
 \`\`\`bash
 gh api --method POST \\
   -H "Accept: application/vnd.github+json" \\
@@ -93,6 +102,7 @@ gh api --method POST \\
 - Single quotes: ' (NO backslash!)
 - start_line < line (first line to last line)
 - CRITICAL: Verify all line numbers exist in diff before submitting
+- If PR_AUTHOR equals CURRENT_USER, event MUST be COMMENT before submitting
 
 **Events:**
 - COMMENT = feedback
