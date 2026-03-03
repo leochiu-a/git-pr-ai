@@ -100,4 +100,18 @@ describe('executeAIInternal', () => {
       'claude -p --dangerously-skip-permissions --model sonnet',
     )
   })
+
+  it('does not force yolo for codex capture mode when updating PR description', async () => {
+    const executedCommands = setupZxMock()
+    mockLoadConfig.mockResolvedValue({ agent: 'codex' } as any)
+
+    await executeAIInternal('update prompt', {
+      useLanguage: false,
+      outputType: 'capture',
+      commandName: 'updatePrDesc',
+    })
+
+    expect(executedCommands[0]?.command).toBe('codex --version')
+    expect(executedCommands[1]?.command).toBe('codex exec')
+  })
 })

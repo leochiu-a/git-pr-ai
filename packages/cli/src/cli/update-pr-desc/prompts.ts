@@ -9,6 +9,7 @@ import { GitProvider, PRDetails } from '../../providers/types'
 
 export interface UpdateDescriptionPromptOptions {
   additionalContext?: string
+  nonInteractive?: boolean
 }
 
 export interface BuildUpdateDescriptionPromptArgs {
@@ -121,7 +122,7 @@ export async function buildUpdateDescriptionPrompt({
   options = {},
   provider,
 }: BuildUpdateDescriptionPromptArgs): Promise<string> {
-  const { additionalContext } = options
+  const { additionalContext, nonInteractive = false } = options
 
   const basePrompt = `You are an expert technical writer. Think carefully and systematically about updating this Pull Request description.
 
@@ -138,7 +139,7 @@ ${buildStep1Prompt()}
 
 ${await buildStep2Prompt({ provider })}
 
-${buildStep3Prompt({ providerName: provider.name, prDetails })}
+${nonInteractive ? '' : buildStep3Prompt({ providerName: provider.name, prDetails })}
 `
 
   let finalPrompt = basePrompt
