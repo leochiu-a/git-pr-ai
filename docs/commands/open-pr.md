@@ -7,7 +7,7 @@ Create or open a Pull Request for the current branch (works with both GitHub and
 ## Usage
 
 ```bash
-git open-pr [--jira <ticket>] [--no-web]
+git open-pr [--jira <ticket>] [--no-web] [--non-interactive|--ci]
 ```
 
 - **Default**: Automatically detects JIRA ticket from branch name
@@ -16,10 +16,12 @@ git open-pr [--jira <ticket>] [--no-web]
 
 ## Options
 
-| Option            | Description                                |
-| ----------------- | ------------------------------------------ |
-| `--jira <ticket>` | Manually specify JIRA ticket ID            |
-| `--no-web`        | Create PR/MR without web confirmation flow |
+| Option              | Description                                |
+| ------------------- | ------------------------------------------ |
+| `--jira <ticket>`   | Manually specify JIRA ticket ID            |
+| `--no-web`          | Create PR/MR without web confirmation flow |
+| `--non-interactive` | Run without interactive prompts            |
+| `--ci`              | Alias of `--non-interactive`               |
 
 ## Features
 

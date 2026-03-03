@@ -17,8 +17,14 @@ import {
 } from './prompts'
 import { checkAndUpgrade } from '../../utils/version-checker'
 import { parseNumberedOutput } from '../../utils/ai-output-parser'
+import { pickPreferredBranchName } from './non-interactive'
+import { resolveNonInteractiveMode } from '../shared/non-interactive'
 
-async function createBranch(branchName: string, baseBranch: string) {
+async function createBranch(
+  branchName: string,
+  baseBranch: string,
+  nonInteractive = false,
+) {
   console.log(`Creating branch: ${branchName}`)
   console.log(`Base branch: ${baseBranch}`)
 
@@ -26,6 +32,14 @@ async function createBranch(branchName: string, baseBranch: string) {
   try {
     await $`git show-ref --verify --quiet refs/heads/${branchName}`
     console.log(`Branch '${branchName}' already exists`)
+    if (nonInteractive) {
+      await $`git checkout ${branchName}`
+      console.log(
+        `Non-interactive mode: switched to existing branch: ${branchName}`,
+      )
+      return
+    }
+
     const switchToExisting = await confirm({
       message: `Do you want to switch to the existing branch '${branchName}'?`,
       default: true,
@@ -48,11 +62,22 @@ async function createBranch(branchName: string, baseBranch: string) {
   console.log(`Created and switched to branch: ${branchName}`)
 }
 
-async function moveBranch(currentBranch: string, newBranchName: string) {
+async function moveBranch(
+  currentBranch: string,
+  newBranchName: string,
+  nonInteractive = false,
+) {
   // Check if target branch already exists
   try {
     await $`git show-ref --verify --quiet refs/heads/${newBranchName}`
     console.error(`Branch '${newBranchName}' already exists`)
+    if (nonInteractive) {
+      console.log(
+        `Non-interactive mode: keeping current branch '${currentBranch}' unchanged (target '${newBranchName}' already exists)`,
+      )
+      return
+    }
+
     const overwrite = await confirm({
       message: `Branch '${newBranchName}' already exists. Overwrite it?`,
       default: false,
@@ -75,6 +100,7 @@ async function moveBranch(currentBranch: string, newBranchName: string) {
 
 async function generateBranchNameWithAI(
   prompt: string,
+  nonInteractive = false,
 ): Promise<string | never> {
   const config = await loadConfig()
 
@@ -106,6 +132,10 @@ async function generateBranchNameWithAI(
 
     // If only one option, return it directly
     if (branchNames.length === 1) {
+      if (nonInteractive) {
+        return branchNames[0]
+      }
+
       const confirmAI = await confirm({
         message: `Use suggestion: ${branchNames[0]}?`,
         default: true,
@@ -117,6 +147,14 @@ async function generateBranchNameWithAI(
         console.log('Branch creation cancelled')
         process.exit(0)
       }
+    }
+
+    if (nonInteractive) {
+      const selectedBranchName = pickPreferredBranchName(branchNames)
+      console.log(
+        `Non-interactive mode: auto-selected branch name: ${selectedBranchName}`,
+      )
+      return selectedBranchName
     }
 
     // Multiple options: let user choose
@@ -138,19 +176,23 @@ async function generateBranchNameWithAI(
 async function generateBranchName(
   jiraTicket: string,
   jiraTitle: string | null,
+  nonInteractive = false,
 ): Promise<string | never> {
   const prompt = createJiraBranchPrompt(jiraTicket, jiraTitle)
-  return generateBranchNameWithAI(prompt)
+  return generateBranchNameWithAI(prompt, nonInteractive)
 }
 
 async function generateBranchNameFromPrompt(
   customPrompt: string,
+  nonInteractive = false,
 ): Promise<string | never> {
   const prompt = createCustomBranchPrompt(customPrompt)
-  return generateBranchNameWithAI(prompt)
+  return generateBranchNameWithAI(prompt, nonInteractive)
 }
 
-async function generateBranchNameFromDiff(): Promise<string | never> {
+async function generateBranchNameFromDiff(
+  nonInteractive = false,
+): Promise<string | never> {
   const diffSpinner = ora('Analyzing git diff...').start()
 
   // Get git diff
@@ -192,7 +234,7 @@ async function generateBranchNameFromDiff(): Promise<string | never> {
   }
 
   const prompt = createDiffBranchPrompt(gitDiff)
-  return generateBranchNameWithAI(prompt)
+  return generateBranchNameWithAI(prompt, nonInteractive)
 }
 
 function setupCommander() {
@@ -211,6 +253,8 @@ function setupCommander() {
       'generate branch name based on custom prompt',
     )
     .option('-m, --move', 'rename current branch instead of creating a new one')
+    .option('--non-interactive', 'run without local interactive prompts')
+    .option('--ci', 'alias of --non-interactive')
     .addHelpText(
       'after',
       `
@@ -240,6 +284,9 @@ Examples:
   $ git create-branch --prompt "Fix memory leak in cache" --move
     Rename current branch to: fix/memory-leak-cache
     (Based on custom prompt)
+
+  $ git create-branch --jira PROJ-123 --non-interactive
+    Generate and apply branch name without local prompts
 
 Features:
   - Three modes: JIRA ticket-based, git diff-based, or custom prompt-based branch naming
@@ -271,6 +318,10 @@ interface CreateBranchOptions {
   prompt?: string
   /** move the current branch instead of creating a new one */
   move?: boolean
+  /** run without local interactive prompts */
+  nonInteractive?: boolean
+  /** alias of nonInteractive */
+  ci?: boolean
 }
 
 async function main() {
@@ -310,16 +361,22 @@ async function main() {
       // Get current branch as base branch
       const currentBranch = await getCurrentBranch()
       console.log(`Current branch: ${currentBranch}`)
+      const nonInteractive = resolveNonInteractiveMode(options, {
+        includeLegacyYolo: false,
+      })
 
       let branchName: string
 
       if (useGitDiff) {
         // Generate branch name from git diff
-        branchName = await generateBranchNameFromDiff()
+        branchName = await generateBranchNameFromDiff(nonInteractive)
       } else if (options.prompt) {
         // Generate branch name from custom prompt
         console.log(`💭 Custom prompt: ${options.prompt}`)
-        branchName = await generateBranchNameFromPrompt(options.prompt)
+        branchName = await generateBranchNameFromPrompt(
+          options.prompt,
+          nonInteractive,
+        )
       } else if (options.jira) {
         // Generate branch name from JIRA ticket
         const jiraTicket = normalizeJiraTicketInput(options.jira)
@@ -343,7 +400,11 @@ async function main() {
         }
 
         // Generate branch name using AI
-        branchName = await generateBranchName(jiraTicket, jiraTitle)
+        branchName = await generateBranchName(
+          jiraTicket,
+          jiraTitle,
+          nonInteractive,
+        )
       } else {
         // This should not happen due to earlier checks
         throw new Error('No valid option provided')
@@ -351,10 +412,10 @@ async function main() {
 
       if (options.move) {
         // Rename current branch
-        await moveBranch(currentBranch, branchName)
+        await moveBranch(currentBranch, branchName, nonInteractive)
       } else {
         // Create the branch from current branch
-        await createBranch(branchName, currentBranch)
+        await createBranch(branchName, currentBranch, nonInteractive)
       }
     } catch (error: unknown) {
       const errorMessage =

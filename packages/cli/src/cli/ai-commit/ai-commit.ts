@@ -2,13 +2,18 @@ import { $ } from 'zx'
 import { Command } from 'commander'
 import { select } from '@inquirer/prompts'
 import ora from 'ora'
-import { checkGitCLI } from '../../git-helpers'
+import { checkGitCLI, getCurrentBranch } from '../../git-helpers'
 import { loadConfig } from '../../config'
 import { executeAIWithOutput } from '../../ai/executor'
 import { CommitJiraContext, createCommitMessagePrompt } from './prompts'
 import { checkAndUpgrade } from '../../utils/version-checker'
 import { parseNumberedOutput } from '../../utils/ai-output-parser'
 import { buildJiraCommitMessage, resolveJiraContext } from './utils'
+import {
+  pickPreferredCommitMessage,
+  resolveCommitType,
+} from './non-interactive'
+import { resolveNonInteractiveMode } from '../shared/non-interactive'
 
 const COMMIT_TYPE_CHOICES = [
   { name: 'feat: New features', value: 'feat' },
@@ -128,6 +133,7 @@ async function runJiraCommitFlow(
 async function runAiCommitFlow(
   commitType: string,
   prompt?: string,
+  nonInteractive = false,
 ): Promise<void> {
   const gitDiff = await getGitDiff()
   const commitMessages = await generateCommitMessages(
@@ -137,13 +143,21 @@ async function runAiCommitFlow(
     null,
   )
 
-  const selectedMessage = await select({
-    message: 'Select a commit message:',
-    choices: commitMessages.map((msg) => ({
-      name: msg,
-      value: msg,
-    })),
-  })
+  const selectedMessage = nonInteractive
+    ? pickPreferredCommitMessage(commitMessages)
+    : await select({
+        message: 'Select a commit message:',
+        choices: commitMessages.map((msg) => ({
+          name: msg,
+          value: msg,
+        })),
+      })
+
+  if (nonInteractive) {
+    console.log(
+      `Non-interactive mode: auto-selected commit message: ${selectedMessage}`,
+    )
+  }
 
   await createCommit(selectedMessage)
 }
@@ -162,6 +176,12 @@ function setupCommander() {
       '-j, --jira [ticket]',
       'use JIRA ticket context (from branch name or ticket/URL)',
     )
+    .option(
+      '-t, --type <type>',
+      'commit type (feat|fix|docs|style|refactor|perf|test|chore|ci|build)',
+    )
+    .option('--non-interactive', 'run without local interactive prompts')
+    .option('--ci', 'alias of --non-interactive')
     .addHelpText(
       'after',
       `
@@ -183,6 +203,10 @@ Examples:
   $ git ai-commit --jira PROJ-123
     Fetch JIRA ticket details and commit without AI
 
+  $ git ai-commit --non-interactive
+    Auto-select commit type/message without local prompts
+    (Commit type is inferred from current branch prefix when possible)
+
 Prerequisites:
   - Git provider CLI must be installed and authenticated: GitHub CLI (gh) or GitLab CLI (glab)
   - AI provider must be configured in ~/.git-pr-ai/.git-pr-ai.json
@@ -198,7 +222,12 @@ async function main() {
   program.action(
     async (
       prompt: string | undefined,
-      options: { jira?: string | boolean },
+      options: {
+        jira?: string | boolean
+        type?: string
+        nonInteractive?: boolean
+        ci?: boolean
+      },
     ) => {
       try {
         // Check for version updates
@@ -206,17 +235,38 @@ async function main() {
 
         await checkGitCLI()
 
-        const commitType = await select({
-          message: 'Select a commit type:',
-          choices: COMMIT_TYPE_CHOICES,
+        const nonInteractive = resolveNonInteractiveMode(options, {
+          includeLegacyYolo: false,
         })
+        const currentBranch =
+          nonInteractive && !options.type ? await getCurrentBranch() : undefined
+        const commitTypeFromOptions = resolveCommitType(
+          options.type,
+          nonInteractive,
+          currentBranch,
+        )
+        const commitType =
+          commitTypeFromOptions ||
+          (await select({
+            message: 'Select a commit type:',
+            choices: COMMIT_TYPE_CHOICES,
+          }))
+
+        if (nonInteractive && !options.type) {
+          const source = currentBranch
+            ? `inferred from branch '${currentBranch}'`
+            : 'fallback default'
+          console.log(
+            `Non-interactive mode: using commit type '${commitType}' (${source})`,
+          )
+        }
 
         if (options.jira) {
           await runJiraCommitFlow(commitType, options.jira)
           return
         }
 
-        await runAiCommitFlow(commitType, prompt)
+        await runAiCommitFlow(commitType, prompt, nonInteractive)
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : String(error)

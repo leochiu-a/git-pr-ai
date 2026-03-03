@@ -20,6 +20,8 @@ function setupCommander() {
     )
     .option('-j, --jira <ticket>', 'specify JIRA ticket ID manually')
     .option('--no-web', 'create PR/MR directly without opening web flow')
+    .option('--non-interactive', 'run without interactive prompts')
+    .option('--ci', 'alias of --non-interactive')
     .addHelpText(
       'after',
       `
@@ -53,68 +55,75 @@ Prerequisites:
 async function main() {
   const program = setupCommander()
 
-  program.action(async (options: { jira?: string; web?: boolean }) => {
-    try {
-      // Check for version updates
-      await checkAndUpgrade()
+  program.action(
+    async (options: {
+      jira?: string
+      web?: boolean
+      nonInteractive?: boolean
+      ci?: boolean
+    }) => {
+      try {
+        // Check for version updates
+        await checkAndUpgrade()
 
-      await checkGitCLI()
-      const provider = await getCurrentProvider()
+        await checkGitCLI()
+        const provider = await getCurrentProvider()
 
-      // Existing PR path should return fast and skip branch/JIRA work.
-      const existingPrUrl = await provider.checkExistingPR()
-      if (existingPrUrl) {
-        await provider.openPR()
-        return
-      }
-
-      const currentBranch = await getCurrentBranch()
-      let jiraTicket = options.jira || extractJiraTicket(currentBranch)
-
-      let jiraTitle: string | null = null
-      if (jiraTicket) {
-        if (options.jira) {
-          console.log(
-            `Branch: ${currentBranch} | JIRA: ${jiraTicket} (manually specified)`,
-          )
-        } else {
-          console.log(`Branch: ${currentBranch} | JIRA: ${jiraTicket}`)
+        // Existing PR path should return fast and skip branch/JIRA work.
+        const existingPrUrl = await provider.checkExistingPR()
+        if (existingPrUrl) {
+          await provider.openPR()
+          return
         }
 
-        const jiraSpinner = ora('Fetching JIRA ticket title...').start()
-        jiraTitle = await getJiraTicketTitle(jiraTicket)
+        const currentBranch = await getCurrentBranch()
+        let jiraTicket = options.jira || extractJiraTicket(currentBranch)
 
-        if (jiraTitle) {
-          jiraSpinner.succeed(`JIRA Title: ${jiraTitle}`)
+        let jiraTitle: string | null = null
+        if (jiraTicket) {
+          if (options.jira) {
+            console.log(
+              `Branch: ${currentBranch} | JIRA: ${jiraTicket} (manually specified)`,
+            )
+          } else {
+            console.log(`Branch: ${currentBranch} | JIRA: ${jiraTicket}`)
+          }
+
+          const jiraSpinner = ora('Fetching JIRA ticket title...').start()
+          jiraTitle = await getJiraTicketTitle(jiraTicket)
+
+          if (jiraTitle) {
+            jiraSpinner.succeed(`JIRA Title: ${jiraTitle}`)
+          } else {
+            jiraSpinner.warn('Could not fetch JIRA title')
+          }
         } else {
-          jiraSpinner.warn('Could not fetch JIRA title')
+          console.log(`Branch: ${currentBranch}`)
         }
-      } else {
-        console.log(`Branch: ${currentBranch}`)
-      }
 
-      // Create new PR if none exists
-      const baseBranch = await getDefaultBranch()
-      let prTitle = convertBranchNameToPRTitle(currentBranch)
+        // Create new PR if none exists
+        const baseBranch = await getDefaultBranch()
+        let prTitle = convertBranchNameToPRTitle(currentBranch)
 
-      if (jiraTicket) {
-        if (jiraTitle) {
-          prTitle = `[${jiraTicket}] ${jiraTitle}`
-        } else {
-          prTitle = `[${jiraTicket}] ${convertBranchNameToPRTitle(currentBranch)}`
+        if (jiraTicket) {
+          if (jiraTitle) {
+            prTitle = `[${jiraTicket}] ${jiraTitle}`
+          } else {
+            prTitle = `[${jiraTicket}] ${convertBranchNameToPRTitle(currentBranch)}`
+          }
         }
-      }
 
-      await provider.createPR(prTitle, currentBranch, baseBranch, {
-        web: options.web !== false,
-      })
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error)
-      console.error('Error:', errorMessage)
-      process.exit(1)
-    }
-  })
+        await provider.createPR(prTitle, currentBranch, baseBranch, {
+          web: options.web !== false,
+        })
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error)
+        console.error('Error:', errorMessage)
+        process.exit(1)
+      }
+    },
+  )
 
   program.parse()
 }

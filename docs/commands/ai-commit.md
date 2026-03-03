@@ -22,6 +22,10 @@ git ai-commit --jira
 git ai-commit --jira PROJ-123
 ```
 
+```bash
+git ai-commit --non-interactive
+```
+
 ## Features
 
 - **AI-Powered Analysis**: Analyzes your git diff to understand what changed
@@ -94,6 +98,20 @@ link: <jira-url>
 
 If JIRA details cannot be fetched, the title falls back to the ticket key.
 The `link:` line is included only when a JIRA base URL is available.
+
+### Non-Interactive Mode
+
+```bash
+# Skip local select prompts and auto-use defaults
+# Commit type is inferred from current branch prefix when possible
+git ai-commit --non-interactive
+
+# Specify commit type explicitly without prompt
+git ai-commit --type fix --non-interactive
+
+# CI alias
+git ai-commit --ci
+```
 
 ## Commit Message Types
 
