@@ -15,6 +15,28 @@ const prDetails: PRDetails = {
 }
 
 describe('runReviewWithExecutionMode', () => {
+  it('uses original prompt in non-interactive mode without appending extra instructions', async () => {
+    const executeAIWithOutput = vi.fn().mockResolvedValue('review body')
+    const executeAICommand = vi.fn()
+    const postComment = vi.fn().mockResolvedValue(undefined)
+
+    await runReviewWithExecutionMode({
+      prompt: 'original prompt',
+      prDetails,
+      nonInteractive: true,
+      yolo: false,
+      executeAIWithOutput,
+      executeAICommand,
+      postComment,
+    })
+
+    expect(executeAIWithOutput).toHaveBeenCalledWith('original prompt', {
+      useLanguage: true,
+      yolo: false,
+      commandName: 'prReview',
+    })
+  })
+
   it('uses captured AI output and posts a comment in non-interactive mode', async () => {
     const executeAIWithOutput = vi.fn().mockResolvedValue('review body')
     const executeAICommand = vi.fn()

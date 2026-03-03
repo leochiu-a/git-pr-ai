@@ -3,13 +3,10 @@ import { $ } from 'zx'
 import ora from 'ora'
 import fs from 'fs/promises'
 import { GitHubProvider } from './github'
+import { setupCommandMock } from '../test-utils/zx-mock'
 
 vi.mock('zx')
 vi.mock('ora')
-
-interface MockCommandResult {
-  stdout: string
-}
 
 const mockZx = vi.mocked($)
 
@@ -17,36 +14,6 @@ const mockSpinner = {
   start: vi.fn().mockReturnThis(),
   succeed: vi.fn().mockReturnThis(),
   fail: vi.fn().mockReturnThis(),
-}
-
-function stringifyCommand(args: unknown[]): string {
-  const [template, ...values] = args as [string[], ...unknown[]]
-  return template
-    .reduce((cmd, chunk, index) => {
-      const value = index < values.length ? String(values[index]) : ''
-      return cmd + chunk + value
-    }, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
-
-function setupCommandMock(
-  handler: (command: string) => MockCommandResult | Promise<MockCommandResult>,
-): string[] {
-  const executedCommands: string[] = []
-
-  mockZx.mockImplementation((...args: unknown[]) => {
-    const command = stringifyCommand(args)
-    executedCommands.push(command)
-
-    try {
-      return Promise.resolve(handler(command))
-    } catch (error) {
-      return Promise.reject(error)
-    }
-  })
-
-  return executedCommands
 }
 
 describe('GitHubProvider', () => {

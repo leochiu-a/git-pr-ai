@@ -15,6 +15,28 @@ const prDetails: PRDetails = {
 }
 
 describe('runUpdateDescriptionWithExecutionMode', () => {
+  it('uses original prompt in non-interactive mode without appending extra instructions', async () => {
+    const executeAIWithOutput = vi.fn().mockResolvedValue('new description')
+    const executeAICommand = vi.fn()
+    const updateDescription = vi.fn().mockResolvedValue(undefined)
+
+    await runUpdateDescriptionWithExecutionMode({
+      prompt: 'original prompt',
+      prDetails,
+      nonInteractive: true,
+      yolo: false,
+      executeAIWithOutput,
+      executeAICommand,
+      updateDescription,
+    })
+
+    expect(executeAIWithOutput).toHaveBeenCalledWith('original prompt', {
+      useLanguage: true,
+      yolo: false,
+      commandName: 'updatePrDesc',
+    })
+  })
+
   it('uses captured AI output and updates description in non-interactive mode', async () => {
     const executeAIWithOutput = vi.fn().mockResolvedValue('new description')
     const executeAICommand = vi.fn()
