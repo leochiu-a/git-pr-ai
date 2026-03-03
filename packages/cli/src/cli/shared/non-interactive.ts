@@ -4,6 +4,14 @@ export interface NonInteractiveFlags {
   yolo?: boolean
 }
 
+export function assertNoYoloWithNonInteractive(
+  flags: NonInteractiveFlags,
+): void {
+  if (flags.yolo && (flags.nonInteractive || flags.ci)) {
+    throw new Error('--yolo cannot be combined with --non-interactive/--ci')
+  }
+}
+
 export function resolveNonInteractiveMode(
   flags: NonInteractiveFlags,
   options: { includeLegacyYolo?: boolean } = {},

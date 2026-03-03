@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { resolveNonInteractiveMode } from './non-interactive'
+import {
+  assertNoYoloWithNonInteractive,
+  resolveNonInteractiveMode,
+} from './non-interactive'
 
 describe('resolveNonInteractiveMode', () => {
   it('returns true when --non-interactive is set', () => {
@@ -22,5 +25,33 @@ describe('resolveNonInteractiveMode', () => {
 
   it('returns false when no flags are set', () => {
     expect(resolveNonInteractiveMode({})).toBe(false)
+  })
+})
+
+describe('assertNoYoloWithNonInteractive', () => {
+  it('throws when --yolo and --non-interactive are both set', () => {
+    expect(() =>
+      assertNoYoloWithNonInteractive({ yolo: true, nonInteractive: true }),
+    ).toThrow('--yolo cannot be combined with --non-interactive/--ci')
+  })
+
+  it('throws when --yolo and --ci are both set', () => {
+    expect(() =>
+      assertNoYoloWithNonInteractive({ yolo: true, ci: true }),
+    ).toThrow('--yolo cannot be combined with --non-interactive/--ci')
+  })
+
+  it('does not throw when only --yolo is set', () => {
+    expect(() => assertNoYoloWithNonInteractive({ yolo: true })).not.toThrow()
+  })
+
+  it('does not throw when only --non-interactive is set', () => {
+    expect(() =>
+      assertNoYoloWithNonInteractive({ nonInteractive: true }),
+    ).not.toThrow()
+  })
+
+  it('does not throw when neither flag is set', () => {
+    expect(() => assertNoYoloWithNonInteractive({})).not.toThrow()
   })
 })

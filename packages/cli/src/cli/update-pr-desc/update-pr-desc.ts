@@ -6,7 +6,10 @@ import { getCurrentProvider } from '../../providers/factory'
 import { buildUpdateDescriptionPrompt } from './prompts'
 import { checkAndUpgrade } from '../../utils/version-checker'
 import { runUpdateDescriptionWithExecutionMode } from './runner'
-import { resolveNonInteractiveMode } from '../shared/non-interactive'
+import {
+  assertNoYoloWithNonInteractive,
+  resolveNonInteractiveMode,
+} from '../shared/non-interactive'
 
 function setupCommander() {
   const program = new Command()
@@ -61,6 +64,7 @@ async function main() {
 
         const config = await loadConfig()
         const provider = await getCurrentProvider()
+        assertNoYoloWithNonInteractive(options)
         const nonInteractive = resolveNonInteractiveMode(options, {
           includeLegacyYolo: false,
         })

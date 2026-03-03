@@ -8,7 +8,10 @@ import { PRDetails } from '../../providers/types'
 import { buildReviewPrompt } from './prompts'
 import { checkAndUpgrade } from '../../utils/version-checker'
 import { runReviewWithExecutionMode } from './runner'
-import { resolveNonInteractiveMode } from '../shared/non-interactive'
+import {
+  assertNoYoloWithNonInteractive,
+  resolveNonInteractiveMode,
+} from '../shared/non-interactive'
 
 async function reviewPR(
   prDetails: PRDetails,
@@ -127,6 +130,7 @@ async function main() {
 
         await checkGitCLI()
 
+        assertNoYoloWithNonInteractive(options)
         const nonInteractive = resolveNonInteractiveMode(options, {
           includeLegacyYolo: false,
         })
