@@ -41,9 +41,10 @@ describe('yolo option removal regression', () => {
     const openPr = readFromCli('open-pr/open-pr.ts')
     const openPrDoc = readFromRepo('docs/commands/open-pr.md')
 
-    expect(openPr).toContain(".option('--non-interactive'")
-    expect(openPr).toContain(".option('--ci'")
-    expect(openPr).not.toContain(".option('--no-web'")
+    // Allow multiline option declarations to avoid brittle formatting-only failures.
+    expect(openPr).toMatch(/\.option\(\s*'--non-interactive'/)
+    expect(openPr).toMatch(/\.option\(\s*'--ci'/)
+    expect(openPr).not.toMatch(/\.option\(\s*'--no-web'/)
 
     expect(openPrDoc).toContain('--non-interactive')
     expect(openPrDoc).toContain('--ci')
