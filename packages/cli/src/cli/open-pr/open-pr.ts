@@ -19,9 +19,11 @@ function setupCommander() {
       'Smart Pull Request Creator - Creates new PR or opens existing one',
     )
     .option('-j, --jira <ticket>', 'specify JIRA ticket ID manually')
-    .option('--no-web', 'create PR/MR directly without opening web flow')
-    .option('--non-interactive', 'run without interactive prompts')
-    .option('--ci', 'alias of --non-interactive')
+    .option(
+      '--non-interactive',
+      'create PR/MR directly in CLI without web flow',
+    )
+    .option('--ci', 'create PR/MR directly in CLI without opening web flow')
     .addHelpText(
       'after',
       `
@@ -32,7 +34,7 @@ Examples:
   $ git open-pr --jira PROJ-123
     Create a PR with specific JIRA ticket ID
 
-  $ git open-pr --no-web
+  $ git open-pr --ci
     Create PR directly in CLI without web confirmation
 
 Features:
@@ -58,9 +60,8 @@ async function main() {
   program.action(
     async (options: {
       jira?: string
-      web?: boolean
-      nonInteractive?: boolean
       ci?: boolean
+      nonInteractive?: boolean
     }) => {
       try {
         // Check for version updates
@@ -114,7 +115,7 @@ async function main() {
         }
 
         await provider.createPR(prTitle, currentBranch, baseBranch, {
-          web: options.web !== false,
+          web: !(options.ci || options.nonInteractive),
         })
       } catch (error: unknown) {
         const errorMessage =

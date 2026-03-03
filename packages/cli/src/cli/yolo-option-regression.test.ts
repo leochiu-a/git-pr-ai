@@ -36,4 +36,17 @@ describe('yolo option removal regression', () => {
     expect(createBranchDoc).not.toContain('--yolo')
     expect(aiCommitDoc).not.toContain('--yolo')
   })
+
+  it('open-pr keeps --non-interactive and --ci for non-web automation', () => {
+    const openPr = readFromCli('open-pr/open-pr.ts')
+    const openPrDoc = readFromRepo('docs/commands/open-pr.md')
+
+    expect(openPr).toContain(".option('--non-interactive'")
+    expect(openPr).toContain(".option('--ci'")
+    expect(openPr).not.toContain(".option('--no-web'")
+
+    expect(openPrDoc).toContain('--non-interactive')
+    expect(openPrDoc).toContain('--ci')
+    expect(openPrDoc).not.toContain('--no-web')
+  })
 })
