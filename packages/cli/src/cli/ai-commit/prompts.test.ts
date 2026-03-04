@@ -27,4 +27,14 @@ describe('ai-commit prompts', () => {
     expect(prompt).toContain('Summary: Fix auth')
     expect(prompt).toContain('Description: More details')
   })
+
+  it('lets AI decide commit type when type is auto', () => {
+    const prompt = createCommitMessagePrompt('diff', 'auto')
+
+    expect(prompt).toContain('Commit type selection: AI decides')
+    expect(prompt).toContain(
+      'Choose the most suitable conventional commit type for each option',
+    )
+    expect(prompt).not.toContain('Use the selected commit type')
+  })
 })

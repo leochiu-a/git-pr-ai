@@ -2,15 +2,24 @@ import { Command } from 'commander'
 
 import { checkGitCLI } from '../../git-helpers'
 import { loadConfig } from '../../config'
-import { executeAICommand } from '../../ai/executor'
+import { executeAICommand, executeAIWithOutput } from '../../ai/executor'
 import { getCurrentProvider } from '../../providers/factory'
 import { PRDetails } from '../../providers/types'
 import { buildReviewPrompt } from './prompts'
 import { checkAndUpgrade } from '../../utils/version-checker'
+import { runReviewWithExecutionMode } from './runner'
+import {
+  assertNoYoloWithNonInteractive,
+  resolveNonInteractiveMode,
+} from '../shared/non-interactive'
 
 async function reviewPR(
   prDetails: PRDetails,
-  options: { additionalContext?: string; yolo?: boolean } = {},
+  options: {
+    additionalContext?: string
+    yolo?: boolean
+    nonInteractive?: boolean
+  } = {},
 ) {
   const config = await loadConfig()
   const provider = await getCurrentProvider()
@@ -31,10 +40,14 @@ async function reviewPR(
       providerName: provider.name,
     })
 
-    await executeAICommand(prompt, {
-      useLanguage: true,
-      yolo: options.yolo,
-      commandName: 'prReview',
+    await runReviewWithExecutionMode({
+      prompt,
+      prDetails,
+      nonInteractive: Boolean(options.nonInteractive),
+      yolo: Boolean(options.yolo),
+      executeAIWithOutput,
+      executeAICommand,
+      postComment: provider.postComment.bind(provider),
     })
     console.log('✅ PR/MR review completed and comment posted!')
   } catch (error) {
@@ -54,7 +67,12 @@ function setupCommander() {
       'Specific PR/MR number or full URL to review (optional)',
     )
     .option('-c, --context <context>', 'Additional context for the review')
-    .option('--yolo', 'skip prompts and proceed with defaults')
+    .option('--non-interactive', 'run without interactive AI session')
+    .option('--ci', 'alias of --non-interactive')
+    .option(
+      '--yolo',
+      'run interactive AI session with fewer permission prompts',
+    )
     .addHelpText(
       'after',
       `
@@ -70,6 +88,9 @@ Examples:
 
   $ git pr-review -c "Focus on security issues"
     Review with additional context
+
+  $ git pr-review --non-interactive -c "Focus on security issues"
+    Run non-interactive flow and post a single generated review comment
 
   Behavior:
     1. If a URL is provided, review that specific PR/MR
@@ -96,7 +117,12 @@ async function main() {
   program.action(
     async (
       prNumberOrUrl: string | undefined,
-      options: { context?: string; yolo?: boolean },
+      options: {
+        context?: string
+        yolo?: boolean
+        nonInteractive?: boolean
+        ci?: boolean
+      },
     ) => {
       try {
         // Check for version updates
@@ -104,12 +130,17 @@ async function main() {
 
         await checkGitCLI()
 
+        assertNoYoloWithNonInteractive(options)
+        const nonInteractive = resolveNonInteractiveMode(options, {
+          includeLegacyYolo: false,
+        })
         const provider = await getCurrentProvider()
         const prDetails = await provider.getPRDetails(prNumberOrUrl)
 
         await reviewPR(prDetails, {
           additionalContext: options.context,
           yolo: options.yolo,
+          nonInteractive,
         })
       } catch (error: unknown) {
         const errorMessage =

@@ -25,6 +25,8 @@ Three main modes available:
 | `--git-diff`        | Legacy alias of `--diff` (backward compatibility)          |
 | `--prompt <prompt>` | Generate branch name based on custom prompt                |
 | `--move`, `-m`      | Rename current branch instead of creating a new one        |
+| `--non-interactive` | Skip local `select/confirm` prompts and use default choice |
+| `--ci`              | Alias of `--non-interactive`                               |
 
 ## Features
 
@@ -73,4 +75,14 @@ git create-branch --prompt "Implement OAuth integration"
 #   3. feat/oauth-authentication-integration
 # → Select your preferred naming style
 
+```
+
+### Non-Interactive Mode
+
+```bash
+# Skip local select/confirm prompts and auto-pick the first AI option
+git create-branch --jira PROJ-123 --non-interactive
+
+# CI alias
+git create-branch --jira PROJ-123 --ci
 ```

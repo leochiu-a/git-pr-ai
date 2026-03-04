@@ -16,9 +16,11 @@ git update-pr-desc [options] [additional context...]
 
 ## Options
 
-| Option   | Description                                          |
-| -------- | ---------------------------------------------------- |
-| `--yolo` | Skip confirmation prompts and apply changes directly |
+| Option              | Description                                                                            |
+| ------------------- | -------------------------------------------------------------------------------------- |
+| `--non-interactive` | Do not enter interactive AI session; capture output and update PR description directly |
+| `--ci`              | Alias of `--non-interactive`                                                           |
+| `--yolo`            | Keep interactive AI session, but pass YOLO/skip-permission behavior to AI CLI          |
 
 ## Features
 
@@ -46,8 +48,11 @@ git update-pr-desc "Detail the issue symptoms and fix approach"
 # For documentation updates
 git update-pr-desc "Highlight new examples and improved clarity"
 
-# Skip confirmation prompts (YOLO mode)
+# Keep interactive AI session (YOLO mode)
 git update-pr-desc --yolo "Update description automatically"
+
+# Fully non-interactive mode
+git update-pr-desc --non-interactive "Update description automatically"
 ```
 
 ## Example Output

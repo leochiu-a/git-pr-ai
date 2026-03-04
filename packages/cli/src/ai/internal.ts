@@ -167,11 +167,11 @@ async function runAICommandWithOutput(
       if (model) {
         result = await $({
           input: prompt,
-        })`claude --dangerously-skip-permissions --model ${model}`.quiet()
+        })`claude -p --dangerously-skip-permissions --model ${model}`.quiet()
       } else {
         result = await $({
           input: prompt,
-        })`claude --dangerously-skip-permissions`.quiet()
+        })`claude -p --dangerously-skip-permissions`.quiet()
       }
     } else if (agent === 'gemini') {
       if (model) {
@@ -203,9 +203,9 @@ async function runAICommandWithOutput(
   } else {
     if (agent === 'claude') {
       if (model) {
-        result = await $({ input: prompt })`claude --model ${model}`.quiet()
+        result = await $({ input: prompt })`claude -p --model ${model}`.quiet()
       } else {
-        result = await $({ input: prompt })`claude`.quiet()
+        result = await $({ input: prompt })`claude -p`.quiet()
       }
     } else if (agent === 'gemini') {
       if (model) {

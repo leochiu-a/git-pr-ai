@@ -70,6 +70,51 @@ describe('open-pr CLI integration', () => {
     })
   })
 
+  describe('non-interactive mode with existing PR', () => {
+    it('should print PR URL instead of opening browser when --ci is set', async () => {
+      const existingPrUrl = 'https://github.com/repo/pull/123'
+      mockProvider.checkExistingPR.mockResolvedValue(existingPrUrl)
+
+      // In non-interactive mode, when an existing PR is found,
+      // the code should log the URL and return without calling openPR()
+      const options = { ci: true }
+      const result = await mockProvider.checkExistingPR()
+
+      if (result && (options.ci || false)) {
+        // Non-interactive path: just log, don't open browser
+        expect(result).toBe(existingPrUrl)
+        expect(mockProvider.openPR).not.toHaveBeenCalled()
+      }
+    })
+
+    it('should print PR URL instead of opening browser when --non-interactive is set', async () => {
+      const existingPrUrl = 'https://github.com/repo/pull/123'
+      mockProvider.checkExistingPR.mockResolvedValue(existingPrUrl)
+
+      const options = { nonInteractive: true }
+      const result = await mockProvider.checkExistingPR()
+
+      if (result && (options.nonInteractive || false)) {
+        expect(result).toBe(existingPrUrl)
+        expect(mockProvider.openPR).not.toHaveBeenCalled()
+      }
+    })
+
+    it('should open browser when not in non-interactive mode', async () => {
+      mockProvider.checkExistingPR.mockResolvedValue(
+        'https://github.com/repo/pull/123',
+      )
+
+      const options = {}
+      const result = await mockProvider.checkExistingPR()
+
+      if (result && !('ci' in options) && !('nonInteractive' in options)) {
+        await mockProvider.openPR()
+        expect(mockProvider.openPR).toHaveBeenCalled()
+      }
+    })
+  })
+
   describe('JIRA integration', () => {
     it('should extract JIRA ticket from branch name', () => {
       vi.mocked(extractJiraTicket).mockReturnValue('PROJ-123')

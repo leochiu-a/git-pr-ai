@@ -19,7 +19,11 @@ function setupCommander() {
       'Smart Pull Request Creator - Creates new PR or opens existing one',
     )
     .option('-j, --jira <ticket>', 'specify JIRA ticket ID manually')
-    .option('--no-web', 'create PR/MR directly without opening web flow')
+    .option(
+      '--non-interactive',
+      'create PR/MR directly in CLI without web flow',
+    )
+    .option('--ci', 'create PR/MR directly in CLI without opening web flow')
     .addHelpText(
       'after',
       `
@@ -30,7 +34,7 @@ Examples:
   $ git open-pr --jira PROJ-123
     Create a PR with specific JIRA ticket ID
 
-  $ git open-pr --no-web
+  $ git open-pr --ci
     Create PR directly in CLI without web confirmation
 
 Features:
@@ -53,68 +57,79 @@ Prerequisites:
 async function main() {
   const program = setupCommander()
 
-  program.action(async (options: { jira?: string; web?: boolean }) => {
-    try {
-      // Check for version updates
-      await checkAndUpgrade()
+  program.action(
+    async (options: {
+      jira?: string
+      ci?: boolean
+      nonInteractive?: boolean
+    }) => {
+      try {
+        // Check for version updates
+        await checkAndUpgrade()
 
-      await checkGitCLI()
-      const provider = await getCurrentProvider()
+        await checkGitCLI()
+        const provider = await getCurrentProvider()
 
-      // Existing PR path should return fast and skip branch/JIRA work.
-      const existingPrUrl = await provider.checkExistingPR()
-      if (existingPrUrl) {
-        await provider.openPR()
-        return
-      }
+        // Existing PR path should return fast and skip branch/JIRA work.
+        const existingPrUrl = await provider.checkExistingPR()
+        if (existingPrUrl) {
+          if (options.ci || options.nonInteractive) {
+            console.log(`Existing PR/MR: ${existingPrUrl}`)
+            return
+          }
 
-      const currentBranch = await getCurrentBranch()
-      let jiraTicket = options.jira || extractJiraTicket(currentBranch)
-
-      let jiraTitle: string | null = null
-      if (jiraTicket) {
-        if (options.jira) {
-          console.log(
-            `Branch: ${currentBranch} | JIRA: ${jiraTicket} (manually specified)`,
-          )
-        } else {
-          console.log(`Branch: ${currentBranch} | JIRA: ${jiraTicket}`)
+          await provider.openPR()
+          return
         }
 
-        const jiraSpinner = ora('Fetching JIRA ticket title...').start()
-        jiraTitle = await getJiraTicketTitle(jiraTicket)
+        const currentBranch = await getCurrentBranch()
+        let jiraTicket = options.jira || extractJiraTicket(currentBranch)
 
-        if (jiraTitle) {
-          jiraSpinner.succeed(`JIRA Title: ${jiraTitle}`)
+        let jiraTitle: string | null = null
+        if (jiraTicket) {
+          if (options.jira) {
+            console.log(
+              `Branch: ${currentBranch} | JIRA: ${jiraTicket} (manually specified)`,
+            )
+          } else {
+            console.log(`Branch: ${currentBranch} | JIRA: ${jiraTicket}`)
+          }
+
+          const jiraSpinner = ora('Fetching JIRA ticket title...').start()
+          jiraTitle = await getJiraTicketTitle(jiraTicket)
+
+          if (jiraTitle) {
+            jiraSpinner.succeed(`JIRA Title: ${jiraTitle}`)
+          } else {
+            jiraSpinner.warn('Could not fetch JIRA title')
+          }
         } else {
-          jiraSpinner.warn('Could not fetch JIRA title')
+          console.log(`Branch: ${currentBranch}`)
         }
-      } else {
-        console.log(`Branch: ${currentBranch}`)
-      }
 
-      // Create new PR if none exists
-      const baseBranch = await getDefaultBranch()
-      let prTitle = convertBranchNameToPRTitle(currentBranch)
+        // Create new PR if none exists
+        const baseBranch = await getDefaultBranch()
+        let prTitle = convertBranchNameToPRTitle(currentBranch)
 
-      if (jiraTicket) {
-        if (jiraTitle) {
-          prTitle = `[${jiraTicket}] ${jiraTitle}`
-        } else {
-          prTitle = `[${jiraTicket}] ${convertBranchNameToPRTitle(currentBranch)}`
+        if (jiraTicket) {
+          if (jiraTitle) {
+            prTitle = `[${jiraTicket}] ${jiraTitle}`
+          } else {
+            prTitle = `[${jiraTicket}] ${convertBranchNameToPRTitle(currentBranch)}`
+          }
         }
-      }
 
-      await provider.createPR(prTitle, currentBranch, baseBranch, {
-        web: options.web !== false,
-      })
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error)
-      console.error('Error:', errorMessage)
-      process.exit(1)
-    }
-  })
+        await provider.createPR(prTitle, currentBranch, baseBranch, {
+          web: !(options.ci || options.nonInteractive),
+        })
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error)
+        console.error('Error:', errorMessage)
+        process.exit(1)
+      }
+    },
+  )
 
   program.parse()
 }

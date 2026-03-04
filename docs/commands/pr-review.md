@@ -16,10 +16,12 @@ git pr-review [URL] [-c, --context <context>]
 
 ## Options
 
-| Option                    | Description                                          |
-| ------------------------- | ---------------------------------------------------- |
-| `-c, --context <context>` | Additional context for the review                    |
-| `--yolo`                  | Skip confirmation prompts and apply changes directly |
+| Option                    | Description                                                                   |
+| ------------------------- | ----------------------------------------------------------------------------- |
+| `-c, --context <context>` | Additional context for the review                                             |
+| `--non-interactive`       | Do not enter interactive AI session; capture output and post comment directly |
+| `--ci`                    | Alias of `--non-interactive`                                                  |
+| `--yolo`                  | Keep interactive AI session, but pass YOLO/skip-permission behavior to AI CLI |
 
 ## Features
 
@@ -50,9 +52,13 @@ git pr-review --context "Focus on security and error handling"
 git pr-review https://gitlab.com/owner/repo/-/merge_requests/123
 # → Reviews the specified GitLab MR
 
-# Skip confirmation prompts (YOLO mode)
+# Keep interactive AI session (YOLO mode)
 git pr-review --yolo --context "Focus on security"
-# → Reviews PR and applies feedback directly without confirmation
+# → Runs interactive review flow with YOLO behavior
+
+# Fully non-interactive mode
+git pr-review --non-interactive --context "Focus on security"
+# → Captures AI output and posts review comment directly
 ```
 
 ## Example Output

@@ -48,12 +48,24 @@ export const createCommitMessagePrompt = (
     ? `\n${contextBlocks.join('\n\n')}\n`
     : '\n'
 
+  const isAutoCommitType = commitType === 'auto'
+  const commitTypeSection = isAutoCommitType
+    ? `Commit type selection: AI decides
+
+Choose the most suitable conventional commit type for each option.`
+    : `Commit type selected: ${commitType}`
+
+  const commitTypeRequirements = isAutoCommitType
+    ? `- Use a valid conventional commit type (feat|fix|docs|style|refactor|perf|test|chore|ci|build)
+- Choose the best type based on the actual diff for each option`
+    : `- Use the selected commit type (${commitType}) for all options`
+
   return `Based on the following git diff, generate 3 commit message options:
 
 ${gitDiff}
 
 ${extraContext}
-Commit type selected: ${commitType}
+${commitTypeSection}
 
 Please analyze the changes and provide 3 commit message options with different approaches:
 1. Three commit messages following the format: {type}: {description}
@@ -62,7 +74,7 @@ Please analyze the changes and provide 3 commit message options with different a
    - Option 3: Most detailed description
 
 Requirements:
-- Use the selected commit type (${commitType}) for all options
+${commitTypeRequirements}
 - Keep the description clear and concise (max 72 characters)
 - Use imperative mood (e.g., "add feature" not "adds feature" or "added feature")
 - Do not end the subject line with a period

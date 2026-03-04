@@ -1,14 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { $ } from 'zx'
 import ora from 'ora'
+import fs from 'fs/promises'
 import { GitHubProvider } from './github'
+import { setupCommandMock } from '../test-utils/zx-mock'
 
 vi.mock('zx')
 vi.mock('ora')
-
-interface MockCommandResult {
-  stdout: string
-}
 
 const mockZx = vi.mocked($)
 
@@ -16,36 +14,6 @@ const mockSpinner = {
   start: vi.fn().mockReturnThis(),
   succeed: vi.fn().mockReturnThis(),
   fail: vi.fn().mockReturnThis(),
-}
-
-function stringifyCommand(args: unknown[]): string {
-  const [template, ...values] = args as [string[], ...unknown[]]
-  return template
-    .reduce((cmd, chunk, index) => {
-      const value = index < values.length ? String(values[index]) : ''
-      return cmd + chunk + value
-    }, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
-
-function setupCommandMock(
-  handler: (command: string) => MockCommandResult | Promise<MockCommandResult>,
-): string[] {
-  const executedCommands: string[] = []
-
-  mockZx.mockImplementation((...args: unknown[]) => {
-    const command = stringifyCommand(args)
-    executedCommands.push(command)
-
-    try {
-      return Promise.resolve(handler(command))
-    } catch (error) {
-      return Promise.reject(error)
-    }
-  })
-
-  return executedCommands
 }
 
 describe('GitHubProvider', () => {
@@ -541,5 +509,55 @@ describe('GitHubProvider', () => {
     await expect(provider.getPRDetails()).rejects.toThrow(
       'No open pull request found for branch "feat/fork-branch" in repositories: org/main-repo, alice/fork-repo',
     )
+  })
+
+  it('updateDescription executes gh command as structured args instead of a single command string', async () => {
+    const provider = new GitHubProvider()
+    vi.spyOn(fs, 'writeFile').mockResolvedValue(undefined)
+    vi.spyOn(fs, 'unlink').mockResolvedValue(undefined)
+
+    mockZx.mockImplementation((...args: unknown[]) => {
+      const [template, ...values] = args as [string[], ...unknown[]]
+      const isSingleInterpolatedCommand =
+        template.length === 2 &&
+        template[0] === '' &&
+        template[1] === '' &&
+        values.length === 1 &&
+        typeof values[0] === 'string'
+
+      if (isSingleInterpolatedCommand) {
+        throw new Error(`/bin/bash: ${String(values[0])}: command not found`)
+      }
+
+      return Promise.resolve({ stdout: '' })
+    })
+
+    await expect(
+      provider.updateDescription('body', '101'),
+    ).resolves.toBeUndefined()
+  })
+
+  it('postComment executes gh command as structured args instead of a single command string', async () => {
+    const provider = new GitHubProvider()
+    vi.spyOn(fs, 'writeFile').mockResolvedValue(undefined)
+    vi.spyOn(fs, 'unlink').mockResolvedValue(undefined)
+
+    mockZx.mockImplementation((...args: unknown[]) => {
+      const [template, ...values] = args as [string[], ...unknown[]]
+      const isSingleInterpolatedCommand =
+        template.length === 2 &&
+        template[0] === '' &&
+        template[1] === '' &&
+        values.length === 1 &&
+        typeof values[0] === 'string'
+
+      if (isSingleInterpolatedCommand) {
+        throw new Error(`/bin/bash: ${String(values[0])}: command not found`)
+      }
+
+      return Promise.resolve({ stdout: '' })
+    })
+
+    await expect(provider.postComment('body', '101')).resolves.toBeUndefined()
   })
 })
