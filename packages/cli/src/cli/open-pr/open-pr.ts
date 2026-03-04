@@ -73,6 +73,11 @@ async function main() {
         // Existing PR path should return fast and skip branch/JIRA work.
         const existingPrUrl = await provider.checkExistingPR()
         if (existingPrUrl) {
+          if (options.ci || options.nonInteractive) {
+            console.log(`Existing PR/MR: ${existingPrUrl}`)
+            return
+          }
+
           await provider.openPR()
           return
         }
