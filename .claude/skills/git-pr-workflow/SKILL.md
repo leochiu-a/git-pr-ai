@@ -11,39 +11,39 @@ description: >
 
 Complete PR lifecycle using git-pr-ai CLI. Run steps sequentially:
 
-## Step 1: Create Branch
+## Create Branch
 
 ```bash
-git create-branch --jira <TICKET>
+git create-branch --jira --ci
 ```
 
-Generate branch name from JIRA ticket. AI provides 3 options in commitlint format (e.g., `feat/PROJ-123-add-user-auth`). User selects one.
+Generate branch name from JIRA ticket in non-interactive CI mode. Auto-selects branch name in commitlint format (e.g., `feat/PROJ-123-add-user-auth`).
 
-## Step 2: AI Commit
+## AI Commit
 
 ```bash
-git ai-commit --jira
+git ai-commit --ci
 ```
 
-After code changes are staged (`git add`), generate AI commit messages with JIRA context. User selects commit type (`feat`, `fix`, etc.), AI provides 3 message options.
+After code changes are staged (`git add`), generate and auto-apply AI commit message in CI mode (no interactive selection).
 
-## Step 3: Open PR
+## Open PR
 
 ```bash
-git open-pr --no-web
+git open-pr --ci
 ```
 
-Create PR directly in CLI without opening browser. Auto-detects JIRA ticket from branch name, fetches ticket title, generates PR title as `[PROJ-123] ticket title`.
+Create PR in CI mode without interactive prompts. Auto-detects JIRA ticket from branch name, fetches ticket title, generates PR title as `[PROJ-123] ticket title`.
 
-## Step 4: Update PR Description
+## Update PR Description
 
 ```bash
-git update-pr-desc --yolo
+git update-pr-desc --ci
 ```
 
-AI generates PR description from diff using repo's PR template (or default template). Replaces existing description entirely.
+AI generates and auto-applies PR description from diff using repo's PR template (or default template) in CI mode.
 
-## Step 5: PR Review
+## PR Review
 
 ```bash
 git pr-review --yolo
