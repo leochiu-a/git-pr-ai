@@ -118,6 +118,26 @@ After installing `git-pr-ai`, the CLI registers a suite of `git` subcommands (e.
 
     _Stop scrambling to remember what you worked on this week. Get AI-generated summaries that highlight your impact and achievements automatically._
 
+## AI Agent Integration
+
+Want your AI agent (Claude Code, Cursor, etc.) to automatically run `git-pr-ai` commands for you? Install the `git-pr-workflow` skill:
+
+```bash
+npx skills add https://github.com/leochiu-a/git-pr-ai --skill git-pr-workflow
+```
+
+Once installed, your AI agent can run the full PR lifecycle hands-free — from branch creation to code review — just by asking it to "start workflow" or "take ticket PROJ-123".
+
+The skill covers:
+
+1. `git create-branch --jira --ci` — generate a branch name from a JIRA ticket
+2. `git ai-commit --ci` — auto-apply an AI-generated commit message
+3. `git open-pr --ci` — create a PR with the JIRA ticket title
+4. `git update-pr-desc --ci` — fill in the PR description from the diff
+5. `git pr-review --yolo` — post an AI code review comment
+
+See [`.claude/skills/git-pr-workflow/SKILL.md`](.claude/skills/git-pr-workflow/SKILL.md) for details.
+
 ## Documentation
 
 Want to learn more about detailed configurations and features?
