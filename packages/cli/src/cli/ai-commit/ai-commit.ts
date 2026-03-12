@@ -15,6 +15,7 @@ import {
   resolveCommitType,
 } from './non-interactive'
 import { resolveNonInteractiveMode } from '../shared/non-interactive'
+import { createCommit } from './git-commit'
 
 const COMMIT_TYPE_CHOICES = [
   { name: 'feat: New features', value: 'feat' },
@@ -30,22 +31,16 @@ const COMMIT_TYPE_CHOICES = [
 ]
 
 async function getGitDiff(): Promise<string> {
-  try {
-    // Get staged changes
-    let result = await $`git diff --cached`
-    let gitDiff = result.stdout.trim()
+  const result = await $`git diff --cached`
+  const gitDiff = result.stdout.trim()
 
-    if (!gitDiff) {
-      throw new Error(
-        'No staged changes detected. Please stage your files before committing.',
-      )
-    }
-
-    return gitDiff
-  } catch (error) {
-    console.error('Failed to get git diff')
-    throw error
+  if (!gitDiff) {
+    throw new Error(
+      'No staged changes detected. Please stage your files before committing.',
+    )
   }
+
+  return gitDiff
 }
 
 async function generateCommitMessages(
@@ -87,28 +82,6 @@ async function generateCommitMessages(
     return parseResult.values
   } catch (error) {
     spinner.fail(`Failed: ${error}`)
-    throw error
-  }
-}
-
-async function createCommit(commitMessage: string): Promise<void> {
-  try {
-    // Check if there are staged changes
-    const stagedResult = await $`git diff --cached --quiet`.exitCode
-    const hasStaged = stagedResult !== 0
-
-    if (!hasStaged) {
-      const message =
-        'No staged changes detected. Please stage your files before committing.'
-      console.error(message)
-      throw new Error(message)
-    }
-
-    // Create the commit
-    // Use stdio: 'inherit' to preserve TTY for hooks
-    await $({ stdio: 'inherit' })`git commit -m ${commitMessage}`
-  } catch (error) {
-    console.error('Failed to create commit')
     throw error
   }
 }
