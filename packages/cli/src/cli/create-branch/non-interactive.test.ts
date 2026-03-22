@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { pickPreferredBranchName } from './non-interactive'
 
 describe('create-branch non-interactive', () => {

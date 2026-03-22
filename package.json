@@ -27,11 +27,11 @@
     "release": "pnpm build && changeset publish",
     "test": "pnpm --filter git-pr-ai test",
     "type-check": "pnpm --filter git-pr-ai type-check",
-    "lint": "oxlint",
-    "lint:fix": "oxlint --fix",
-    "format": "oxfmt --write .",
-    "format:check": "oxfmt --check .",
-    "prepare": "husky"
+    "lint": "vp lint",
+    "lint:fix": "vp lint --fix",
+    "format": "vp fmt --write .",
+    "format:check": "vp fmt --check .",
+    "prepare": "vp config"
   },
   "keywords": [
     "git",
@@ -57,19 +57,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.29.5",
     "@types/node": "^24.1.0",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.1.4",
-    "oxfmt": "^0.28.0",
-    "oxlint": "^1.9.0",
-    "typescript": "^5.9.2"
-  },
-  "lint-staged": {
-    "*.{ts,js}": [
-      "oxlint --fix",
-      "oxfmt --write"
-    ],
-    "*.{json,md,yml,yaml}": [
-      "oxfmt --write"
-    ]
+    "typescript": "^5.9.2",
+    "vite-plus": "catalog:"
   }
 }

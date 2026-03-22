@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect } from 'vite-plus/test'
 import { parseNumberedOutput } from './ai-output-parser'
 
 describe('parseNumberedOutput', () => {

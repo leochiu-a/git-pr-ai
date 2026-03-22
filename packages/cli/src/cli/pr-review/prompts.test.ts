@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { buildReviewPrompt } from './prompts'
 import { PRDetails } from '../../providers/types'
 
