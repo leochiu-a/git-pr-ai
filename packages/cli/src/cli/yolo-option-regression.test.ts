@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)

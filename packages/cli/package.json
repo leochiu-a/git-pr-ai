@@ -20,18 +20,18 @@
     "package.json"
   ],
   "scripts": {
-    "dev": "tsdown --watch",
-    "build": "tsdown",
+    "dev": "vp pack --watch",
+    "build": "vp pack",
     "postinstall": "test -f dist/postinstall.js && node dist/postinstall.js || echo 'Skipping git alias setup during build'",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage",
+    "test": "vp test",
+    "test:ui": "vp test --ui",
+    "test:run": "vp test run",
+    "test:coverage": "vp test run --coverage",
     "type-check": "tsc --noEmit",
-    "lint": "oxlint",
-    "lint:fix": "oxlint --fix",
-    "format": "oxfmt --write .",
-    "format:check": "oxfmt --check ."
+    "lint": "vp lint",
+    "lint:fix": "vp lint --fix",
+    "format": "vp fmt --write .",
+    "format:check": "vp fmt --check ."
   },
   "keywords": [
     "git",
@@ -67,10 +67,8 @@
   "devDependencies": {
     "@types/node": "^24.1.0",
     "@vitest/ui": "^2.1.8",
-    "oxfmt": "^0.28.0",
-    "oxlint": "^1.9.0",
-    "tsdown": "^0.13.2",
     "typescript": "^5.9.2",
-    "vitest": "^2.1.8"
+    "vitest": "catalog:",
+    "vite-plus": "catalog:"
   }
 }
