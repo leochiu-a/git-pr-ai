@@ -4,15 +4,15 @@
   "description": "A tool to automatically extract JIRA ticket numbers from branch names and create GitHub/GitLab PRs",
   "type": "module",
   "bin": {
-    "git-open-pr": "./dist/git-open-pr.js",
-    "git-update-pr-desc": "./dist/git-update-pr-desc.js",
-    "git-pr-review": "./dist/git-pr-review.js",
-    "git-pr-ai": "./dist/git-pr-ai.js",
-    "git-create-branch": "./dist/git-create-branch.js",
-    "git-plan-issue": "./dist/git-plan-issue.js",
-    "git-take-issue": "./dist/git-take-issue.js",
-    "git-weekly-summary": "./dist/git-weekly-summary.js",
-    "git-ai-commit": "./dist/git-ai-commit.js"
+    "git-open-pr": "./dist/git-open-pr.mjs",
+    "git-update-pr-desc": "./dist/git-update-pr-desc.mjs",
+    "git-pr-review": "./dist/git-pr-review.mjs",
+    "git-pr-ai": "./dist/git-pr-ai.mjs",
+    "git-create-branch": "./dist/git-create-branch.mjs",
+    "git-plan-issue": "./dist/git-plan-issue.mjs",
+    "git-take-issue": "./dist/git-take-issue.mjs",
+    "git-weekly-summary": "./dist/git-weekly-summary.mjs",
+    "git-ai-commit": "./dist/git-ai-commit.mjs"
   },
   "files": [
     "dist",
@@ -22,7 +22,7 @@
   "scripts": {
     "dev": "vp pack --watch",
     "build": "vp pack",
-    "postinstall": "test -f dist/postinstall.js && node dist/postinstall.js || echo 'Skipping git alias setup during build'",
+    "postinstall": "test -f dist/postinstall.mjs && node dist/postinstall.mjs || echo 'Skipping git alias setup during build'",
     "test": "vp test",
     "test:ui": "vp test --ui",
     "test:run": "vp test run",
