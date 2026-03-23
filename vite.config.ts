@@ -2,8 +2,8 @@ import { defineConfig } from 'vite-plus'
 
 export default defineConfig({
   staged: {
-    '*.{ts,js}': ['vp lint --fix', 'vp fmt --write'],
-    '*.{json,md,yml,yaml}': ['vp fmt --write'],
+    '*.{ts,js}': ['vp lint --fix', 'vp fmt . --write'],
+    '*.{json,md,yml,yaml}': ['vp fmt . --write'],
   },
   fmt: {
     tabWidth: 2,
