@@ -83,7 +83,7 @@ async function main() {
         }
 
         const currentBranch = await getCurrentBranch()
-        let jiraTicket = options.jira || extractJiraTicket(currentBranch)
+        const jiraTicket = options.jira || extractJiraTicket(currentBranch)
 
         let jiraTitle: string | null = null
         if (jiraTicket) {
