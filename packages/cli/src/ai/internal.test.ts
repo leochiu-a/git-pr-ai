@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { $ } from 'zx'
 import { executeAIInternal } from './internal'
 import { getLanguage } from '../git-helpers'

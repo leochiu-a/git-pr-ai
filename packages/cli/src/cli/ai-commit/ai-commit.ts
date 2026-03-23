@@ -32,8 +32,8 @@ const COMMIT_TYPE_CHOICES = [
 async function getGitDiff(): Promise<string> {
   try {
     // Get staged changes
-    let result = await $`git diff --cached`
-    let gitDiff = result.stdout.trim()
+    const result = await $`git diff --cached`
+    const gitDiff = result.stdout.trim()
 
     if (!gitDiff) {
       throw new Error(

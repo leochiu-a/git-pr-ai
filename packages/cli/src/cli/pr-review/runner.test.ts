@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { describe, expect, it, vi, beforeEach } from 'vite-plus/test'
 import ora from 'ora'
 import { PRDetails } from '../../providers/types'
 import { runReviewWithExecutionMode } from './runner'
