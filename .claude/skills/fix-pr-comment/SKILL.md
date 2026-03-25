@@ -48,6 +48,7 @@ git push
 ```
 
 After pushing, capture the commit hash:
+
 ```bash
 git rev-parse HEAD
 ```
@@ -57,6 +58,7 @@ git rev-parse HEAD
 Include the commit hash in the reply so reviewers can navigate directly to the fix.
 
 **Review comment** (`comment_type == "review"`):
+
 ```bash
 gh api /repos/{owner}/{repo}/pulls/comments \
   --method POST \
@@ -66,6 +68,7 @@ gh api /repos/{owner}/{repo}/pulls/comments \
 ```
 
 **Issue/PR-level comment** (`comment_type == "issue"`):
+
 ```bash
 gh api /repos/{owner}/{repo}/issues/{pull_number}/comments \
   --method POST \
@@ -73,6 +76,7 @@ gh api /repos/{owner}/{repo}/issues/{pull_number}/comments \
 ```
 
 Write a concise reply explaining what was done and reference the commit. Example:
+
 > Fixed in {commit_sha} — added `@storybook/addon-viewport` to `devDependencies` to make the dependency explicit.
 
 ## Notes
