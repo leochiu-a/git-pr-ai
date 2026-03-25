@@ -9,6 +9,7 @@ gh pr view --json number,title,url,baseRefName,headRefName,body
 ## Step 2: Analyze code changes
 
 Examine the diff to understand:
+
 - **Purpose**: What problem does this PR solve?
 - **Scope**: What files and functionality are affected?
 - **Impact**: How does this change the user/developer experience?
@@ -21,6 +22,7 @@ gh pr diff
 ## Step 3: Find PR template
 
 Check in order:
+
 ```
 .github/pull_request_template.md
 .github/PULL_REQUEST_TEMPLATE.md

@@ -9,6 +9,7 @@ glab mr view --output json
 ## Step 2: Analyze code changes
 
 Examine the diff to understand:
+
 - **Purpose**: What problem does this MR solve?
 - **Scope**: What files and functionality are affected?
 - **Impact**: How does this change the user/developer experience?
@@ -21,6 +22,7 @@ glab mr diff
 ## Step 3: Find MR template
 
 Check in order:
+
 ```
 .gitlab/merge_request_templates/default.md
 .gitlab/merge_request_templates/Default.md

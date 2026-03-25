@@ -130,11 +130,11 @@ npx skills add https://github.com/leochiu-a/git-pr-ai --skill fix-pr-comment
 
 The following skills are included:
 
-| Skill | Description |
-| ----- | ----------- |
+| Skill                                                        | Description                                                                            |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
 | [`git-pr-workflow`](.claude/skills/git-pr-workflow/SKILL.md) | Full PR lifecycle: create branch, commit, open PR, update description, and code review |
-| [`update-pr-desc`](.claude/skills/update-pr-desc/SKILL.md) | AI-generate and apply a PR/MR description from the diff |
-| [`fix-pr-comment`](.claude/skills/fix-pr-comment/SKILL.md) | Fix a PR review comment, commit the change, and reply with the commit hash |
+| [`update-pr-desc`](.claude/skills/update-pr-desc/SKILL.md)   | AI-generate and apply a PR/MR description from the diff                                |
+| [`fix-pr-comment`](.claude/skills/fix-pr-comment/SKILL.md)   | Fix a PR review comment, commit the change, and reply with the commit hash             |
 
 Once installed, just describe what you want in natural language:
 
