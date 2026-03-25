@@ -1,4 +1,13 @@
 import { defineConfig } from 'vite-plus/pack'
+import { fileURLToPath } from 'url'
+import { dirname, resolve } from 'path'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+const skillReferences = resolve(
+  __dirname,
+  '../../.claude/skills/update-pr-desc/references',
+)
 
 export default defineConfig({
   entry: {
@@ -18,5 +27,9 @@ export default defineConfig({
     js: '#!/usr/bin/env node',
   },
   clean: true,
-  copy: ['src/cli/update-pr-desc/default-template.md'],
+  copy: [
+    { from: `${skillReferences}/github.md`, to: 'dist/references' },
+    { from: `${skillReferences}/gitlab.md`, to: 'dist/references' },
+    { from: `${skillReferences}/default-template.md`, to: 'dist/references' },
+  ],
 })
