@@ -60,11 +60,10 @@ Include the commit hash in the reply so reviewers can navigate directly to the f
 **Review comment** (`comment_type == "review"`):
 
 ```bash
-gh api /repos/{owner}/{repo}/pulls/comments \
+gh api /repos/{owner}/{repo}/pulls/{pull_number}/comments \
   --method POST \
   -f body="<reply_text>" \
-  -F in_reply_to={comment_id} \
-  -F pull_number={pull_number}
+  -F in_reply_to={comment_id}
 ```
 
 **Issue/PR-level comment** (`comment_type == "issue"`):
