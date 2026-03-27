@@ -1,5 +1,13 @@
 # git-pr-ai
 
+## 1.16.1
+
+### Patch Changes
+
+- b53c755: refactor: extract code review guidelines into shared guidelines.md
+- 125becd: chore: migrate build toolchain to vite-plus
+- 324b30d: refactor: update-pr-desc now reads skill reference files as prompt (SSOT)
+
 ## 1.16.0
 
 ### Minor Changes
