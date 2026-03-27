@@ -4,9 +4,13 @@ import { dirname, resolve } from 'path'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-const skillReferences = resolve(
+const updatePrDescReferences = resolve(
   __dirname,
   '../../.claude/skills/update-pr-desc/references',
+)
+const aiCommitReferences = resolve(
+  __dirname,
+  '../../.claude/skills/ai-commit/references',
 )
 
 export default defineConfig({
@@ -28,8 +32,15 @@ export default defineConfig({
   },
   clean: true,
   copy: [
-    { from: `${skillReferences}/github.md`, to: 'dist/references' },
-    { from: `${skillReferences}/gitlab.md`, to: 'dist/references' },
-    { from: `${skillReferences}/default-template.md`, to: 'dist/references' },
+    { from: `${updatePrDescReferences}/github.md`, to: 'dist/references' },
+    { from: `${updatePrDescReferences}/gitlab.md`, to: 'dist/references' },
+    {
+      from: `${updatePrDescReferences}/default-template.md`,
+      to: 'dist/references',
+    },
+    {
+      from: `${aiCommitReferences}/commit.md`,
+      to: 'dist/references/ai-commit',
+    },
   ],
 })

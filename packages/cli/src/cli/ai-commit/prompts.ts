@@ -1,3 +1,10 @@
+import { readFileSync, existsSync } from 'fs'
+import { join, dirname, resolve } from 'path'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
 export type CommitJiraContext = {
   key: string
   summary?: string
@@ -9,6 +16,25 @@ export type CommitJiraContext = {
   labels?: string[]
   browseUrl?: string
   source: 'branch' | 'api'
+}
+
+function getReferencesDir(): string {
+  // Runtime (after build): references are copied to dist/references/ai-commit/
+  const distPath = join(__dirname, 'references', 'ai-commit')
+  if (existsSync(join(distPath, 'commit.md'))) {
+    return distPath
+  }
+
+  // Dev/test: resolve from monorepo root via process.cwd()
+  const skillPath = resolve(
+    process.cwd(),
+    '../../.claude/skills/ai-commit/references',
+  )
+  if (existsSync(join(skillPath, 'commit.md'))) {
+    return skillPath
+  }
+
+  throw new Error(`Skill reference files not found. Expected at: ${distPath}`)
 }
 
 function formatJiraContext(context: CommitJiraContext | null): string {
@@ -33,6 +59,9 @@ export const createCommitMessagePrompt = (
   userPrompt?: string,
   jiraContext: CommitJiraContext | null = null,
 ) => {
+  const referencesDir = getReferencesDir()
+  const instructions = readFileSync(join(referencesDir, 'commit.md'), 'utf-8')
+
   const trimmedPrompt = userPrompt?.trim()
   const contextBlocks: string[] = []
 
@@ -67,28 +96,8 @@ ${gitDiff}
 ${extraContext}
 ${commitTypeSection}
 
-Please analyze the changes and provide 3 commit message options with different approaches:
-1. Three commit messages following the format: {type}: {description}
-   - Option 1: Most concise and direct description
-   - Option 2: Alternative wording with more context
-   - Option 3: Most detailed description
-
-Requirements:
+## Commit type requirements
 ${commitTypeRequirements}
-- Keep the description clear and concise (max 72 characters)
-- Use imperative mood (e.g., "add feature" not "adds feature" or "added feature")
-- Do not end the subject line with a period
-- Provide 3 distinct options with different perspectives
-- Focus on WHAT changed and WHY, not HOW
 
-Please respond with exactly this format:
-OPTION_1: {first_generated_commit_message}
-OPTION_2: {second_generated_commit_message}
-OPTION_3: {third_generated_commit_message}
-
-Examples:
-OPTION_1: feat: add user authentication module
-OPTION_2: feat: implement login and signup functionality
-OPTION_3: feat: add JWT-based authentication system for users
-`
+${instructions}`
 }
