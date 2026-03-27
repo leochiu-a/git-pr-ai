@@ -139,6 +139,7 @@ Once installed, just describe what you want in natural language:
 
 - "start workflow for PROJ-123"
 - "update pr desc"
+- "review pr" or "review this PR"
 - "fix this comment https://github.com/owner/repo/pull/1#discussion_r123"
 
 ## Documentation
