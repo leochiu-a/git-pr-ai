@@ -120,21 +120,20 @@ After installing `git-pr-ai`, the CLI registers a suite of `git` subcommands (e.
 
 ## AI Agent Integration
 
-Want your AI agent (Claude Code, Cursor, etc.) to automatically run `git-pr-ai` commands for you? Install the skills via `npx`:
+Want your AI agent (Claude Code, Cursor, etc.) to automatically run `git-pr-ai` commands for you? Install all skills at once via `npx`:
 
 ```bash
-npx skills add https://github.com/leochiu-a/git-pr-ai --skill git-pr-workflow
-npx skills add https://github.com/leochiu-a/git-pr-ai --skill update-pr-desc
-npx skills add https://github.com/leochiu-a/git-pr-ai --skill fix-pr-comment
+npx skills add https://github.com/leochiu-a/git-pr-ai
 ```
 
 The following skills are included:
 
-| Skill                                                        | Description                                                                            |
-| ------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
-| [`git-pr-workflow`](.claude/skills/git-pr-workflow/SKILL.md) | Full PR lifecycle: create branch, commit, open PR, update description, and code review |
-| [`update-pr-desc`](.claude/skills/update-pr-desc/SKILL.md)   | AI-generate and apply a PR/MR description from the diff                                |
-| [`fix-pr-comment`](.claude/skills/fix-pr-comment/SKILL.md)   | Fix a PR review comment, commit the change, and reply with the commit hash             |
+| Skill                                                        | Description                                                                                                              |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| [`git-pr-workflow`](.claude/skills/git-pr-workflow/SKILL.md) | Full PR lifecycle: create branch, commit, open PR, update description, and code review                                   |
+| [`update-pr-desc`](.claude/skills/update-pr-desc/SKILL.md)   | AI-generate and apply a PR/MR description from the diff                                                                  |
+| [`fix-pr-comment`](.claude/skills/fix-pr-comment/SKILL.md)   | Fix a PR review comment, commit the change, and reply with the commit hash                                               |
+| [`code-review`](.claude/skills/code-review/SKILL.md)         | AI code review for a PR/MR: analyze the diff, identify bugs/security/performance issues, and post inline review comments |
 
 Once installed, just describe what you want in natural language:
 
