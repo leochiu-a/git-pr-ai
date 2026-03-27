@@ -19,18 +19,18 @@ Find issues and write comments per the guidelines above.
 **Step A - Get project ID and SHAs:**
 
 ```bash
-# Split commands to avoid shell parsing errors
-glab mr view --format json > /tmp/mr.json
-glab repo view --format json > /tmp/repo.json
+glab mr view --output json > /tmp/mr.json
 
-PROJECT_ID=$(cat /tmp/repo.json | jq -r '.id')
+PROJECT_ID=$(cat /tmp/mr.json | jq -r '.project_id')
 MR_IID=$(cat /tmp/mr.json | jq -r '.iid')
 BASE_SHA=$(cat /tmp/mr.json | jq -r '.diff_refs.base_sha')
 HEAD_SHA=$(cat /tmp/mr.json | jq -r '.diff_refs.head_sha')
 START_SHA=$(cat /tmp/mr.json | jq -r '.diff_refs.start_sha')
+GITLAB_HOST=$(glab auth status 2>&1 | grep 'Logged in to' | awk '{print $4}')
+GITLAB_TOKEN=$(cat ~/.config/glab-cli/config.yml | grep -A5 "$GITLAB_HOST" | grep 'token:' | awk '{print $2}')
 ```
 
-**Step B - Submit overall review (use --raw-field, NOT --input):**
+**Step B - Submit overall review:**
 
 ```bash
 glab api --method POST /projects/$PROJECT_ID/merge_requests/$MR_IID/notes \
@@ -41,34 +41,72 @@ Key points:
 - Point 2'
 ```
 
-**Step C - Submit inline comments (use --raw-field for all fields):**
+**Step C - Submit inline comments (MUST use curl + JSON body):**
+
+`glab api --raw-field` does NOT work for nested `position[...]` fields — the server ignores them and position will be null (comment won't anchor to the diff). Always use curl with a JSON body instead.
+
+Single-line comment (anchored to one line):
 
 ```bash
-glab api --method POST /projects/$PROJECT_ID/merge_requests/$MR_IID/discussions \
-  --raw-field 'body=**Issue**
+curl -s -X POST \
+  "https://$GITLAB_HOST/api/v4/projects/$PROJECT_ID/merge_requests/$MR_IID/discussions" \
+  -H "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"body\": \"**Severity — Title**\n\nCurrent:\n\`\`\`ts\nold code here\n\`\`\`\n\nFix:\n\`\`\`ts\nnew code here\n\`\`\`\",
+    \"position\": {
+      \"base_sha\": \"$BASE_SHA\",
+      \"start_sha\": \"$START_SHA\",
+      \"head_sha\": \"$HEAD_SHA\",
+      \"position_type\": \"text\",
+      \"new_path\": \"src/file.ts\",
+      \"old_path\": \"src/file.ts\",
+      \"new_line\": 15
+    }
+  }"
+```
 
-Current:
-\`\`\`ts
-const x = "value"
-\`\`\`
+Multi-line comment (highlights a range of lines):
 
-Fix:
-\`\`\`ts
-const x = '"'"'value'"'"'
-\`\`\`' \
-  --raw-field 'position[position_type]=text' \
-  --raw-field 'position[base_sha]=$BASE_SHA' \
-  --raw-field 'position[head_sha]=$HEAD_SHA' \
-  --raw-field 'position[start_sha]=$START_SHA' \
-  --raw-field 'position[new_path]=src/file.ts' \
-  --raw-field 'position[old_path]=src/file.ts' \
-  --raw-field 'position[new_line]=15'
+```bash
+# Compute line_code: sha1(filepath)_oldline_newline
+# For added lines in new files: old_line = 0
+FILE_PATH="src/file.ts"
+FILE_HASH=$(echo -n "$FILE_PATH" | sha1sum | cut -d' ' -f1)
+
+curl -s -X POST \
+  "https://$GITLAB_HOST/api/v4/projects/$PROJECT_ID/merge_requests/$MR_IID/discussions" \
+  -H "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"body\": \"**Severity — Title**\n\nCurrent:\n\`\`\`ts\nlines 10-12 here\n\`\`\`\n\nFix:\n\`\`\`ts\nnew code here\n\`\`\`\",
+    \"position\": {
+      \"base_sha\": \"$BASE_SHA\",
+      \"start_sha\": \"$START_SHA\",
+      \"head_sha\": \"$HEAD_SHA\",
+      \"position_type\": \"text\",
+      \"new_path\": \"$FILE_PATH\",
+      \"old_path\": \"$FILE_PATH\",
+      \"new_line\": 12,
+      \"line_range\": {
+        \"start\": {
+          \"line_code\": \"${FILE_HASH}_0_10\",
+          \"type\": \"new\"
+        },
+        \"end\": {
+          \"line_code\": \"${FILE_HASH}_0_12\",
+          \"type\": \"new\"
+        }
+      }
+    }
+  }"
 ```
 
 ## Important notes
 
-- MUST use --raw-field (GitLab API requires form fields, not JSON)
-- Escape single quotes in bash: '"'"' (e.g., 'Vue'"'"'s' → "Vue's")
-- Code blocks: \`\`\` (triple backticks with backslash)
-- new_line: line number in new file (after change)
-- CRITICAL: Verify line numbers exist in diff before submitting
+- **`glab api --raw-field` vs curl**: Use `glab api --raw-field` only for simple top-level fields (e.g., posting a summary note). For inline comments with `position`, always use curl + JSON body — nested bracket params are silently ignored by the GitLab server.
+- **Token**: Read from `~/.config/glab-cli/config.yml` under the correct host section.
+- **line_code format**: `sha1(filepath)_oldline_newline`. For added lines (new file or added-only lines), `old_line = 0`.
+- **new_line**: Line number in the new file (after the change). For multi-line, set `new_line` to the last line of the range.
+- **Verify line numbers**: Always confirm line numbers exist in the diff before submitting.
+- **Escape in JSON**: Backticks → `` \` ``, newlines → `\n`, double quotes → `\"`
