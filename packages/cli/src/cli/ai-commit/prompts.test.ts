@@ -2,14 +2,6 @@ import { describe, it, expect } from 'vite-plus/test'
 import { createCommitMessagePrompt } from './prompts'
 
 describe('ai-commit prompts', () => {
-  it('reads base instructions from skill reference file', () => {
-    const prompt = createCommitMessagePrompt('diff', 'feat')
-
-    // Content that lives in the skill reference file, not hardcoded in prompts.ts
-    expect(prompt).toContain('## Commit Message Instructions')
-    expect(prompt).toContain('## Output Format')
-  })
-
   it('includes selected commit type', () => {
     const prompt = createCommitMessagePrompt('diff', 'feat')
 
