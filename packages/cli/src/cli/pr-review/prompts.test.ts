@@ -15,14 +15,27 @@ const prDetails: PRDetails = {
 }
 
 describe('pr-review prompts', () => {
+  it('reads base instructions from skill reference file', () => {
+    const prompt = buildReviewPrompt({ prDetails, providerName: 'GitHub' })
+
+    // Content that lives in the skill reference file, not hardcoded in prompts.ts
+    expect(prompt).toContain('## GitHub Code Review')
+    expect(prompt).toContain('## JSON rules')
+  })
+
+  it('injects PR context dynamically', () => {
+    const prompt = buildReviewPrompt({ prDetails, providerName: 'GitHub' })
+
+    expect(prompt).toContain('leochiu-a/git-pr-ai#101')
+    expect(prompt).toContain('feat/add-non-interactive → main')
+  })
+
   it('forces COMMENT event when reviewing your own GitHub PR', () => {
     const prompt = buildReviewPrompt({
       prDetails,
       providerName: 'GitHub',
     })
 
-    expect(prompt).toContain('PR_AUTHOR=$(gh pr view 101 --json author')
-    expect(prompt).toContain("CURRENT_USER=$(gh api user -q '.login')")
     expect(prompt).toContain('If PR_AUTHOR equals CURRENT_USER')
     expect(prompt).toContain('"event": "COMMENT"')
   })

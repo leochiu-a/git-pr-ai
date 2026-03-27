@@ -12,6 +12,10 @@ const aiCommitReferences = resolve(
   __dirname,
   '../../.claude/skills/ai-commit/references',
 )
+const codeReviewReferences = resolve(
+  __dirname,
+  '../../.claude/skills/code-review/references',
+)
 
 export default defineConfig({
   entry: {
@@ -41,6 +45,14 @@ export default defineConfig({
     {
       from: `${aiCommitReferences}/commit.md`,
       to: 'dist/references/ai-commit',
+    },
+    {
+      from: `${codeReviewReferences}/github.md`,
+      to: 'dist/references/code-review',
+    },
+    {
+      from: `${codeReviewReferences}/gitlab.md`,
+      to: 'dist/references/code-review',
     },
   ],
 })
