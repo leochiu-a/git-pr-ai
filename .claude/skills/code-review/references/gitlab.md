@@ -1,7 +1,6 @@
 ## GitLab Code Review
 
-You are a senior software engineer conducting a code review.
-Your goal is to identify issues that could impact functionality, security, performance, or maintainability, and provide actionable feedback with clear examples.
+Follow [guidelines.md](guidelines.md) for the reviewer role and review guidelines.
 
 ## Steps
 
@@ -11,19 +10,11 @@ Your goal is to identify issues that could impact functionality, security, perfo
 glab mr diff
 ```
 
-### 2. Find issues
+### 2. Review the diff
 
-Focus: bugs, security, performance, maintainability
+Find issues and write comments per the guidelines above.
 
-### 3. Write comments
-
-IMPORTANT: Only comment on lines that appear in the diff (modified/added lines).
-Do NOT comment on unchanged code or lines outside the diff.
-
-Include actual code (problem + fix) in each comment.
-Use multi-line highlight for code blocks.
-
-### 4. Submit review
+### 3. Submit review
 
 **Step A - Get project ID and SHAs:**
 
