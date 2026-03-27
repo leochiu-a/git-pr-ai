@@ -123,9 +123,7 @@ After installing `git-pr-ai`, the CLI registers a suite of `git` subcommands (e.
 Want your AI agent (Claude Code, Cursor, etc.) to automatically run `git-pr-ai` commands for you? Install the skills via `npx`:
 
 ```bash
-npx skills add https://github.com/leochiu-a/git-pr-ai --skill git-pr-workflow
-npx skills add https://github.com/leochiu-a/git-pr-ai --skill update-pr-desc
-npx skills add https://github.com/leochiu-a/git-pr-ai --skill fix-pr-comment
+npx skills add https://github.com/leochiu-a/git-pr-ai
 ```
 
 The following skills are included:
@@ -134,6 +132,7 @@ The following skills are included:
 | ------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
 | [`git-pr-workflow`](.claude/skills/git-pr-workflow/SKILL.md) | Full PR lifecycle: create branch, commit, open PR, update description, and code review |
 | [`update-pr-desc`](.claude/skills/update-pr-desc/SKILL.md)   | AI-generate and apply a PR/MR description from the diff                                |
+| [`code-review`](.claude/skills/code-review/SKILL.md)         | AI code review for a PR/MR: analyze the diff and post inline review comments           |
 | [`fix-pr-comment`](.claude/skills/fix-pr-comment/SKILL.md)   | Fix a PR review comment, commit the change, and reply with the commit hash             |
 
 Once installed, just describe what you want in natural language:
