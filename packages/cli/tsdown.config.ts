@@ -4,14 +4,12 @@ import { dirname, resolve } from 'path'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
+
 const updatePrDescReferences = resolve(
   __dirname,
   '../../.claude/skills/update-pr-desc/references',
 )
-const aiCommitReferences = resolve(
-  __dirname,
-  '../../.claude/skills/ai-commit/references',
-)
+
 const codeReviewReferences = resolve(
   __dirname,
   '../../.claude/skills/code-review/references',
@@ -41,10 +39,6 @@ export default defineConfig({
     {
       from: `${updatePrDescReferences}/default-template.md`,
       to: 'dist/references',
-    },
-    {
-      from: `${aiCommitReferences}/commit.md`,
-      to: 'dist/references/ai-commit',
     },
     {
       from: `${codeReviewReferences}/github.md`,
