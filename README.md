@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/git-pr-ai.svg)](https://www.npmjs.com/package/git-pr-ai)
 [![npm downloads](https://img.shields.io/npm/dt/git-pr-ai.svg)](https://www.npmjs.com/package/git-pr-ai)
 
-`git-pr-ai` is a command-line tool designed to streamline the process of creating GitHub Pull Requests from JIRA tickets. By leveraging the power of AI, it can automatically generate branch names, PR descriptions, and even assist with code reviews, allowing you to focus on what truly matters: writing high-quality code.
+`git-pr-ai` streamlines GitHub/GitLab Pull Requests with AI-powered automation. Use it as **CLI commands** in your terminal, or as **AI Agent Skills** that let Claude Code, Codex, and other agents handle the work for you — from branch creation and smart commits to code reviews and PR descriptions.
 
 **[Read the Docs](https://leochiu-a.github.io/git-pr-ai)**
 
@@ -11,12 +11,12 @@
 
 - **AI-Powered Intelligence**: Harness Claude Code, Gemini AI, Cursor Agent, or Codex to transform mundane git tasks into intelligent, context-aware workflows that understand your code and intentions.
 - **Smart JIRA Integration**: Seamlessly bridge your project management and development workflow with automated branch creation and context extraction from tickets.
-- **Agent-Agnostic Simplicity**: No need to rely on MCP or write custom prompts. Use the same intuitive commands to switch seamlessly between different AI Agents.
+- **Flexible Workflow**: Use CLI commands for direct control, or AI Agent Skills for natural language interaction — the same powerful features, two ways to access them.
 - **Zero-Friction Setup**: From installation to first PR in under 5 minutes - because your time is better spent coding, not configuring tools.
 
 ## Prerequisites
 
-Before you begin, please ensure you have completed the following setup:
+The following setup applies to both CLI and Skills usage.
 
 - **Platform CLI**: Install and authenticate either GitHub CLI (`gh`) or GitLab CLI (`glab`).
   - GitHub: [Install GitHub CLI](https://cli.github.com/) and run `gh auth login`
@@ -43,7 +43,7 @@ All combinations of platforms and AI providers are fully supported!
 pnpm add -g git-pr-ai
 ```
 
-## Quick Start
+## Getting Started: CLI
 
 After installing `git-pr-ai`, the CLI registers a suite of `git` subcommands (e.g., `git pr-ai`, `git create-branch`, `git pr-review`) so you can run everything directly from your terminal.
 
@@ -118,9 +118,9 @@ After installing `git-pr-ai`, the CLI registers a suite of `git` subcommands (e.
 
     _Stop scrambling to remember what you worked on this week. Get AI-generated summaries that highlight your impact and achievements automatically._
 
-## AI Agent Integration
+## Getting Started: AI Agent Skills
 
-Want your AI agent (Claude Code, Cursor, etc.) to automatically run `git-pr-ai` commands for you? Install the skills via `npx`:
+Prefer natural language over CLI commands? Install the skills and let your AI agent (Claude Code, Codex, etc.) handle the work:
 
 ```bash
 npx skills add https://github.com/leochiu-a/git-pr-ai
