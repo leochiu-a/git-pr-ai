@@ -1,4 +1,5 @@
 {
+  "private": true,
   "version": "1.8.1",
   "description": "A tool to automatically extract JIRA ticket numbers from branch names and create GitHub PRs",
   "type": "module",
