@@ -1,5 +1,11 @@
 # git-pr-ai
 
+## 1.16.2
+
+### Patch Changes
+
+- 46e276c: Enhance code review guidelines for clarity and actionable feedback
+
 ## 1.16.1
 
 ### Patch Changes
