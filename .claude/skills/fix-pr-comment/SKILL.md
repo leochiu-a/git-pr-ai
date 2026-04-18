@@ -1,19 +1,20 @@
 ---
 name: fix-pr-comment
 description: >
-  Fix a GitHub PR comment by fetching its details, applying the code fix,
-  committing the change, and replying to the comment on GitHub. Use when the
-  user provides a GitHub PR comment URL and wants to resolve it automatically.
-  Triggers on phrases like "fix this comment [URL]", "resolve this PR comment",
-  "fix pr comment [URL]", or any request to address a specific GitHub PR review
-  comment with a link.
+  Fix a PR/MR review comment by fetching its details, applying the code fix,
+  committing the change, and replying to the comment. Supports both GitHub and
+  GitLab. Use when the user provides a PR/MR comment URL and wants to resolve
+  it automatically. Triggers on phrases like "fix this comment [URL]", "resolve
+  this PR comment", "fix pr comment [URL]", "fix this MR comment", or any
+  request to address a specific GitHub PR or GitLab MR review comment with a
+  link.
 ---
 
-# Fix PR Comment
+# Fix PR/MR Comment
 
 ## Workflow
 
-### Step 1: Fetch comment details
+### Step 1: Detect platform and fetch comment details
 
 Run the helper script with the comment URL:
 
@@ -21,12 +22,19 @@ Run the helper script with the comment URL:
 python3 .claude/skills/fix-pr-comment/scripts/fetch_comment.py "<comment_url>"
 ```
 
-Output JSON fields: `comment_id`, `comment_type` (`"review"` or `"issue"`), `body`, `path`, `line`, `diff_hunk`, `pull_number`, `owner`, `repo`.
+The script detects the platform from the URL and returns a JSON object.
+
+**Before continuing, read the platform-specific reference for field descriptions and reply instructions:**
+
+- GitHub → `.claude/skills/fix-pr-comment/references/github.md`
+- GitLab → `.claude/skills/fix-pr-comment/references/gitlab.md`
 
 ### Step 2: Understand and fix the issue
 
-- **Review comments**: read the file at `path`, use `body` + `diff_hunk` for context, apply the fix
-- **Issue comments**: understand the issue from `body`, find and fix the relevant code
+Use the fields from Step 1 (see the platform reference for what each field means):
+
+- **Inline comments** (`path` is set): read the file at `path`, use `body` and diff context for guidance
+- **General comments** (`path` is null): understand the issue from `body`, find and fix the relevant code
 
 Apply the minimal change necessary to address the comment.
 
@@ -47,7 +55,7 @@ If pre-commit hooks modify staged files, re-stage before committing.
 git push
 ```
 
-After pushing, capture the commit hash:
+Capture the commit hash:
 
 ```bash
 git rev-parse HEAD
@@ -55,29 +63,8 @@ git rev-parse HEAD
 
 ### Step 5: Reply to the comment
 
-Include the commit hash in the reply so reviewers can navigate directly to the fix.
-
-**Review comment** (`comment_type == "review"`):
-
-```bash
-gh api /repos/{owner}/{repo}/pulls/{pull_number}/comments \
-  --method POST \
-  -f body="<reply_text>" \
-  -F in_reply_to={comment_id}
-```
-
-**Issue/PR-level comment** (`comment_type == "issue"`):
-
-```bash
-gh api /repos/{owner}/{repo}/issues/{pull_number}/comments \
-  --method POST \
-  -f body="<reply_text>"
-```
+Use the reply command from the platform reference (github.md or gitlab.md).
 
 Write a concise reply explaining what was done and reference the commit. Example:
 
-> Fixed in {commit_sha} — added `@storybook/addon-viewport` to `devDependencies` to make the dependency explicit.
-
-## Notes
-
-- If the comment contains a GitHub **code suggestion block**, apply it exactly
+> Fixed in {commit_sha} — added `note?: string` to `SpanOrderItem` to remove the `as any` cast.
