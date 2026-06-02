@@ -10,4 +10,8 @@ export const COMMAND_MODEL_CHOICES: { name: string; value: CommandName }[] = [
   },
   { name: 'Plan Issue (git plan-issue)', value: 'planIssue' },
   { name: 'Take Issue (git take-issue)', value: 'takeIssue' },
+  {
+    name: 'Fix PR Comments (git fix-pr-comments)',
+    value: 'fixPrComments',
+  },
 ]

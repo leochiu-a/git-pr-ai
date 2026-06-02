@@ -12,7 +12,8 @@
     "git-plan-issue": "./dist/git-plan-issue.mjs",
     "git-take-issue": "./dist/git-take-issue.mjs",
     "git-weekly-summary": "./dist/git-weekly-summary.mjs",
-    "git-ai-commit": "./dist/git-ai-commit.mjs"
+    "git-ai-commit": "./dist/git-ai-commit.mjs",
+    "git-fix-pr-comments": "./dist/git-fix-pr-comments.mjs"
   },
   "files": [
     "dist",

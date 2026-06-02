@@ -18,6 +18,7 @@ export type CommandName =
   | 'updatePrDesc'
   | 'planIssue'
   | 'takeIssue'
+  | 'fixPrComments'
 
 export interface GitPrAiConfig {
   agent: AIAgent
@@ -29,6 +30,7 @@ export interface GitPrAiConfig {
     updatePrDesc?: CommandModelConfig
     planIssue?: CommandModelConfig
     takeIssue?: CommandModelConfig
+    fixPrComments?: CommandModelConfig
   }
   jira?: {
     baseUrl: string

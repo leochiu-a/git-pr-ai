@@ -11,6 +11,7 @@ Git PR AI Tool provides several commands to streamline your development workflow
 - **[git open-pr](./open-pr)** - Create or open a Pull Request for the current branch (works with both GitHub and GitLab)
 - **[git update-pr-desc](./update-pr-desc)** - Update Pull Request description using AI assistance
 - **[git pr-review](./pr-review)** - Get AI-powered code review for a Pull Request
+- **[git fix-pr-comments](./fix-pr-comments)** - Resolve PR/MR review comments with AI — fix one by URL or all open comments on the current PR/MR
 
 ### Issue Planning and Implementation
 
@@ -57,6 +58,7 @@ git ai-commit       # Generate AI commit message
 git open-pr         # Create/open Pull Request
 git update-pr-desc  # Update PR description
 git pr-review       # Review Pull Request
+git fix-pr-comments # Fix PR/MR review comments
 git plan-issue      # Generate implementation plan from JIRA ticket
 git take-issue      # Start working on an issue
 ```

@@ -10,6 +10,7 @@ try {
   await $`git config --global alias.plan-issue '!git-plan-issue'`
   await $`git config --global alias.take-issue '!git-take-issue'`
   await $`git config --global alias.weekly-summary '!git-weekly-summary'`
+  await $`git config --global alias.fix-pr-comments '!git-fix-pr-comments'`
 
   console.log('✅ Git aliases have been set up successfully!')
   console.log('You can now use:')
@@ -21,6 +22,7 @@ try {
   console.log('  - git plan-issue <issue-id>')
   console.log('  - git take-issue <issue-id>')
   console.log('  - git weekly-summary')
+  console.log('  - git fix-pr-comments [comment-url]')
 } catch {
   console.log('⚠️  Could not set up git aliases automatically.')
 }
