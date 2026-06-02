@@ -36,6 +36,10 @@ export default defineConfig({
           { text: 'git open-pr', link: '/commands/open-pr' },
           { text: 'git update-pr-desc', link: '/commands/update-pr-desc' },
           { text: 'git pr-review', link: '/commands/pr-review' },
+          {
+            text: 'git fix-pr-comments',
+            link: '/commands/fix-pr-comments',
+          },
           { text: 'git plan-issue', link: '/commands/plan-issue' },
           { text: 'git take-issue', link: '/commands/take-issue' },
           { text: 'git weekly-summary', link: '/commands/weekly-summary' },

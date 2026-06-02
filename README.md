@@ -118,6 +118,16 @@ After installing `git-pr-ai`, the CLI registers a suite of `git` subcommands (e.
 
     _Stop scrambling to remember what you worked on this week. Get AI-generated summaries that highlight your impact and achievements automatically._
 
+8.  **Fix PR Review Comments with AI**:
+
+    ```bash
+    # Resolve a specific review comment, or all open comments on the current PR/MR
+    git fix-pr-comments
+    git fix-pr-comments https://github.com/owner/repo/pull/1#discussion_r123
+    ```
+
+    _Stop context-switching to address every review note by hand. The AI fetches the comment, applies the fix, commits, pushes, and replies with the commit hash._
+
 ## Getting Started: AI Agent Skills
 
 Prefer natural language over CLI commands? Install the skills and let your AI agent (Claude Code, Codex, etc.) handle the work:
@@ -133,7 +143,7 @@ The following skills are included:
 | [`git-pr-workflow`](.claude/skills/git-pr-workflow/SKILL.md) | Full PR lifecycle: create branch, commit, open PR, update description, and code review |
 | [`update-pr-desc`](.claude/skills/update-pr-desc/SKILL.md)   | AI-generate and apply a PR/MR description from the diff                                |
 | [`code-review`](.claude/skills/code-review/SKILL.md)         | AI code review for a PR/MR: analyze the diff and post inline review comments           |
-| [`fix-pr-comment`](.claude/skills/fix-pr-comment/SKILL.md)   | Fix a PR review comment, commit the change, and reply with the commit hash             |
+| [`fix-pr-comments`](.claude/skills/fix-pr-comments/SKILL.md) | Fix PR/MR review comments, commit the changes, and reply with the commit hash          |
 
 Once installed, just describe what you want in natural language:
 
