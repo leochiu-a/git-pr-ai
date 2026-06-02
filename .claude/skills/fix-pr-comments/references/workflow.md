@@ -1,17 +1,10 @@
----
-name: fix-pr-comment
-description: >
-  Fix a PR/MR review comment by fetching its details, applying the code fix,
-  committing the change, and replying to the comment. Supports both GitHub and
-  GitLab. Use when the user wants to resolve PR/MR review comments — either a
-  specific comment URL, or all open comments on the current PR/MR. Triggers on
-  phrases like "fix this comment [URL]", "resolve this PR comment", "fix pr
-  comment [URL]", "fix this MR comment", "fix all PR comments", "address all
-  review comments", or any request to address GitHub PR or GitLab MR review
-  comments with or without a link.
----
+# Fix PR/MR Comments — Workflow
 
-# Fix PR/MR Comment
+This is the shared workflow for resolving PR/MR review comments. It is the single
+source of truth used by both the `fix-pr-comments` skill and the
+`git fix-pr-comments` CLI command. Read the platform-specific reference
+(`github.md` or `gitlab.md`) alongside this file for field descriptions and the
+reply commands.
 
 ## Step 0: Determine mode
 
@@ -20,7 +13,7 @@ description: >
 **If no URL is provided** → run the batch script to get all open comments on the current PR/MR:
 
 ```bash
-python3 .claude/skills/fix-pr-comment/scripts/fetch_pr_comments.py
+python3 .claude/skills/fix-pr-comments/scripts/fetch_pr_comments.py
 ```
 
 This returns a JSON array of open comment objects. Each object has the same fields as the single-comment output — see the platform reference for field descriptions.
@@ -29,11 +22,6 @@ This returns a JSON array of open comment objects. Each object has the same fiel
 - Otherwise, display a numbered summary of the comments (file, line, first line of body) and confirm with the user which ones to fix (default: all of them).
 - Then process each selected comment in sequence using Steps 2–5 below, replacing "Step 1" with the comment data already in hand.
 
-Read the platform-specific reference before proceeding:
-
-- GitHub → `.claude/skills/fix-pr-comment/references/github.md`
-- GitLab → `.claude/skills/fix-pr-comment/references/gitlab.md`
-
 ---
 
 ## Step 1: Detect platform and fetch comment details
@@ -41,15 +29,12 @@ Read the platform-specific reference before proceeding:
 Run the helper script with the comment URL:
 
 ```bash
-python3 .claude/skills/fix-pr-comment/scripts/fetch_comment.py "<comment_url>"
+python3 .claude/skills/fix-pr-comments/scripts/fetch_comment.py "<comment_url>"
 ```
 
 The script detects the platform from the URL and returns a JSON object.
 
-**Before continuing, read the platform-specific reference for field descriptions and reply instructions:**
-
-- GitHub → `.claude/skills/fix-pr-comment/references/github.md`
-- GitLab → `.claude/skills/fix-pr-comment/references/gitlab.md`
+**Before continuing, read the platform-specific reference for field descriptions and reply instructions** (`github.md` or `gitlab.md`).
 
 ---
 
@@ -95,7 +80,7 @@ git rev-parse HEAD
 
 ## Step 5: Reply to the comment
 
-Use the reply command from the platform reference (github.md or gitlab.md).
+Use the reply command from the platform reference (`github.md` or `gitlab.md`).
 
 Write a concise reply explaining what was done and reference the commit. Example:
 
