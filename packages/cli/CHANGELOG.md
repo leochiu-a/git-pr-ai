@@ -1,5 +1,12 @@
 # git-pr-ai
 
+## 1.17.0
+
+### Minor Changes
+
+- 408b9f2: Add `git fix-pr-comments` command to resolve PR/MR review comments — fix a specific comment by URL or all open comments on the current PR/MR. The command shares a single source of truth with the `fix-pr-comments` skill (renamed from `fix-pr-comment`): both load the same workflow and platform references and the same helper scripts.
+- 67e8768: Add `--no-verify` option to `git ai-commit` to skip git commit hooks (passes `--no-verify` to `git commit`)
+
 ## 1.16.2
 
 ### Patch Changes
