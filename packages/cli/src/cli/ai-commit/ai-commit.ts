@@ -91,7 +91,10 @@ async function generateCommitMessages(
   }
 }
 
-async function createCommit(commitMessage: string): Promise<void> {
+async function createCommit(
+  commitMessage: string,
+  noVerify = false,
+): Promise<void> {
   try {
     // Check if there are staged changes
     const stagedResult = await $`git diff --cached --quiet`.exitCode
@@ -106,7 +109,11 @@ async function createCommit(commitMessage: string): Promise<void> {
 
     // Create the commit
     // Use stdio: 'inherit' to preserve TTY for hooks
-    await $({ stdio: 'inherit' })`git commit -m ${commitMessage}`
+    if (noVerify) {
+      await $({ stdio: 'inherit' })`git commit --no-verify -m ${commitMessage}`
+    } else {
+      await $({ stdio: 'inherit' })`git commit -m ${commitMessage}`
+    }
   } catch (error) {
     console.error('Failed to create commit')
     throw error
@@ -119,6 +126,7 @@ async function createCommit(commitMessage: string): Promise<void> {
 async function runJiraCommitFlow(
   commitType: string,
   jiraOption: string | boolean,
+  noVerify = false,
 ): Promise<void> {
   const jiraContext = await resolveJiraContext(jiraOption)
   if (!jiraContext) {
@@ -128,13 +136,14 @@ async function runJiraCommitFlow(
   }
 
   const commitMessage = buildJiraCommitMessage(commitType, jiraContext)
-  await createCommit(commitMessage)
+  await createCommit(commitMessage, noVerify)
 }
 
 async function runAiCommitFlow(
   commitType: string,
   prompt?: string,
   nonInteractive = false,
+  noVerify = false,
 ): Promise<void> {
   const gitDiff = await getGitDiff()
   const commitMessages = await generateCommitMessages(
@@ -160,7 +169,7 @@ async function runAiCommitFlow(
     )
   }
 
-  await createCommit(selectedMessage)
+  await createCommit(selectedMessage, noVerify)
 }
 
 function setupCommander() {
@@ -183,6 +192,7 @@ function setupCommander() {
     )
     .option('--non-interactive', 'run without local interactive prompts')
     .option('--ci', 'alias of --non-interactive')
+    .option('--no-verify', 'skip git commit hooks (passes --no-verify to git)')
     .addHelpText(
       'after',
       `
@@ -208,6 +218,9 @@ Examples:
     Auto-select commit type/message without local prompts
     (Commit type is chosen by AI when --type is not provided)
 
+  $ git ai-commit --no-verify
+    Skip git commit hooks (pre-commit, commit-msg)
+
 Prerequisites:
   - Git provider CLI must be installed and authenticated: GitHub CLI (gh) or GitLab CLI (glab)
   - AI provider must be configured in ~/.git-pr-ai/.git-pr-ai.json
@@ -228,6 +241,7 @@ async function main() {
         type?: string
         nonInteractive?: boolean
         ci?: boolean
+        verify?: boolean
       },
     ) => {
       try {
@@ -261,12 +275,15 @@ async function main() {
           console.log(`Non-interactive mode: commit type will be chosen by AI`)
         }
 
+        // Commander sets `verify: false` when --no-verify is passed
+        const noVerify = options.verify === false
+
         if (options.jira) {
-          await runJiraCommitFlow(commitType, options.jira)
+          await runJiraCommitFlow(commitType, options.jira, noVerify)
           return
         }
 
-        await runAiCommitFlow(commitType, prompt, nonInteractive)
+        await runAiCommitFlow(commitType, prompt, nonInteractive, noVerify)
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : String(error)
