@@ -15,6 +15,16 @@ const codeReviewReferences = resolve(
   '../../.claude/skills/code-review/references',
 )
 
+const fixPrCommentsReferences = resolve(
+  __dirname,
+  '../../.claude/skills/fix-pr-comments/references',
+)
+
+const fixPrCommentsScripts = resolve(
+  __dirname,
+  '../../.claude/skills/fix-pr-comments/scripts',
+)
+
 export default defineConfig({
   entry: {
     'git-open-pr': 'src/cli/open-pr/open-pr.ts',
@@ -26,6 +36,7 @@ export default defineConfig({
     'git-take-issue': 'src/cli/take-issue/take-issue.ts',
     'git-weekly-summary': 'src/cli/weekly-summary/weekly-summary.ts',
     'git-ai-commit': 'src/cli/ai-commit/ai-commit.ts',
+    'git-fix-pr-comments': 'src/cli/fix-pr-comments/fix-pr-comments.ts',
     postinstall: 'scripts/postinstall.ts',
   },
   format: ['esm'],
@@ -47,6 +58,26 @@ export default defineConfig({
     {
       from: `${codeReviewReferences}/gitlab.md`,
       to: 'dist/references/code-review',
+    },
+    {
+      from: `${fixPrCommentsReferences}/workflow.md`,
+      to: 'dist/references/fix-pr-comments',
+    },
+    {
+      from: `${fixPrCommentsReferences}/github.md`,
+      to: 'dist/references/fix-pr-comments',
+    },
+    {
+      from: `${fixPrCommentsReferences}/gitlab.md`,
+      to: 'dist/references/fix-pr-comments',
+    },
+    {
+      from: `${fixPrCommentsScripts}/fetch_comment.py`,
+      to: 'dist/scripts/fix-pr-comments',
+    },
+    {
+      from: `${fixPrCommentsScripts}/fetch_pr_comments.py`,
+      to: 'dist/scripts/fix-pr-comments',
     },
   ],
 })
