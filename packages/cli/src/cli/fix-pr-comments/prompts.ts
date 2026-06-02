@@ -33,7 +33,9 @@ function getReferencesDir(): string {
     return skillPath
   }
 
-  throw new Error(`Skill reference files not found. Expected at: ${distPath}`)
+  throw new Error(
+    `Skill reference files not found.\n  dist:  ${distPath}\n  skill: ${skillPath}`,
+  )
 }
 
 function getScriptsDir(): string {
@@ -52,7 +54,9 @@ function getScriptsDir(): string {
     return skillPath
   }
 
-  throw new Error(`Skill scripts not found. Expected at: ${distPath}`)
+  throw new Error(
+    `Skill scripts not found.\n  dist:  ${distPath}\n  skill: ${skillPath}`,
+  )
 }
 
 export function buildFixCommentsPrompt({

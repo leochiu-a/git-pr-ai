@@ -14,9 +14,9 @@ interface FixCommentsOptions {
 async function fixComments(
   commentUrl: string | undefined,
   options: FixCommentsOptions,
+  provider: Awaited<ReturnType<typeof getCurrentProvider>>,
 ) {
   const config = await loadConfig()
-  const provider = await getCurrentProvider()
 
   if (commentUrl) {
     console.log(`Fixing review comment using ${config.agent.toUpperCase()}...`)
@@ -104,7 +104,7 @@ async function main() {
         const provider = await getCurrentProvider()
         await provider.checkCLI()
 
-        await fixComments(commentUrl, options)
+        await fixComments(commentUrl, options, provider)
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : String(error)
