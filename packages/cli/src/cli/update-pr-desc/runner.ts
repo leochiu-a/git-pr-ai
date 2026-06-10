@@ -35,7 +35,7 @@ export async function runUpdateDescriptionWithExecutionMode({
         yolo,
         commandName: 'updatePrDesc',
       })
-      await updateDescription(description, prDetails.number)
+      await updateDescription(description, prDetails.url)
       spinner.succeed('PR description generated successfully')
     } catch (error) {
       spinner.fail('Failed to generate PR description')

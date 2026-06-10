@@ -102,54 +102,97 @@ export class GitHubProvider implements GitProvider {
   }
 
   /**
-   * Load current repository + fork parent context from GitHub.
-   * This provides both the current repo identity and possible upstream target,
-   * which is required for deterministic cross-repo PR resolution.
+   * Parse a GitHub remote URL (HTTPS or SSH) into owner/repo parts.
+   */
+  private parseGitHubRemoteUrl(url: string): GitHubRepoRef | null {
+    const match = url.match(/github\.com[:/]([^/]+)\/([^/\s.]+?)(?:\.git)?\s*$/)
+    if (!match) return null
+    const [, owner, name] = match
+    return { owner, name, fullName: `${owner}/${name}` }
+  }
+
+  /**
+   * Load current repository + fork parent context.
+   *
+   * Resolution order:
+   * 1. Parse `current` from the `origin` git remote (reliable regardless of how
+   *    `gh` resolves its "base repo" when multiple remotes exist).
+   * 2. If an `upstream` remote exists and points to a different repo, treat this
+   *    as a fork workflow with that repo as the parent.
+   * 3. Otherwise query `gh repo view <current>` explicitly (not bare `gh repo view`,
+   *    which may resolve to the wrong remote) to detect forks registered on GitHub
+   *    that don't have a local `upstream` remote configured.
    */
   private async getRepoContext(): Promise<GitHubRepoContext> {
-    const result =
-      await $`gh repo view --json nameWithOwner,owner,name,isFork,parent`
-    const repoData = JSON.parse(result.stdout) as {
-      nameWithOwner: string
-      owner: { login: string }
-      name: string
-      isFork: boolean
-      parent?: {
-        nameWithOwner?: string
-        owner?: { login: string }
-        name?: string
-      } | null
+    // Step 1: derive current repo from origin remote
+    let current: GitHubRepoRef | null = null
+    try {
+      const originResult = await $`git remote get-url origin`.quiet()
+      current = this.parseGitHubRemoteUrl(originResult.stdout.trim())
+    } catch {
+      // origin may not exist in some setups; fall through to gh
     }
 
-    const current: GitHubRepoRef = {
-      owner: repoData.owner.login,
-      name: repoData.name,
-      fullName: repoData.nameWithOwner,
+    if (!current) {
+      // Fallback for repos without a named origin remote
+      const result = await $`gh repo view --json nameWithOwner,owner,name`
+      const d = JSON.parse(result.stdout) as {
+        nameWithOwner: string
+        owner: { login: string }
+        name: string
+      }
+      current = {
+        owner: d.owner.login,
+        name: d.name,
+        fullName: d.nameWithOwner,
+      }
     }
 
-    let parent: GitHubRepoRef | null = null
-    if (repoData.parent?.nameWithOwner) {
-      const [owner = '', name = ''] = repoData.parent.nameWithOwner.split('/')
-      if (owner && name) {
+    // Step 2: explicit upstream remote → definitive fork detection
+    try {
+      const upstreamResult = await $`git remote get-url upstream`.quiet()
+      const parent = this.parseGitHubRemoteUrl(upstreamResult.stdout.trim())
+      if (parent && parent.fullName !== current.fullName) {
+        return { current, isFork: true, parent }
+      }
+    } catch {
+      // No upstream remote configured
+    }
+
+    // Step 3: query GitHub API for forks that don't have a local upstream remote
+    try {
+      const result =
+        await $`gh repo view ${current.fullName} --json isFork,parent`
+      const repoData = JSON.parse(result.stdout) as {
+        isFork: boolean
+        parent?: {
+          nameWithOwner?: string
+          owner?: { login: string }
+          name?: string
+        } | null
+      }
+
+      let parent: GitHubRepoRef | null = null
+      if (repoData.parent?.nameWithOwner) {
+        const [owner = '', name = ''] = repoData.parent.nameWithOwner.split('/')
+        if (owner && name) {
+          parent = { owner, name, fullName: repoData.parent.nameWithOwner }
+        }
+      } else if (repoData.parent?.owner?.login && repoData.parent?.name) {
         parent = {
-          owner,
-          name,
-          fullName: repoData.parent.nameWithOwner,
+          owner: repoData.parent.owner.login,
+          name: repoData.parent.name,
+          fullName: `${repoData.parent.owner.login}/${repoData.parent.name}`,
         }
       }
-    } else if (repoData.parent?.owner?.login && repoData.parent?.name) {
-      // Keep a fallback path because different hosts/versions may not always return nameWithOwner.
-      parent = {
-        owner: repoData.parent.owner.login,
-        name: repoData.parent.name,
-        fullName: `${repoData.parent.owner.login}/${repoData.parent.name}`,
-      }
-    }
 
-    return {
-      current,
-      isFork: repoData.isFork,
-      parent,
+      return { current, isFork: repoData.isFork, parent }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      if (!msg.includes('Could not resolve') && !msg.includes('not found')) {
+        throw err
+      }
+      return { current, isFork: false, parent: null }
     }
   }
 
@@ -317,11 +360,23 @@ export class GitHubProvider implements GitProvider {
     const spinner = ora('Creating Pull Request...').start()
     const useWeb = options.web !== false
 
+    const repoContext = await this.getRepoContext()
+    const targetRepo =
+      repoContext.isFork && repoContext.parent
+        ? repoContext.parent
+        : repoContext.current
+
+    // In fork workflows, gh requires "<fork-owner>:<branch>" to identify the head branch.
+    const headRef =
+      repoContext.isFork && repoContext.parent
+        ? `${repoContext.current.owner}:${branch}`
+        : branch
+
     if (useWeb) {
-      await $`gh pr create --title ${title} --base ${baseBranch} --head ${branch} --web`
+      await $`gh pr create --repo ${targetRepo.fullName} --title ${title} --base ${baseBranch} --head ${headRef} --web`
     } else {
       // `zx` runs `gh` in non-interactive mode, so we must provide a body explicitly.
-      await $`gh pr create --title ${title} --body "" --base ${baseBranch} --head ${branch}`
+      await $`gh pr create --repo ${targetRepo.fullName} --title ${title} --body "" --base ${baseBranch} --head ${headRef}`
     }
     spinner.succeed('Pull Request created successfully!')
   }

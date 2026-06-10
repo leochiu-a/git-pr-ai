@@ -68,7 +68,10 @@ describe('runUpdateDescriptionWithExecutionMode', () => {
 
     expect(executeAIWithOutput).toHaveBeenCalledTimes(1)
     expect(executeAICommand).not.toHaveBeenCalled()
-    expect(updateDescription).toHaveBeenCalledWith('new description', '456')
+    expect(updateDescription).toHaveBeenCalledWith(
+      'new description',
+      'https://example.com/pr/456',
+    )
   })
 
   it('uses interactive executor in normal mode', async () => {

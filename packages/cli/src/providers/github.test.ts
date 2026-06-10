@@ -29,22 +29,11 @@ describe('GitHubProvider', () => {
       if (command === 'git rev-parse --abbrev-ref HEAD') {
         return { stdout: 'feat/fork-branch\n' }
       }
-      if (
-        command === 'gh repo view --json nameWithOwner,owner,name,isFork,parent'
-      ) {
-        return {
-          stdout: JSON.stringify({
-            nameWithOwner: 'alice/fork-repo',
-            owner: { login: 'alice' },
-            name: 'fork-repo',
-            isFork: true,
-            parent: {
-              nameWithOwner: 'org/main-repo',
-              owner: { login: 'org' },
-              name: 'main-repo',
-            },
-          }),
-        }
+      if (command === 'git remote get-url origin') {
+        return { stdout: 'https://github.com/alice/fork-repo.git\n' }
+      }
+      if (command === 'git remote get-url upstream') {
+        return { stdout: 'https://github.com/org/main-repo.git\n' }
       }
       if (
         command.includes(
@@ -75,22 +64,11 @@ describe('GitHubProvider', () => {
       if (command === 'git rev-parse --abbrev-ref HEAD') {
         return { stdout: 'feat/fork-branch\n' }
       }
-      if (
-        command === 'gh repo view --json nameWithOwner,owner,name,isFork,parent'
-      ) {
-        return {
-          stdout: JSON.stringify({
-            nameWithOwner: 'alice/fork-repo',
-            owner: { login: 'alice' },
-            name: 'fork-repo',
-            isFork: true,
-            parent: {
-              nameWithOwner: 'org/main-repo',
-              owner: { login: 'org' },
-              name: 'main-repo',
-            },
-          }),
-        }
+      if (command === 'git remote get-url origin') {
+        return { stdout: 'https://github.com/alice/fork-repo.git\n' }
+      }
+      if (command === 'git remote get-url upstream') {
+        return { stdout: 'https://github.com/org/main-repo.git\n' }
       }
       if (
         command.includes(
@@ -142,22 +120,11 @@ describe('GitHubProvider', () => {
       if (command === 'git rev-parse --abbrev-ref HEAD') {
         return { stdout: 'feat/fork-branch\n' }
       }
-      if (
-        command === 'gh repo view --json nameWithOwner,owner,name,isFork,parent'
-      ) {
-        return {
-          stdout: JSON.stringify({
-            nameWithOwner: 'alice/fork-repo',
-            owner: { login: 'alice' },
-            name: 'fork-repo',
-            isFork: true,
-            parent: {
-              nameWithOwner: 'org/main-repo',
-              owner: { login: 'org' },
-              name: 'main-repo',
-            },
-          }),
-        }
+      if (command === 'git remote get-url origin') {
+        return { stdout: 'https://github.com/alice/fork-repo.git\n' }
+      }
+      if (command === 'git remote get-url upstream') {
+        return { stdout: 'https://github.com/org/main-repo.git\n' }
       }
       if (
         command.includes(
@@ -209,9 +176,13 @@ describe('GitHubProvider', () => {
       if (command === 'git rev-parse --abbrev-ref HEAD') {
         return { stdout: 'feat/fork-branch\n' }
       }
-      if (
-        command === 'gh repo view --json nameWithOwner,owner,name,isFork,parent'
-      ) {
+      if (command === 'git remote get-url origin') {
+        return { stdout: 'https://github.com/alice/fork-repo.git\n' }
+      }
+      if (command === 'git remote get-url upstream') {
+        return { stdout: 'https://github.com/org/main-repo.git\n' }
+      }
+      if (command.includes('gh pr list')) {
         throw new Error('gh auth failed')
       }
       throw new Error(`Unexpected command: ${command}`)
@@ -227,22 +198,11 @@ describe('GitHubProvider', () => {
       if (command === 'git rev-parse --abbrev-ref HEAD') {
         return { stdout: 'feat/fork-branch\n' }
       }
-      if (
-        command === 'gh repo view --json nameWithOwner,owner,name,isFork,parent'
-      ) {
-        return {
-          stdout: JSON.stringify({
-            nameWithOwner: 'alice/fork-repo',
-            owner: { login: 'alice' },
-            name: 'fork-repo',
-            isFork: true,
-            parent: {
-              nameWithOwner: 'org/main-repo',
-              owner: { login: 'org' },
-              name: 'main-repo',
-            },
-          }),
-        }
+      if (command === 'git remote get-url origin') {
+        return { stdout: 'https://github.com/alice/fork-repo.git\n' }
+      }
+      if (command === 'git remote get-url upstream') {
+        return { stdout: 'https://github.com/org/main-repo.git\n' }
       }
       if (
         command.includes(
@@ -322,22 +282,11 @@ describe('GitHubProvider', () => {
   it('getPRDetails with number tries upstream first, then current repo', async () => {
     const provider = new GitHubProvider()
     const executedCommands = setupCommandMock((command) => {
-      if (
-        command === 'gh repo view --json nameWithOwner,owner,name,isFork,parent'
-      ) {
-        return {
-          stdout: JSON.stringify({
-            nameWithOwner: 'alice/fork-repo',
-            owner: { login: 'alice' },
-            name: 'fork-repo',
-            isFork: true,
-            parent: {
-              nameWithOwner: 'org/main-repo',
-              owner: { login: 'org' },
-              name: 'main-repo',
-            },
-          }),
-        }
+      if (command === 'git remote get-url origin') {
+        return { stdout: 'https://github.com/alice/fork-repo.git\n' }
+      }
+      if (command === 'git remote get-url upstream') {
+        return { stdout: 'https://github.com/org/main-repo.git\n' }
       }
       if (
         command ===
@@ -368,29 +317,22 @@ describe('GitHubProvider', () => {
 
     expect(details.owner).toBe('alice')
     expect(details.repo).toBe('fork-repo')
-    expect(executedCommands[1]).toContain('--repo org/main-repo')
-    expect(executedCommands[2]).toContain('--repo alice/fork-repo')
+    expect(
+      executedCommands.some((c) => c.includes('--repo org/main-repo')),
+    ).toBe(true)
+    expect(
+      executedCommands.some((c) => c.includes('--repo alice/fork-repo')),
+    ).toBe(true)
   })
 
-  it('getPRDetails with number rethrows non-not-found errors during repo probing', async () => {
+  it('getPRDetails with number rethrows non-not-found errors from pr view', async () => {
     const provider = new GitHubProvider()
     const executedCommands = setupCommandMock((command) => {
-      if (
-        command === 'gh repo view --json nameWithOwner,owner,name,isFork,parent'
-      ) {
-        return {
-          stdout: JSON.stringify({
-            nameWithOwner: 'alice/fork-repo',
-            owner: { login: 'alice' },
-            name: 'fork-repo',
-            isFork: true,
-            parent: {
-              nameWithOwner: 'org/main-repo',
-              owner: { login: 'org' },
-              name: 'main-repo',
-            },
-          }),
-        }
+      if (command === 'git remote get-url origin') {
+        return { stdout: 'https://github.com/alice/fork-repo.git\n' }
+      }
+      if (command === 'git remote get-url upstream') {
+        return { stdout: 'https://github.com/org/main-repo.git\n' }
       }
       if (
         command ===
@@ -428,9 +370,18 @@ describe('GitHubProvider', () => {
   it('createPR uses web flow by default', async () => {
     const provider = new GitHubProvider()
     const executedCommands = setupCommandMock((command) => {
+      if (command === 'git remote get-url origin') {
+        return { stdout: 'https://github.com/alice/repo.git\n' }
+      }
+      if (command === 'git remote get-url upstream') {
+        throw new Error('no such remote')
+      }
+      if (command === 'gh repo view alice/repo --json isFork,parent') {
+        return { stdout: JSON.stringify({ isFork: false, parent: null }) }
+      }
       if (
         command ===
-        'gh pr create --title feat: add login --base main --head feat/add-login --web'
+        'gh pr create --repo alice/repo --title feat: add login --base main --head feat/add-login --web'
       ) {
         return { stdout: '' }
       }
@@ -441,7 +392,7 @@ describe('GitHubProvider', () => {
 
     expect(
       executedCommands.includes(
-        'gh pr create --title feat: add login --base main --head feat/add-login --web',
+        'gh pr create --repo alice/repo --title feat: add login --base main --head feat/add-login --web',
       ),
     ).toBe(true)
   })
@@ -449,9 +400,18 @@ describe('GitHubProvider', () => {
   it('createPR skips web flow when web option is false', async () => {
     const provider = new GitHubProvider()
     const executedCommands = setupCommandMock((command) => {
+      if (command === 'git remote get-url origin') {
+        return { stdout: 'https://github.com/alice/repo.git\n' }
+      }
+      if (command === 'git remote get-url upstream') {
+        throw new Error('no such remote')
+      }
+      if (command === 'gh repo view alice/repo --json isFork,parent') {
+        return { stdout: JSON.stringify({ isFork: false, parent: null }) }
+      }
       if (
         command ===
-        'gh pr create --title feat: add login --body "" --base main --head feat/add-login'
+        'gh pr create --repo alice/repo --title feat: add login --body "" --base main --head feat/add-login'
       ) {
         return { stdout: '' }
       }
@@ -464,7 +424,34 @@ describe('GitHubProvider', () => {
 
     expect(
       executedCommands.includes(
-        'gh pr create --title feat: add login --body "" --base main --head feat/add-login',
+        'gh pr create --repo alice/repo --title feat: add login --body "" --base main --head feat/add-login',
+      ),
+    ).toBe(true)
+  })
+
+  it('createPR targets upstream repo and uses owner:branch head ref in fork workflow', async () => {
+    const provider = new GitHubProvider()
+    const executedCommands = setupCommandMock((command) => {
+      if (command === 'git remote get-url origin') {
+        return { stdout: 'https://github.com/alice/fork-repo.git\n' }
+      }
+      if (command === 'git remote get-url upstream') {
+        return { stdout: 'https://github.com/org/main-repo.git\n' }
+      }
+      if (
+        command ===
+        'gh pr create --repo org/main-repo --title feat: add login --base main --head alice:feat/add-login --web'
+      ) {
+        return { stdout: '' }
+      }
+      throw new Error(`Unexpected command: ${command}`)
+    })
+
+    await provider.createPR('feat: add login', 'feat/add-login', 'main')
+
+    expect(
+      executedCommands.includes(
+        'gh pr create --repo org/main-repo --title feat: add login --base main --head alice:feat/add-login --web',
       ),
     ).toBe(true)
   })
@@ -476,22 +463,11 @@ describe('GitHubProvider', () => {
       if (command === 'git rev-parse --abbrev-ref HEAD') {
         return { stdout: 'feat/fork-branch\n' }
       }
-      if (
-        command === 'gh repo view --json nameWithOwner,owner,name,isFork,parent'
-      ) {
-        return {
-          stdout: JSON.stringify({
-            nameWithOwner: 'alice/fork-repo',
-            owner: { login: 'alice' },
-            name: 'fork-repo',
-            isFork: true,
-            parent: {
-              nameWithOwner: 'org/main-repo',
-              owner: { login: 'org' },
-              name: 'main-repo',
-            },
-          }),
-        }
+      if (command === 'git remote get-url origin') {
+        return { stdout: 'https://github.com/alice/fork-repo.git\n' }
+      }
+      if (command === 'git remote get-url upstream') {
+        return { stdout: 'https://github.com/org/main-repo.git\n' }
       }
       if (
         command.includes(

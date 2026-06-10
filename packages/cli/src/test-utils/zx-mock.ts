@@ -27,11 +27,20 @@ export function setupCommandMock(
     const command = stringifyCommand(args)
     executedCommands.push(command)
 
+    let promise: Promise<MockCommandResult>
     try {
-      return Promise.resolve(handler(command))
+      promise = Promise.resolve(handler(command))
     } catch (error) {
-      return Promise.reject(error)
+      promise = Promise.reject(error)
     }
+
+    // zx's ProcessPromise supports chaining `.quiet()`; mirror it so mocked
+    // commands using `$`...`.quiet()` resolve through the same handler.
+    const processPromise = promise as Promise<MockCommandResult> & {
+      quiet: () => Promise<MockCommandResult>
+    }
+    processPromise.quiet = () => processPromise
+    return processPromise
   })
 
   return executedCommands
