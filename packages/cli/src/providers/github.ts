@@ -127,7 +127,7 @@ export class GitHubProvider implements GitProvider {
     // Step 1: derive current repo from origin remote
     let current: GitHubRepoRef | null = null
     try {
-      const originResult = await $`git remote get-url origin`
+      const originResult = await $`git remote get-url origin`.quiet()
       current = this.parseGitHubRemoteUrl(originResult.stdout.trim())
     } catch {
       // origin may not exist in some setups; fall through to gh
@@ -187,7 +187,11 @@ export class GitHubProvider implements GitProvider {
       }
 
       return { current, isFork: repoData.isFork, parent }
-    } catch {
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      if (!msg.includes('Could not resolve') && !msg.includes('not found')) {
+        throw err
+      }
       return { current, isFork: false, parent: null }
     }
   }

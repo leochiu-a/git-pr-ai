@@ -325,7 +325,7 @@ describe('GitHubProvider', () => {
     ).toBe(true)
   })
 
-  it('getPRDetails with number rethrows non-not-found errors during repo probing', async () => {
+  it('getPRDetails with number rethrows non-not-found errors from pr view', async () => {
     const provider = new GitHubProvider()
     const executedCommands = setupCommandMock((command) => {
       if (command === 'git remote get-url origin') {
