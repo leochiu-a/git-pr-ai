@@ -142,7 +142,7 @@ The following skills are included:
 | ------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
 | [`git-pr-workflow`](.claude/skills/git-pr-workflow/SKILL.md) | Full PR lifecycle: create branch, commit, open PR, update description, and code review |
 | [`update-pr-desc`](.claude/skills/update-pr-desc/SKILL.md)   | AI-generate and apply a PR/MR description from the diff                                |
-| [`code-review`](.claude/skills/code-review/SKILL.md)         | AI code review for a PR/MR: analyze the diff and post inline review comments           |
+| [`pr-review`](.claude/skills/pr-review/SKILL.md)             | AI code review for a PR/MR: analyze the diff and post inline review comments           |
 | [`fix-pr-comments`](.claude/skills/fix-pr-comments/SKILL.md) | Fix PR/MR review comments, commit the changes, and reply with the commit hash          |
 
 Once installed, just describe what you want in natural language:

@@ -10,9 +10,9 @@ const updatePrDescReferences = resolve(
   '../../.claude/skills/update-pr-desc/references',
 )
 
-const codeReviewReferences = resolve(
+const prReviewReferences = resolve(
   __dirname,
-  '../../.claude/skills/code-review/references',
+  '../../.claude/skills/pr-review/references',
 )
 
 const fixPrCommentsReferences = resolve(
@@ -52,12 +52,12 @@ export default defineConfig({
       to: 'dist/references',
     },
     {
-      from: `${codeReviewReferences}/github.md`,
-      to: 'dist/references/code-review',
+      from: `${prReviewReferences}/github.md`,
+      to: 'dist/references/pr-review',
     },
     {
-      from: `${codeReviewReferences}/gitlab.md`,
-      to: 'dist/references/code-review',
+      from: `${prReviewReferences}/gitlab.md`,
+      to: 'dist/references/pr-review',
     },
     {
       from: `${fixPrCommentsReferences}/workflow.md`,
