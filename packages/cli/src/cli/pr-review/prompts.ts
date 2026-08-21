@@ -16,8 +16,8 @@ export interface BuildReviewPromptArgs {
 }
 
 function getReferencesDir(): string {
-  // Runtime (after build): references are copied to dist/references/code-review/
-  const distPath = join(__dirname, 'references', 'code-review')
+  // Runtime (after build): references are copied to dist/references/pr-review/
+  const distPath = join(__dirname, 'references', 'pr-review')
   if (existsSync(join(distPath, 'github.md'))) {
     return distPath
   }
@@ -25,7 +25,7 @@ function getReferencesDir(): string {
   // Dev/test: resolve from monorepo root via process.cwd()
   const skillPath = resolve(
     process.cwd(),
-    '../../.claude/skills/code-review/references',
+    '../../.claude/skills/pr-review/references',
   )
   if (existsSync(join(skillPath, 'github.md'))) {
     return skillPath
