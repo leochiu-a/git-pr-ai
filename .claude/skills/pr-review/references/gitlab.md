@@ -102,6 +102,19 @@ curl -s -X POST \
   }"
 ```
 
+**Step D - Approve when there are no findings:**
+
+If the review found no issues at all (no Critical / Important / Minor), skip Step C and approve the MR directly without asking. Never approve your own MR, and never approve when any finding was posted.
+
+```bash
+MR_AUTHOR=$(cat /tmp/mr.json | jq -r '.author.username')
+CURRENT_USER=$(glab api /user | jq -r '.username')
+
+if [ "$MR_AUTHOR" != "$CURRENT_USER" ]; then
+  glab mr approve $MR_IID
+fi
+```
+
 ## Important notes
 
 - **`glab api --raw-field` vs curl**: Use `glab api --raw-field` only for simple top-level fields (e.g., posting a summary note). For inline comments with `position`, always use curl + JSON body — nested bracket params are silently ignored by the GitLab server.
