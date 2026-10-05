@@ -43,12 +43,15 @@ CURRENT_USER=$(gh api user -q '.login')
 }
 ```
 
-**Step C - Ensure safe event before submit:**
+**Step C - Pick the event:**
+
+- No findings at all (no Critical / Important / Minor) → `APPROVE` with an empty `comments` array and a short summary body. Submit it directly without asking.
+- Any finding → `COMMENT`.
 
 ```bash
 # IMPORTANT:
 # If PR_AUTHOR equals CURRENT_USER, force event to COMMENT in review.json.
-# Never submit REQUEST_CHANGES on your own PR.
+# Never submit APPROVE or REQUEST_CHANGES on your own PR.
 ```
 
 **Step D - Submit:**
@@ -76,5 +79,5 @@ Replace `{OWNER}`, `{REPO}`, and `{PR_NUMBER}` with values from the PR context a
 ## Events
 
 - COMMENT = feedback
-- APPROVE = no issues
+- APPROVE = no findings
 - REQUEST_CHANGES = critical problems
