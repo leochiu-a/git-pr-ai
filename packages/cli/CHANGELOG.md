@@ -1,5 +1,13 @@
 # git-pr-ai
 
+## 1.18.0
+
+### Minor Changes
+
+- 4e5271a: feat(skill): `pr-review` approves the PR/MR when the review has no findings
+
+  On GitHub the review is submitted as `APPROVE` when there are no Critical / Important / Minor findings, otherwise `COMMENT`. On GitLab it runs `glab mr approve` when there are no findings. It never approves your own PR/MR.
+
 ## 1.17.2
 
 ### Patch Changes
@@ -17,6 +25,7 @@
   Previously, `gh repo view` (without an explicit repo argument) would resolve to the upstream org repo and return `isFork: false`, causing the owner filter in PR lookup to reject the existing PR and failing to create new PRs with the correct `owner:branch` head ref.
 
   `getRepoContext` now uses a three-step resolution:
+
   1. Parse `current` from `git remote get-url origin` directly
   2. If an `upstream` remote exists and differs from `origin`, treat as fork workflow
   3. Fall back to `gh repo view <current>` (explicit repo) for GitHub-registered forks without a local upstream remote
@@ -67,11 +76,13 @@
 ### Patch Changes
 
 - d0ec9d6: Replace Prettier with Oxfmt for repository formatting.
+
   - Switch `format` and `format:check` scripts to `oxfmt`.
   - Update `lint-staged` formatting commands to use `oxfmt --write`.
   - Remove Prettier config/dependencies and add `.oxfmtrc.json`.
 
 - 500f4a8: Standardize `git create-branch` diff mode flag to `--diff`.
+
   - Make `--diff` the primary option for diff-based branch naming in `git create-branch`.
   - Keep `--git-diff` as a legacy alias for backward compatibility.
   - Update command examples and usage docs to prefer `--diff`.
@@ -150,6 +161,7 @@
   ```
 
   This feature enables:
+
   - Command-specific model selection (e.g., use fast models for branch naming, powerful models for PR reviews)
   - Multi-agent model preparation (configure models for different agents without switching)
   - Backward compatibility (existing configs continue to work without changes)
@@ -164,6 +176,7 @@
 ### Minor Changes
 
 - 9f2acf4: feat: add branch name selection with multiple AI-generated options
+
   - Generate 3 branch name options instead of single suggestion
   - Support both JIRA, custom prompt, and git diff based generation
   - Allow users to select from multiple naming alternatives
@@ -378,6 +391,7 @@
 ### Minor Changes
 
 - 0d5a128: - enhance PR description update process for GitHub CLI
+
   - update PR review instructions for GitHub CLI usage
 
 - 894e1da: - feat: make JIRA ticket detection optional - tool now works without JIRA tickets
@@ -390,6 +404,7 @@
 ### Patch Changes
 
 - f68b7a0: feat: implement git-pr-ai command for AI agent selection and configuration
+
   - Add new git-pr-ai command with AI agent selection functionality
   - Enhance configuration management with improved path handling
   - Update postinstall script to use zx for better command execution
