@@ -12,6 +12,7 @@ import {
   checkAndUpgrade,
 } from './version-checker'
 import { getConfigDir } from '../config'
+import { printReleaseNotes } from './release-notes'
 
 // Mock dependencies
 vi.mock('zx')
@@ -21,6 +22,7 @@ vi.mock('node:fs')
 vi.mock('dayjs')
 vi.mock('../config')
 vi.mock('npm-check-updates')
+vi.mock('./release-notes')
 
 const mockZx = vi.mocked($)
 const mockConfirm = vi.mocked(confirm)
@@ -129,6 +131,7 @@ describe('version-checker', () => {
       const result = await promptForUpdate('git-pr-ai')
 
       expect(result).toEqual({ shouldUpdate: true, packageManager: 'pnpm' })
+      expect(printReleaseNotes).toHaveBeenCalledWith('1.9.6')
       expect(mockConfirm).toHaveBeenCalledWith({
         message: 'New git-pr-ai version 1.9.6 available. Upgrade now?',
         default: true,
@@ -147,6 +150,7 @@ describe('version-checker', () => {
       const result = await promptForUpdate('git-pr-ai')
 
       expect(result).toEqual({ shouldUpdate: false, packageManager: 'pnpm' })
+      expect(printReleaseNotes).not.toHaveBeenCalled()
       expect(mockConfirm).not.toHaveBeenCalled()
     })
 
