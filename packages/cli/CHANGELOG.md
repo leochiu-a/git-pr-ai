@@ -1,5 +1,17 @@
 # git-pr-ai
 
+## 1.18.0
+
+### Minor Changes
+
+- 65a6b49: feat(skill): `pr-review` approves the PR/MR when the review has no findings
+
+  On GitHub the review is submitted as `APPROVE` when there are no Critical / Important / Minor findings, otherwise `COMMENT`. On GitLab it runs `glab mr approve` when there are no findings. It never approves your own PR/MR.
+
+- 7b6edf5: feat(cli): show what's new before upgrading
+
+  When a newer `git-pr-ai` is available, the upgrade prompt first lists the changes in every release between the installed version and the latest one (from the GitHub Releases), with a link to the full release notes. If GitHub can't be reached, the list is skipped and the prompt shows as before.
+
 ## 1.17.2
 
 ### Patch Changes
