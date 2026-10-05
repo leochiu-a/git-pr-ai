@@ -6,6 +6,7 @@ import ora from 'ora'
 import { run as ncu } from 'npm-check-updates'
 import { $ } from 'zx'
 import { getConfigDir } from '../config'
+import { printReleaseNotes } from './release-notes'
 
 interface VersionCheckResult {
   current: string
@@ -78,6 +79,8 @@ export async function promptForUpdate(
     const versionInfo = await checkLatestVersion(packageName)
 
     if (versionInfo.hasUpdate) {
+      await printReleaseNotes(versionInfo.latest)
+
       const shouldUpdate = await confirm({
         message: `New ${packageName} version ${versionInfo.latest} available. Upgrade now?`,
         default: true,
