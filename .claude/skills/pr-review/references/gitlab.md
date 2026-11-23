@@ -1,125 +1,112 @@
 ## GitLab Code Review
 
-Follow [guidelines.md](guidelines.md) for the reviewer role and review guidelines.
+Follow [guidelines.md](guidelines.md) for what to flag and how to write comments.
 
-## Steps
-
-### 1. Get diff
+## 1. Set up
 
 ```bash
-glab mr diff
-```
+MR=<MR IID or URL>          # empty = current branch's MR
+D=<temp dir>/review-mr      # session scratchpad if available, else $(mktemp -d)
+mkdir -p "$D/comments" && : > "$D/comments/index.tsv"
 
-### 2. Review the diff
+glab mr view $MR --output json > "$D/mr.json"
 
-Find issues and write comments per the guidelines above.
-
-### 3. Submit review
-
-**Step A - Get project ID and SHAs:**
-
-```bash
-glab mr view --output json > /tmp/mr.json
-
-PROJECT_ID=$(cat /tmp/mr.json | jq -r '.project_id')
-MR_IID=$(cat /tmp/mr.json | jq -r '.iid')
-BASE_SHA=$(cat /tmp/mr.json | jq -r '.diff_refs.base_sha')
-HEAD_SHA=$(cat /tmp/mr.json | jq -r '.diff_refs.head_sha')
-START_SHA=$(cat /tmp/mr.json | jq -r '.diff_refs.start_sha')
+PROJECT_ID=$(jq -r .project_id "$D/mr.json")
+MR_IID=$(jq -r .iid "$D/mr.json")
+BASE_SHA=$(jq -r .diff_refs.base_sha "$D/mr.json")
+HEAD_SHA=$(jq -r .diff_refs.head_sha "$D/mr.json")
+START_SHA=$(jq -r .diff_refs.start_sha "$D/mr.json")
+MR_AUTHOR=$(jq -r .author.username "$D/mr.json")
+CURRENT_USER=$(glab api /user | jq -r .username)
 GITLAB_HOST=$(glab auth status 2>&1 | grep 'Logged in to' | awk '{print $4}')
-GITLAB_TOKEN=$(cat ~/.config/glab-cli/config.yml | grep -A5 "$GITLAB_HOST" | grep 'token:' | awk '{print $2}')
+GITLAB_TOKEN=$(grep -A5 "$GITLAB_HOST" ~/.config/glab-cli/config.yml | grep 'token:' | awk '{print $2}')
 ```
 
-**Step B - Submit overall review:**
+Never echo `GITLAB_TOKEN`.
+
+## 2. Decide whether to review
+
+Stop and tell the user why when `state` is not `opened` or `draft` is true — unless the user explicitly asked to review it anyway.
+
+## 3. Gather context
+
+- Author intent: `title` and `description` in `mr.json`.
+- Existing discussions (avoid duplicates): `glab api "/projects/$PROJECT_ID/merge_requests/$MR_IID/discussions?per_page=100"`.
+- Files at the head commit (surrounding code, `CLAUDE.md`, `AGENTS.md` at the root and in changed directories):
+  `glab api "/projects/$PROJECT_ID/repository/files/$(jq -rn --arg p PATH '$p|@uri')/raw?ref=$HEAD_SHA"`
 
 ```bash
-glab api --method POST /projects/$PROJECT_ID/merge_requests/$MR_IID/notes \
-  --raw-field 'body=## Review Summary
+glab mr diff $MR_IID --raw > "$D/diff.patch"
 
-Key points:
-- Point 1
-- Point 2'
+# Commentable lines (added/modified, new side)
+awk '
+  /^diff --git/          { hdr = 1; next }
+  hdr && /^\+\+\+ b\//   { file = substr($0, 7); next }
+  hdr && /^(---|\+\+\+)/ { next }
+  /^@@/                  { hdr = 0; match($0, /\+[0-9]+/); n = substr($0, RSTART + 1, RLENGTH - 1) + 0; next }
+  hdr || /^\\/ || /^-/   { next }
+                         { if (substr($0, 1, 1) == "+") print file ":" n; n++ }
+' "$D/diff.patch" > "$D/commentable.txt"
 ```
 
-**Step C - Submit inline comments (MUST use curl + JSON body):**
+## 4. Review
 
-`glab api --raw-field` does NOT work for nested `position[...]` fields — the server ignores them and position will be null (comment won't anchor to the diff). Always use curl with a JSON body instead.
+Find → verify → finalize per the guidelines. Suggestion blocks are GitHub-only in this skill; on GitLab show the fix in a normal code block.
 
-Single-line comment (anchored to one line):
+## 5. Write the review as files (no JSON escaping by hand)
+
+- `$D/summary.md` — the overall review summary.
+- Per finding: `$D/comments/NN.md` (body) and a line in `$D/comments/index.tsv`: `NN<TAB>path<TAB>start_line<TAB>line` (`-` for a single line).
+
+Check anchors:
 
 ```bash
-curl -s -X POST \
-  "https://$GITLAB_HOST/api/v4/projects/$PROJECT_ID/merge_requests/$MR_IID/discussions" \
-  -H "PRIVATE-TOKEN: $GITLAB_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d "{
-    \"body\": \"**Severity — Title**\n\nCurrent:\n\`\`\`ts\nold code here\n\`\`\`\n\nFix:\n\`\`\`ts\nnew code here\n\`\`\`\",
-    \"position\": {
-      \"base_sha\": \"$BASE_SHA\",
-      \"start_sha\": \"$START_SHA\",
-      \"head_sha\": \"$HEAD_SHA\",
-      \"position_type\": \"text\",
-      \"new_path\": \"src/file.ts\",
-      \"old_path\": \"src/file.ts\",
-      \"new_line\": 15
-    }
-  }"
+while IFS=$'\t' read -r id file start line; do
+  for l in $line ${start#-}; do
+    grep -qxF "$file:$l" "$D/commentable.txt" || echo "NOT IN DIFF: $id $file:$l"
+  done
+done < "$D/comments/index.tsv"
 ```
 
-Multi-line comment (highlights a range of lines):
+Fix or move any `NOT IN DIFF` finding into `summary.md`.
+
+## 6. Submit
+
+Summary note:
 
 ```bash
-# Compute line_code: sha1(filepath)_oldline_newline
-# For added lines in new files: old_line = 0
-FILE_PATH="src/file.ts"
-FILE_HASH=$(echo -n "$FILE_PATH" | sha1sum | cut -d' ' -f1)
-
-curl -s -X POST \
-  "https://$GITLAB_HOST/api/v4/projects/$PROJECT_ID/merge_requests/$MR_IID/discussions" \
-  -H "PRIVATE-TOKEN: $GITLAB_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d "{
-    \"body\": \"**Severity — Title**\n\nCurrent:\n\`\`\`ts\nlines 10-12 here\n\`\`\`\n\nFix:\n\`\`\`ts\nnew code here\n\`\`\`\",
-    \"position\": {
-      \"base_sha\": \"$BASE_SHA\",
-      \"start_sha\": \"$START_SHA\",
-      \"head_sha\": \"$HEAD_SHA\",
-      \"position_type\": \"text\",
-      \"new_path\": \"$FILE_PATH\",
-      \"old_path\": \"$FILE_PATH\",
-      \"new_line\": 12,
-      \"line_range\": {
-        \"start\": {
-          \"line_code\": \"${FILE_HASH}_0_10\",
-          \"type\": \"new\"
-        },
-        \"end\": {
-          \"line_code\": \"${FILE_HASH}_0_12\",
-          \"type\": \"new\"
-        }
-      }
-    }
-  }"
+jq -n --rawfile body "$D/summary.md" '{body: $body}' |
+  curl -sf -X POST "https://$GITLAB_HOST/api/v4/projects/$PROJECT_ID/merge_requests/$MR_IID/notes" \
+    -H "PRIVATE-TOKEN: $GITLAB_TOKEN" -H "Content-Type: application/json" -d @-
 ```
 
-**Step D - Approve when there are no findings:**
-
-If the review found no issues at all (no Critical / Important / Minor), skip Step C and approve the MR directly without asking. Never approve your own MR, and never approve when any finding was posted.
+Inline comments (`glab api --raw-field` silently drops nested `position[...]` fields, so always send a JSON body with curl). For a range, `line_range` uses `line_code = sha1(path)_oldline_newline`, with `old_line = 0` for added lines:
 
 ```bash
-MR_AUTHOR=$(cat /tmp/mr.json | jq -r '.author.username')
-CURRENT_USER=$(glab api /user | jq -r '.username')
+while IFS=$'\t' read -r id file start line; do
+  hash=$(printf '%s' "$file" | shasum | cut -d' ' -f1)
+  jq -n --rawfile body "$D/comments/$id.md" --arg path "$file" --arg start "$start" --argjson line "$line" \
+    --arg base "$BASE_SHA" --arg head "$HEAD_SHA" --arg startsha "$START_SHA" --arg hash "$hash" '
+    {body: $body,
+     position: ({position_type: "text", base_sha: $base, head_sha: $head, start_sha: $startsha,
+                 new_path: $path, old_path: $path, new_line: $line}
+       + (if $start == "-" then {} else
+           {line_range: {start: {line_code: "\($hash)_0_\($start)", type: "new"},
+                         end:   {line_code: "\($hash)_0_\($line)",  type: "new"}}} end))}' |
+  curl -sf -X POST "https://$GITLAB_HOST/api/v4/projects/$PROJECT_ID/merge_requests/$MR_IID/discussions" \
+    -H "PRIVATE-TOKEN: $GITLAB_TOKEN" -H "Content-Type: application/json" -d @- >/dev/null \
+    || echo "FAILED: $id"
+done < "$D/comments/index.tsv"
+```
 
-if [ "$MR_AUTHOR" != "$CURRENT_USER" ]; then
-  glab mr approve $MR_IID
+For a renamed file, set `old_path` to the old name. A `FAILED` comment → post its content as a regular note with `path:line` instead.
+
+## 7. Approve when there are no findings
+
+No findings at all → approve without asking. Never approve your own MR, and never approve when any finding was posted.
+
+```bash
+if [ ! -s "$D/comments/index.tsv" ] && [ "$MR_AUTHOR" != "$CURRENT_USER" ]; then
+  glab mr approve "$MR_IID"
 fi
 ```
-
-## Important notes
-
-- **`glab api --raw-field` vs curl**: Use `glab api --raw-field` only for simple top-level fields (e.g., posting a summary note). For inline comments with `position`, always use curl + JSON body — nested bracket params are silently ignored by the GitLab server.
-- **Token**: Read from `~/.config/glab-cli/config.yml` under the correct host section.
-- **line_code format**: `sha1(filepath)_oldline_newline`. For added lines (new file or added-only lines), `old_line = 0`.
-- **new_line**: Line number in the new file (after the change). For multi-line, set `new_line` to the last line of the range.
-- **Verify line numbers**: Always confirm line numbers exist in the diff before submitting.
-- **Escape in JSON**: Backticks → `` \` ``, newlines → `\n`, double quotes → `\"`
